@@ -11,9 +11,23 @@ namespace Backend
 
     {
         public string Name { get; set; }
+
+        public List<Course> Courses { get; set; } = new List<Course>();
         public Classroom(string name)
         {
             Name = name;
+        }
+
+        public void assignCourse(Course course)
+        {
+            if(course == null)
+            {
+                throw new CourseException("This course is not valid");
+            } else if (Courses.Contains(course))
+            {
+                throw new CourseException($"The course {course.Name} is already assigned to the classroom {Name}");
+            }
+            Courses.Add(course);
         }
         public List<Student> Students { get; set; } = new List<Student>();
         public List<Teacher> Teachers { get; set; } = new List<Teacher>();

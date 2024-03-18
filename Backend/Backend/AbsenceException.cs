@@ -6,22 +6,18 @@ using System.Threading.Tasks;
 
 namespace Backend
 {
-    public class StudentException : Exception, Throwable
+    internal class AbsenceException:Exception, Throwable
     {
-        public StudentException(string message) : base(message)
+
+        public AbsenceException(string message) : base(message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-
         }
         public static void LogError()
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Error logged: StudentException occurred.");
+            Console.WriteLine("Error logged: AbsenceException occurred.");
             Console.ForegroundColor = ConsoleColor.White;
         }
-        //public static void Reset()
-        //{
-        //    Console.ForegroundColor = ConsoleColor.White;
-        //}
     }
 }

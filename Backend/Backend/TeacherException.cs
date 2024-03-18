@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend
 {
-    public class TeacherException : Exception
+    public class TeacherException : Exception, Throwable
     {
         //public TeacherException() : base()
         //{
@@ -17,10 +17,10 @@ namespace Backend
             Console.ForegroundColor = ConsoleColor.Red;
         }
 
-        public static void Reset()
-        {
-            Console.ForegroundColor = ConsoleColor.White;
-        }
+        //public static void Reset()
+        //{
+        //    Console.ForegroundColor = ConsoleColor.White;
+        //}
 
         //public TeacherException(string message, Exception innerException) : base(message, innerException)
         //{

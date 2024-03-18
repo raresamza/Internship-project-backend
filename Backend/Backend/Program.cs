@@ -9,13 +9,41 @@ internal class Program
         Teacher teacher = new Teacher(Subject.MATH, 11, 11111111, "Monea", "Deva");
         Course math = new Course("Math I", Subject.MATH);
         Course english = new Course("Advanced English", Subject.ENGLISH);
-
-
         Classroom classroom1 = new Classroom("12B");
+        Catalogue catalogue = new Catalogue(classroom1);
+        
         classroom1.addStudent(rares1);
         classroom1.addTeacher(teacher);
         classroom1.addStudent(rares);
+        rares.enrollIntoCourse(math);
+        rares.enrollIntoCourse(english);
+        rares.addGrade(10, math);
+        rares.addGrade(7, math);
+        rares.addGrade(9, math);
+        rares.addAbsence(new Absence(math));
 
+        try
+        {
+            rares.addAbsence(new Absence(english));
+            rares.addAbsence(new Absence(math));
+
+        } catch (AbsenceException ex)
+        {
+            Console.WriteLine(ex.Message);
+            Throwable.Reset();
+        }
+
+
+        Console.WriteLine(catalogue.computeGpa(rares, math));
+        //try
+        //{
+        //    Console.WriteLine(catalogue.computeGpa(rares, english));
+        //} catch (StudentException e)
+        //{
+        //    Console.WriteLine(e.Message);
+        //    Throwable.Reset();
+        //}
+        Console.WriteLine(rares);
         //try
         //{
         //    classroom1.addStudent(rares1);
@@ -36,7 +64,7 @@ internal class Program
         //    TeacherException.Reset();
         //}
 
-        Console.WriteLine(classroom1.ToString());
+        //Console.WriteLine(classroom1.ToString());
 
 
         //Console.WriteLine(math);

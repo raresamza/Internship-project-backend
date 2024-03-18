@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Backend
 {
-    public class StudentException : Exception, Throwable
+    public class CourseException: Exception, Throwable
     {
-        public StudentException(string message) : base(message)
+        public CourseException(string message) : base(message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
 
