@@ -15,19 +15,13 @@ namespace Backend
         public DateTime Date { get; set; } = DateTime.ParseExact(DateTime.Now.ToString("dd/MM/yyyy"),"dd/MM/yyyy", null);
         public Course Course { get; set; }
 
-        public void motivateAbsence(Student student, DateTime date)
-        {
-
-        }
+        
+        
 
         public Absence getAbsenceByDate(DateTime date)
         {
+            //dummy method waiting for db
             return null;
-        }
-
-        public void increaseCount()
-        {
-
         }
     }
 }

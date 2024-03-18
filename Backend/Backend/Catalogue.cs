@@ -16,7 +16,10 @@ namespace Backend
         }
 
         public decimal computeGpa(Student student, Course course)
-        { 
+        {
+
+            
+
             if(!course.Students.Contains(student))
             {
                 StudentException.LogError();
@@ -39,17 +42,15 @@ namespace Backend
                     sum += grade;
                 }
             }
-            notifyParent(student);
+            Message.GPAMessage(Math.Round(sum / list.Count(), 2),student,course.Name);
             student.addGpa(Math.Round(sum / list.Count(), 2), course);
-            Console.WriteLine();
             return Math.Round(sum / list.Count(),2);
         }
 
-
-        public void notifyParent(Student student)
-        {
-            Console.WriteLine("Notifying parent...");
-        }
+        //public static void notifyParent(Student studen,Message message)
+        //{
+        //    Console.WriteLine("Notifying parent...");
+        //}
 
         
     }

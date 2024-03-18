@@ -9,8 +9,12 @@ using System.Threading.Tasks;
 namespace Backend
 {
     public class Student : User
+
+        //add school id to all classes and add to all methods check to see if from same school.
     {
         //add dictionary of gpa's for final grade
+
+        //public int classroomID { get; set; } = -1;
         public bool Assigned {  get; set; }=false;
         public Student(string parentEmail, string parentName, int age, int phoneNumber, string name, string address) : base(age, phoneNumber, name, address)
         {
@@ -20,29 +24,76 @@ namespace Backend
 
         public List<Absence> Absences { get; set; }=new List<Absence>();
 
-        public void addAbsence(Absence absence)
-        {
-
-            if(!absence.Course.Students.Contains(this))
-            {
-                throw new AbsenceException($"Cannot mark student {Name} as absent in \"{absence.Course.Name}\" because student is not enrolled in it");
-            }
-            else if (Absences.Any(d => d.Date == absence.Date && d.Course.Subject==absence.Course.Subject)) {
-                throw new AbsenceException($"Cannot mark student {Name} as absent twice in the same day ({absence.Date.ToString("dd/MM/yyyy")}) for the same course ({absence.Course.Name})");
-            } 
-            Absences.Add(absence);
-        }
-
         public string ParentEmail { get; set; }
 
         public string ParentName { get; set; }
         public Dictionary<Course, List<int>> Grades { get; set; } = new Dictionary<Course, List<int>>();
         public Dictionary<Course, decimal> GPAs { get; set; } = new Dictionary<Course, decimal>();
 
-        public void addToClassroom(Classroom classroom) {
-            //check if already in other classrooms;
-            
+        public void motivateAbsence(DateTime date, Course course)
+        {
+            if (course == null)
+            {
+                CourseException.LogError();
+                throw new CourseException("This course is not valid");
+            }
+            else if (!course.Students.Contains(this))
+            {
+                StudentException.LogError();
+                throw new StudentException($"Cannot motivate absence for {Name} because he is not enrolled into {course.Name}");
+            }
+            foreach (Absence absence in Absences)
+            {
+                if (absence.Date == date.Date && absence.Course.Name.Equals(course.Name))
+                {
+                    Absences.Remove(absence);
+                }
+            }
+
+            //Absences.Remove(getAbsenceByDate(date));
         }
+
+        public void addAbsence(Absence absence)
+        {
+            //foreach (Student s in absence.Course.Students)
+            //{
+            //    Console.WriteLine("\n\n\n\n\t\t\t"+s.ToString());
+            //}
+            //Console.WriteLine($"print pentru a vedea daca student e in array: {absence.Course.Students.Contains(this)}");
+            if (!absence.Course.Students.Contains(this))
+            {
+                AbsenceException.LogError();
+                throw new AbsenceException($"Cannot mark student {Name} as absent in \"{absence.Course.Name}\" because student is not enrolled in it");
+            }
+            else if (Absences.Any(d => d.Date == absence.Date && d.Course.Subject == absence.Course.Subject))
+            {
+                throw new AbsenceException($"Cannot mark student {Name} as absent twice in the same day ({absence.Date.ToString("dd/MM/yyyy")}) for the same course ({absence.Course.Name})");
+            }
+            Message.absenceMessage(this, absence);
+            Absences.Add(absence);
+        }
+
+        //public void addToClassroom(Classroom classroom) {
+        //    if(!(classroomID==-1))
+        //    {
+        //        classroom.addStudent(this);
+        //    } else
+        //    {
+        //        ClassroomException.LogError();
+        //        throw new ClassroomException($"Student {Name} is already part of class {classroom.Name}");
+        //    } 
+        //}
+
+
+        //public void removeFromClassroom(Classroom classroom)
+        //{
+        //    if (classroomID == -1 || !classroom.Students.Contains(this))
+        //    {
+        //        ClassroomException.LogError();
+        //        throw new ClassroomException($"Cannot remove {Name} from class because he isn't part of it");
+        //    }
+        //    classroom.Students.Remove(this);
+        //}
 
         //public void enrollStudnet(Course course) {
         //    List<int> grades = new List<int>();
@@ -54,6 +105,7 @@ namespace Backend
             bool checkIfPresent = Grades.TryGetValue(course, out var list);
             if (checkIfPresent)
             {
+                Message.gradeMessage(grade, this, course.Name);
                 list.Add(grade);
             }
             else

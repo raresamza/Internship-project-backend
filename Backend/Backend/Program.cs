@@ -17,10 +17,17 @@ internal class Program
         classroom1.addStudent(rares);
         rares.enrollIntoCourse(math);
         rares.enrollIntoCourse(english);
+        rares1.enrollIntoCourse(english);
+        rares1.addGrade(10, english);
+        rares1.addGrade(10, english);
+        rares1.addGrade(10, english);
+        rares1.addGrade(10, english);
+        rares1.addGrade(1, english);
         rares.addGrade(10, math);
         rares.addGrade(7, math);
         rares.addGrade(9, math);
         rares.addAbsence(new Absence(math));
+        rares1.addAbsence(new Absence(english));
 
         try
         {
@@ -35,6 +42,7 @@ internal class Program
 
 
         Console.WriteLine(catalogue.computeGpa(rares, math));
+        Console.WriteLine(catalogue.computeGpa(rares1, english));
         //try
         //{
         //    Console.WriteLine(catalogue.computeGpa(rares, english));
@@ -43,7 +51,7 @@ internal class Program
         //    Console.WriteLine(e.Message);
         //    Throwable.Reset();
         //}
-        Console.WriteLine(rares);
+        //Console.WriteLine(rares);
         //try
         //{
         //    classroom1.addStudent(rares1);
