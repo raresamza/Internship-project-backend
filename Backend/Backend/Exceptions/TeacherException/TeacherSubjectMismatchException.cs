@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.TeacherException
 {
-    internal class TeacherSubjectMismatchException
+    public class TeacherSubjectMismatchException : Exception
     {
+        public TeacherSubjectMismatchException() : base() { }
+
+        public TeacherSubjectMismatchException(string message) : base(message) { }
+
+        public TeacherSubjectMismatchException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

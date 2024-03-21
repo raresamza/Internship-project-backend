@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.StudentException
 {
-    internal class StudentAlreadyEnrolledException
+    public class StudentAlreadyEnrolledException:Exception
     {
+        public StudentAlreadyEnrolledException() : base() { }
+
+        public StudentAlreadyEnrolledException(string message) : base(message) { }
+
+        public StudentAlreadyEnrolledException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

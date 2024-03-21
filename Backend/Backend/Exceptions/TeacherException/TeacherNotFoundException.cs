@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.TeacherException
 {
-    internal class TeacherNotFoundException
+    public class TeacherNotFoundException : Exception
     {
+        public TeacherNotFoundException() : base() { }
+
+        public TeacherNotFoundException(string message) : base(message) { }
+
+        public TeacherNotFoundException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

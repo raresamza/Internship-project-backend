@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Backend.Exceptions;
+using Backend.Exceptions.ClassroomException;
+using Backend.Exceptions.Placeholders;
+using Backend.Exceptions.TeacherException;
 
 namespace Backend.Models
 {
@@ -20,15 +22,15 @@ namespace Backend.Models
         {
             if (classroom == null)
             {
-                throw new ClassroomException("This classroom is invalid");
+                throw new NullClassroomException("This classroom is invalid");
             }
             if (classroom.Teachers.Contains(this))
             {
-                throw new TeacherException($"Cannot assign {Name} teacher twice to the same class");
+                throw new TeacherAlreadyAssignedException($"Cannot assign {Name} teacher twice to the same class");
             }
             if (classroom.Teachers.Any(t => t.Subject == Subject))
             {
-                throw new TeacherException($"A teacher teaching {Subject} is already assigned");
+                throw new TeacherSubjectMismatchException($"A teacher teaching {Subject} is already assigned");
             }
             classroom.addTeacher(this);
         }
@@ -44,7 +46,7 @@ namespace Backend.Models
             else
             {
                 TeacherException.LogError();
-                throw new TeacherException($"The subject that the teacher spelcializes in: {Subject} does not match with the course subject: {course.Subject}");
+                throw new TeacherSubjectMismatchException($"The subject that the teacher spelcializes in: {Subject} does not match with the course subject: {course.Subject}");
             }
 
         }

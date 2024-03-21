@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.ClassroomException
 {
-    internal class ClassroomAlreadyRegisteredException
+    public class ClassroomAlreadyRegisteredException:Exception
     {
+        public ClassroomAlreadyRegisteredException() : base() { }
+
+        public ClassroomAlreadyRegisteredException(string message) : base(message) { }
+
+        public ClassroomAlreadyRegisteredException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

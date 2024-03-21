@@ -4,7 +4,9 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
-using Backend.Exceptions;
+using Backend.Exceptions.CourseException;
+using Backend.Exceptions.Placeholders;
+using Backend.Exceptions.StudentException;
 
 namespace Backend.Models
 {
@@ -24,12 +26,12 @@ namespace Backend.Models
             if (!course.Students.Contains(student))
             {
                 StudentException.LogError();
-                throw new StudentException($"Student {student.Name} is not enrolled into the course {course.Name}");
+                throw new StudentNotEnrolledException($"Student {student.Name} is not enrolled into the course {course.Name}");
             }
             decimal sum = 0;
             if (course == null)
             {
-                throw new CourseException("This course is not valid.");
+                throw new NullCourseException("This course is not valid.");
             }
             bool checkIfPresent = student.Grades.TryGetValue(course, out var list);
             if (list.Count == 0)

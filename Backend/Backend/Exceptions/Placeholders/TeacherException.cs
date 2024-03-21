@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.Exceptions
+namespace Backend.Exceptions.Placeholders
 {
     public class TeacherException : Exception, Throwable
     {

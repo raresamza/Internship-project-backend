@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.TeacherException
 {
-    internal class TeacherAlreadyAssignedException
+    public class TeacherAlreadyAssignedException : Exception
     {
+        public TeacherAlreadyAssignedException() : base() { }
+
+        public TeacherAlreadyAssignedException(string message) : base(message) { }
+
+        public TeacherAlreadyAssignedException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

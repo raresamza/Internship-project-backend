@@ -5,7 +5,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Backend.Exceptions;
+using Backend.Exceptions.AbsenceException;
+using Backend.Exceptions.CourseException;
+using Backend.Exceptions.Placeholders;
+using Backend.Exceptions.StudentException;
 using Backend.Utils;
 
 namespace Backend.Models
@@ -37,12 +40,12 @@ namespace Backend.Models
             if (course == null)
             {
                 CourseException.LogError();
-                throw new CourseException("This course is not valid");
+                throw new NullCourseException("This course is not valid");
             }
             else if (!course.Students.Contains(this))
             {
                 StudentException.LogError();
-                throw new StudentException($"Cannot motivate absence for {Name} because he is not enrolled into {course.Name}");
+                throw new StudentNotEnrolledException($"Cannot motivate absence for {Name} because he is not enrolled into {course.Name}");
             }
             foreach (Absence absence in Absences)
             {
@@ -66,12 +69,12 @@ namespace Backend.Models
             {
                 AbsenceException.LogError();
                 Logger.LogMethodCall(nameof(addAbsence), false);
-                throw new AbsenceException($"Cannot mark student {Name} as absent in \"{absence.Course.Name}\" because student is not enrolled in it");
+                throw new InvalidAbsenceException($"Cannot mark student {Name} as absent in \"{absence.Course.Name}\" because student is not enrolled in it");
             }
             else if (Absences.Any(d => d.Date == absence.Date && d.Course.Subject == absence.Course.Subject))
             {
                 Logger.LogMethodCall(nameof(addAbsence), false);
-                throw new AbsenceException($"Cannot mark student {Name} as absent twice in the same day ({absence.Date.ToString("dd/MM/yyyy")}) for the same course ({absence.Course.Name})");
+                throw new DuplicateAbsenceException($"Cannot mark student {Name} as absent twice in the same day ({absence.Date.ToString("dd/MM/yyyy")}) for the same course ({absence.Course.Name})");
             }
             Message.absenceMessage(this, absence);
             Logger.LogMethodCall(nameof(addAbsence), true);

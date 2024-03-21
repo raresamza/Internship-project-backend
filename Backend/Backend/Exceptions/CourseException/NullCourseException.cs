@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.CourseException
 {
-    internal class NullCourseException
+    public class NullCourseException:Exception
     {
+        public NullCourseException() : base() { }
+
+        public NullCourseException(string message) : base(message) { }
+
+        public NullCourseException(string message, Exception innerException) : base(message, innerException) { }
     }
 }
