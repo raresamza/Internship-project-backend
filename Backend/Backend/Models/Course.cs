@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend
+namespace Backend.Models
 {
     public class Course
     {
@@ -14,7 +14,7 @@ namespace Backend
             Name = name;
             Subject = subject;
         }
-
+        //enroll move
         public string Name { get; set; }
         public Subject Subject { get; set; }
         public Teacher Teacher { get; set; }
@@ -28,7 +28,7 @@ namespace Backend
                 sb.Append($"The course {Name} has the teacher {Teacher.Name} and {Students.Count} students and the list of students enrolled is:\n");
 
             }
-            else 
+            else
             {
                 sb.Append($"The course \"{Name}\" is currently uninitilized, please proceed to do so.");
                 return sb.ToString();

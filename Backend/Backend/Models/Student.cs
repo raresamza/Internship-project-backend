@@ -5,24 +5,26 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Backend.Exceptions;
+using Backend.Utils;
 
-namespace Backend
+namespace Backend.Models
 {
     public class Student : User
 
-        //add school id to all classes and add to all methods check to see if from same school.
+    //add school id to all classes and add to all methods check to see if from same school.
     {
         //add dictionary of gpa's for final grade
 
         //public int classroomID { get; set; } = -1;
-        public bool Assigned {  get; set; }=false;
+        public bool Assigned { get; set; } = false;
         public Student(string parentEmail, string parentName, int age, int phoneNumber, string name, string address) : base(age, phoneNumber, name, address)
         {
             ParentName = parentName;
             ParentEmail = parentEmail;
         }
 
-        public List<Absence> Absences { get; set; }=new List<Absence>();
+        public List<Absence> Absences { get; set; } = new List<Absence>();
 
         public string ParentEmail { get; set; }
 
@@ -63,13 +65,16 @@ namespace Backend
             if (!absence.Course.Students.Contains(this))
             {
                 AbsenceException.LogError();
+                Logger.LogMethodCall(nameof(addAbsence), false);
                 throw new AbsenceException($"Cannot mark student {Name} as absent in \"{absence.Course.Name}\" because student is not enrolled in it");
             }
             else if (Absences.Any(d => d.Date == absence.Date && d.Course.Subject == absence.Course.Subject))
             {
+                Logger.LogMethodCall(nameof(addAbsence), false);
                 throw new AbsenceException($"Cannot mark student {Name} as absent twice in the same day ({absence.Date.ToString("dd/MM/yyyy")}) for the same course ({absence.Course.Name})");
             }
             Message.absenceMessage(this, absence);
+            Logger.LogMethodCall(nameof(addAbsence), true);
             Absences.Add(absence);
         }
 
@@ -101,16 +106,18 @@ namespace Backend
         //}
         public void addGrade(int grade, Course course)
         {
-            
+
             bool checkIfPresent = Grades.TryGetValue(course, out var list);
             if (checkIfPresent)
             {
                 Message.gradeMessage(grade, this, course.Name);
+                Logger.LogMethodCall(nameof(addGrade), true);
                 list.Add(grade);
             }
             else
             {
                 StudentException.LogError();
+                Logger.LogMethodCall(nameof(addGrade), false);
                 throw new StudentException($"Student {Name} is not enrolled into the course: {course.Name}, therefor he can not be assigned a grade for this course");
             }
         }
@@ -120,7 +127,7 @@ namespace Backend
 
             bool checkIfPresent = GPAs.TryGetValue(course, out var GPA);
             if (checkIfPresent)
-            {  
+            {
                 GPA = grade;
                 GPAs[course] = GPA;
             }
@@ -129,7 +136,7 @@ namespace Backend
                 StudentException.LogError();
                 throw new StudentException($"Student {Name} is not enrolled into the course: {course.Name}, therefor the GPA cannot be computed");
             }
-            
+
         }
 
         public void removeGrade(int grade, Course course)
@@ -147,7 +154,7 @@ namespace Backend
         }
         public void enrollIntoCourse(Course course)
         {
-            if(course.Students.Contains(this))
+            if (course.Students.Contains(this))
             {
                 StudentException.LogError();
                 throw new StudentException($"Student {Name} is already enrolled into this course");
@@ -156,7 +163,7 @@ namespace Backend
             List<int> grades = new List<int>();
             GPAs.Add(course, 0);
             Grades.Add(course, grades);
-            
+
             //Console.WriteLine(course.Students);
         }
         public override string ToString()
@@ -168,14 +175,14 @@ namespace Backend
                 Course course = entry.Key;
                 List<int> grades = entry.Value;
                 stringBuilder.Append($"\t\tCourse: {course.Name}\n");
-                
+
                 stringBuilder.Append("\t\t\tGrades: ");
                 foreach (var grade in grades)
                 {
                     stringBuilder.Append($"{grade} ");
                 }
                 stringBuilder.Append("\n\t\t\tGPA: ");
-                stringBuilder.Append($"{(this.GPAs.TryGetValue(course, out decimal res)==true ? res:"N/A")} ");
+                stringBuilder.Append($"{(GPAs.TryGetValue(course, out decimal res) == true ? res : "N/A")} ");
                 stringBuilder.Append('\n');
 
             }

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Backend.Exceptions;
 
-namespace Backend
+namespace Backend.Models
 {
     public class Classroom
 
@@ -17,20 +18,21 @@ namespace Backend
         {
             Name = name;
         }
-
+        public List<Student> Students { get; set; } = new List<Student>();
+        public List<Teacher> Teachers { get; set; } = new List<Teacher>();
         public void assignCourse(Course course)
         {
-            if(course == null)
+            if (course == null)
             {
                 throw new CourseException("This course is not valid");
-            } else if (Courses.Contains(course))
+            }
+            else if (Courses.Contains(course))
             {
                 throw new CourseException($"The course {course.Name} is already assigned to the classroom {Name}");
             }
             Courses.Add(course);
         }
-        public List<Student> Students { get; set; } = new List<Student>();
-        public List<Teacher> Teachers { get; set; } = new List<Teacher>();
+
 
         public void addTeacher(Teacher teacher)
         {
@@ -41,7 +43,7 @@ namespace Backend
             }
             foreach (Teacher teacher1 in Teachers)
             {
-                if (teacher1.Subject==teacher.Subject)
+                if (teacher1.Subject == teacher.Subject)
                 {
                     TeacherException.LogError();
                     throw new TeacherException($"Someone is already teaching: {teacher.Subject} for class {Name}");
@@ -95,7 +97,7 @@ namespace Backend
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append($"This classrooms has the following teachers:\n");
-            foreach(Teacher teacher in Teachers)
+            foreach (Teacher teacher in Teachers)
             {
                 stringBuilder.Append($"\t{teacher.ToString()}");
             }

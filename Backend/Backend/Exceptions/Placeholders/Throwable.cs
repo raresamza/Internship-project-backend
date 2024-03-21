@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend
+namespace Backend.Exceptions.Placeholders
 {
     public interface Throwable
     {
@@ -17,7 +17,7 @@ namespace Backend
         //public static void LogError()
         //{
         //    Console.ForegroundColor = ConsoleColor.Red;
-            
+
         //    Console.WriteLine("Error logged: TeacherException occurred.");
         //    Console.ForegroundColor = ConsoleColor.White;
 

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend
+namespace Backend.Models
 {
     public class Message
     {
-        public static void gradeMessage(int grade,Student student,string courseName)
+        public static void gradeMessage(int grade, Student student, string courseName)
         {
             Console.WriteLine($"Student {student.Name} recieved {grade} in {courseName}. Parent {student.ParentName} was notified at {student.ParentEmail}");
         }

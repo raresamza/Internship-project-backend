@@ -1,9 +1,13 @@
 ﻿using Backend;
+using Backend.Exceptions;
+using Backend.Models;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
+
+
         Student rares = new Student("mail@mail.com", "Adi", 11, 11111111, "Rares", "deva");
         Student rares1 = new Student("mail1@mail.com", "Adi1", 112, 11111112, "Rares1", "deva1");
         Teacher teacher = new Teacher(Subject.MATH, 11, 11111111, "Monea", "Deva");
@@ -34,15 +38,16 @@ internal class Program
             rares.addAbsence(new Absence(english));
             rares.addAbsence(new Absence(math));
 
-        } catch (AbsenceException ex)
+        }
+        catch (AbsenceException ex)
         {
             Console.WriteLine(ex.Message);
             Throwable.Reset();
         }
 
 
-        Console.WriteLine(catalogue.computeGpa(rares, math));
-        Console.WriteLine(catalogue.computeGpa(rares1, english));
+        //Console.WriteLine(catalogue.computeGpa(rares, math));
+        //Console.WriteLine(catalogue.computeGpa(rares1, english));
         //try
         //{
         //    Console.WriteLine(catalogue.computeGpa(rares, english));

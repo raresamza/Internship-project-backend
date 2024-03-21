@@ -3,25 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Backend.Exceptions;
 
-namespace Backend
+namespace Backend.Exceptions.Placeholders
 {
-    public class CourseException: Exception, Throwable
+    internal class AbsenceException : Exception, Throwable
     {
-        public CourseException(string message) : base(message)
+
+        public AbsenceException(string message) : base(message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-
         }
         public static void LogError()
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Error logged: StudentException occurred.");
+            Console.WriteLine("Error logged: AbsenceException occurred.");
             Console.ForegroundColor = ConsoleColor.White;
         }
-        //public static void Reset()
-        //{
-        //    Console.ForegroundColor = ConsoleColor.White;
-        //}
     }
 }
