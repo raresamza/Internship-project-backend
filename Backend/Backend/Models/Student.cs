@@ -35,7 +35,7 @@ namespace Backend.Models
         public Dictionary<Course, List<int>> Grades { get; set; } = new Dictionary<Course, List<int>>();
         public Dictionary<Course, decimal> GPAs { get; set; } = new Dictionary<Course, decimal>();
 
-        public void motivateAbsence(DateTime date, Course course)
+        public void MotivateAbsence(DateTime date, Course course)
         {
             if (course == null)
             {
@@ -58,7 +58,7 @@ namespace Backend.Models
             //Absences.Remove(getAbsenceByDate(date));
         }
 
-        public void addAbsence(Absence absence)
+        public void AddAbsence(Absence absence)
         {
             //foreach (Student s in absence.Course.Students)
             //{
@@ -107,7 +107,7 @@ namespace Backend.Models
         //    List<int> grades = new List<int>();
         //    Grades.Add(course, grades);
         //}
-        public void addGrade(int grade, Course course)
+        public void AddGrade(int grade, Course course)
         {
 
             bool checkIfPresent = Grades.TryGetValue(course, out var list);
@@ -125,7 +125,7 @@ namespace Backend.Models
             }
         }
 
-        public void addGpa(decimal grade, Course course)
+        public void AddGpa(decimal grade, Course course)
         {
 
             bool checkIfPresent = GPAs.TryGetValue(course, out var GPA);
@@ -142,7 +142,7 @@ namespace Backend.Models
 
         }
 
-        public void removeGrade(int grade, Course course)
+        public void RemoveGrade(int grade, Course course)
         {
             bool checkIfPresent = Grades.TryGetValue(course, out var list);
             if (checkIfPresent)
@@ -155,7 +155,7 @@ namespace Backend.Models
                 throw new StudentException($"Student is not enrolled into the course {course.Name}");
             }
         }
-        public void enrollIntoCourse(Course course)
+        public void EnrollIntoCourse(Course course)
         {
             if (course.Students.Contains(this))
             {

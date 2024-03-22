@@ -14,28 +14,28 @@ internal class Program
         Course english = new Course("Advanced English", Subject.ENGLISH);
         Classroom classroom1 = new Classroom("12B");
         Catalogue catalogue = new Catalogue(classroom1);
-        
-        classroom1.addStudent(rares1);
-        classroom1.addTeacher(teacher);
-        classroom1.addStudent(rares);
-        rares.enrollIntoCourse(math);
-        rares.enrollIntoCourse(english);
-        rares1.enrollIntoCourse(english);
-        rares1.addGrade(10, english);
-        rares1.addGrade(10, english);
-        rares1.addGrade(10, english);
-        rares1.addGrade(10, english);
-        rares1.addGrade(1, english);
-        rares.addGrade(10, math);
-        rares.addGrade(7, math);
-        rares.addGrade(9, math);
-        rares.addAbsence(new Absence(math));
-        rares1.addAbsence(new Absence(english));
+
+        classroom1.AddStudent(rares1);
+        classroom1.AddStudent(teacher);
+        classroom1.AddStudent(rares);
+        rares.EnrollIntoCourse(math);
+        rares.EnrollIntoCourse(english);
+        rares1.EnrollIntoCourse(english);
+        rares1.AddGrade(10, english);
+        rares1.AddGrade(10, english);
+        rares1.AddGrade(10, english);
+        rares1.AddGrade(10, english);
+        rares1.AddGrade(1, english);
+        rares.AddGrade(10, math);
+        rares.AddGrade(7, math);
+        rares.AddGrade(9, math);
+        rares.AddAbsence(new Absence(math));
+        rares1.AddAbsence(new Absence(english));
 
         try
         {
-            rares.addAbsence(new Absence(english));
-            rares.addAbsence(new Absence(math));
+            rares.AddAbsence(new Absence(english));
+            rares.AddAbsence(new Absence(math));
 
         }
         catch (AbsenceException ex)
@@ -45,11 +45,11 @@ internal class Program
         }
 
 
-        //Console.WriteLine(catalogue.computeGpa(rares, math));
-        //Console.WriteLine(catalogue.computeGpa(rares1, english));
+        //Console.WriteLine(catalogue.ComputeGpa(rares, math));
+        //Console.WriteLine(catalogue.ComputeGpa(rares1, english));
         //try
         //{
-        //    Console.WriteLine(catalogue.computeGpa(rares, english));
+        //    Console.WriteLine(catalogue.ComputeGpa(rares, english));
         //} catch (StudentException e)
         //{
         //    Console.WriteLine(e.Message);
@@ -58,7 +58,7 @@ internal class Program
         //Console.WriteLine(rares);
         //try
         //{
-        //    classroom1.addStudent(rares1);
+        //    classroom1.AddStudent(rares1);
         //}
         //catch (StudentException ex)
         //{
@@ -67,7 +67,7 @@ internal class Program
         //}
         //try
         //{
-        //    classroom1.addTeacher(teacher);
+        //    classroom1.AddTeacher(teacher);
 
         //}
         //catch (TeacherException ex)
@@ -95,16 +95,16 @@ internal class Program
         //{
         //    Console.WriteLine(ex.Message);
         //}
-        //rares.enrollIntoCourse(math);
-        //rares1.enrollIntoCourse(math);
+        //rares.EnrollIntoCourse(math);
+        //rares1.EnrollIntoCourse(math);
         //try
         //{
-        //    rares.addGrade(10, math);
-        //    rares.addGrade(7, math);
-        //    rares.addGrade(9, math);
-        //    rares.addGrade(9, english);
-        //    rares.addGrade(1, english);
-        //    rares.addGrade(5, english);
+        //    rares.AddGrade(10, math);
+        //    rares.AddGrade(7, math);
+        //    rares.AddGrade(9, math);
+        //    rares.AddGrade(9, english);
+        //    rares.AddGrade(1, english);
+        //    rares.AddGrade(5, english);
 
         //}
         //catch (StudentException e)
@@ -118,8 +118,8 @@ internal class Program
         //}
         //try
         //{
-        //    rares.removeGrade(7, math);
-        //    rares.removeGrade(1, english);
+        //    rares.RemoveGrade(7, math);
+        //    rares.RemoveGrade(1, english);
         //}
         //catch (StudentException e)
         //{

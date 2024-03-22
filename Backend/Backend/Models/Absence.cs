@@ -20,7 +20,7 @@ namespace Backend.Models
 
 
 
-        public Absence getAbsenceByDate(DateTime date)
+        public Absence GetAbsenceByDate(DateTime date)
         {
             //dummy method waiting for db
             return null;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.ClassroomException
 {
-    public class NullClassroomException:Exception
+    public class NullClassroomException : Exception
     {
         public NullClassroomException() : base() { }
 

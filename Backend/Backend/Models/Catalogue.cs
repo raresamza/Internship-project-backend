@@ -18,7 +18,7 @@ namespace Backend.Models
             Classroom = classroom;
         }
 
-        public decimal computeGpa(Student student, Course course)
+        public decimal ComputeGpa(Student student, Course course)
         {
 
 
@@ -46,7 +46,7 @@ namespace Backend.Models
                 }
             }
             Message.GPAMessage(Math.Round(sum / list.Count(), 2), student, course.Name);
-            student.addGpa(Math.Round(sum / list.Count(), 2), course);
+            student.AddGpa(Math.Round(sum / list.Count(), 2), course);
             return Math.Round(sum / list.Count(), 2);
         }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.StudentException
 {
-    public class StudentNotFoundException: Exception
+    public class StudentNotFoundException : Exception
     {
         public StudentNotFoundException() : base() { }
 

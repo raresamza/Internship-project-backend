@@ -10,11 +10,11 @@ namespace Backend.Utils
     {
 
         private static readonly string LogDirectory = "Logs";
-        private static readonly string  logFileName = $"Logs_{DateTime.Now:dd_MM_yyyy}.txt";
+        private static readonly string logFileName = $"Logs_{DateTime.Now:dd_MM_yyyy}.txt";
         private static readonly string logFilePath = $"..\\..\\..\\Logs\\{logFileName}";
 
         public async static Task LogMethodCall(string methodName, bool success)
-        {            
+        {
             string logEntry = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {methodName} - {(success ? "success" : "failure")}{Environment.NewLine}";
 
             try
@@ -43,6 +43,6 @@ namespace Backend.Utils
                 await writer.WriteAsync(logEntry);
             }
         }
-       
+
     }
 }

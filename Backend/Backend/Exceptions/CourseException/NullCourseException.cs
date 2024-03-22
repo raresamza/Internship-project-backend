@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.CourseException
 {
-    public class NullCourseException:Exception
+    public class NullCourseException : Exception
     {
         public NullCourseException() : base() { }
 

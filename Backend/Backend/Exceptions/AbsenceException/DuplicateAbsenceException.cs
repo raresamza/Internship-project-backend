@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.AbsenceException
 {
-    internal class DuplicateAbsenceException:Exception
+    internal class DuplicateAbsenceException : Exception
     {
         public DuplicateAbsenceException() : base() { }
 

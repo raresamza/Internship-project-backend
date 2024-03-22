@@ -18,7 +18,7 @@ namespace Backend.Models
         public Subject Subject { get; set; }
         public Course TaughtCourse { get; set; }
 
-        public void addToClassroom(Classroom classroom)
+        public void AddToClassroom(Classroom classroom)
         {
             if (classroom == null)
             {

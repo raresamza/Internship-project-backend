@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.ClassroomException
 {
-    public class ClassroomAlreadyRegisteredException:Exception
+    public class ClassroomAlreadyRegisteredException : Exception
     {
         public ClassroomAlreadyRegisteredException() : base() { }
 
