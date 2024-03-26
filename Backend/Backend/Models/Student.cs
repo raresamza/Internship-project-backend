@@ -68,16 +68,16 @@ namespace Backend.Models
             if (!absence.Course.Students.Contains(this))
             {
                 AbsenceException.LogError();
-                Logger.LogMethodCall(nameof(addAbsence), false);
+                Logger.LogMethodCall(nameof(AddAbsence), false);
                 throw new InvalidAbsenceException($"Cannot mark student {Name} as absent in \"{absence.Course.Name}\" because student is not enrolled in it");
             }
             else if (Absences.Any(d => d.Date == absence.Date && d.Course.Subject == absence.Course.Subject))
             {
-                Logger.LogMethodCall(nameof(addAbsence), false);
+                Logger.LogMethodCall(nameof(AddAbsence), false);
                 throw new DuplicateAbsenceException($"Cannot mark student {Name} as absent twice in the same day ({absence.Date.ToString("dd/MM/yyyy")}) for the same course ({absence.Course.Name})");
             }
-            Message.absenceMessage(this, absence);
-            Logger.LogMethodCall(nameof(addAbsence), true);
+            Message.AbsenceMessage(this, absence);
+            Logger.LogMethodCall(nameof(AddAbsence), true);
             Absences.Add(absence);
         }
 
@@ -113,21 +113,20 @@ namespace Backend.Models
             bool checkIfPresent = Grades.TryGetValue(course, out var list);
             if (checkIfPresent)
             {
-                Message.gradeMessage(grade, this, course.Name);
-                Logger.LogMethodCall(nameof(addGrade), true);
+                Message.GradeMessage(grade, this, course.Name);
+                Logger.LogMethodCall(nameof(AddGrade), true);
                 list.Add(grade);
             }
             else
             {
                 StudentException.LogError();
-                Logger.LogMethodCall(nameof(addGrade), false);
+                Logger.LogMethodCall(nameof(AddGrade), false);
                 throw new StudentException($"Student {Name} is not enrolled into the course: {course.Name}, therefor he can not be assigned a grade for this course");
             }
         }
 
         public void AddGpa(decimal grade, Course course)
-        {
-
+        { 
             bool checkIfPresent = GPAs.TryGetValue(course, out var GPA);
             if (checkIfPresent)
             {

@@ -1,4 +1,5 @@
-﻿using Backend.Exceptions.Placeholders;
+﻿using Backend.Exceptions.AbsenceException;
+using Backend.Exceptions.Placeholders;
 using Backend.Models;
 
 internal class Program
@@ -16,7 +17,7 @@ internal class Program
         Catalogue catalogue = new Catalogue(classroom1);
 
         classroom1.AddStudent(rares1);
-        classroom1.AddStudent(teacher);
+        classroom1.AddTeacher(teacher);
         classroom1.AddStudent(rares);
         rares.EnrollIntoCourse(math);
         rares.EnrollIntoCourse(english);
@@ -38,7 +39,7 @@ internal class Program
             rares.AddAbsence(new Absence(math));
 
         }
-        catch (AbsenceException ex)
+        catch (DuplicateAbsenceException ex)
         {
             Console.WriteLine(ex.Message);
             Throwable.Reset();

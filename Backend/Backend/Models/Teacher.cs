@@ -32,7 +32,7 @@ namespace Backend.Models
             {
                 throw new TeacherSubjectMismatchException($"A teacher teaching {Subject} is already assigned");
             }
-            classroom.addTeacher(this);
+            classroom.AddTeacher(this);
         }
 
 
