@@ -8,6 +8,6 @@ namespace Backend.Repository
 {
     public class CatalogueRepository : ICatalogueRepository
     {
-        //db mock
+        //Db mock
     }
 }

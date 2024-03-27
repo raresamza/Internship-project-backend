@@ -46,7 +46,7 @@ namespace Backend.Models
                 }
             }
             Message.GPAMessage(Math.Round(sum / list.Count(), 2), student, course.Name);
-            student.AddGpa(Math.Round(sum / list.Count(), 2), course);
+            //student.AddGpa(Math.Round(sum / list.Count(), 2), course);
             return Math.Round(sum / list.Count(), 2);
         }
 

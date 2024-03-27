@@ -11,6 +11,7 @@ namespace Backend.Models
 
         public Course(string name, Subject subject)
         {
+            ID = ++_lastAssignedId;
             Name = name;
             Subject = subject;
         }
@@ -19,6 +20,10 @@ namespace Backend.Models
         public Subject Subject { get; set; }
         public Teacher Teacher { get; set; }
         public List<Student> Students { get; set; } = new List<Student>();
+
+        private static int _lastAssignedId = 0;
+
+        public int ID { get; }
 
         public override string ToString()
         {

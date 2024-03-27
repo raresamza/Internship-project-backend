@@ -14,5 +14,6 @@ namespace Backend.Repository
         public List<Student> GetAllStudents();
         public void UpdateStudent(int studentID);
         public void AddStudent(Student student);
+
     }
 }

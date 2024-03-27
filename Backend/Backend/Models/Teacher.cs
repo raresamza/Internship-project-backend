@@ -13,43 +13,48 @@ namespace Backend.Models
     {
         public Teacher(Subject subject, int age, int phoneNumber, string name, string address) : base(age, phoneNumber, name, address)
         {
+            ID = ++_lastAssignedId;
             Subject = subject;
         }
         public Subject Subject { get; set; }
         public Course TaughtCourse { get; set; }
 
-        public void AddToClassroom(Classroom classroom)
-        {
-            if (classroom == null)
-            {
-                throw new NullClassroomException("This classroom is invalid");
-            }
-            if (classroom.Teachers.Contains(this))
-            {
-                throw new TeacherAlreadyAssignedException($"Cannot assign {Name} teacher twice to the same class");
-            }
-            if (classroom.Teachers.Any(t => t.Subject == Subject))
-            {
-                throw new TeacherSubjectMismatchException($"A teacher teaching {Subject} is already assigned");
-            }
-            classroom.AddTeacher(this);
-        }
+        private static int _lastAssignedId = 0;
+
+        public int ID { get; }
+
+        //public void AddToClassroom(Classroom classroom)
+        //{
+        //    if (classroom == null)
+        //    {
+        //        throw new NullClassroomException("This classroom is invalid");
+        //    }
+        //    if (classroom.Teachers.Contains(this))
+        //    {
+        //        throw new TeacherAlreadyAssignedException($"Cannot assign {Name} teacher twice to the same class");
+        //    }
+        //    if (classroom.Teachers.Any(t => t.Subject == Subject))
+        //    {
+        //        throw new TeacherSubjectMismatchException($"A teacher teaching {Subject} is already assigned");
+        //    }
+        //    classroom.AddTeacher(this);
+        //}
 
 
-        public void AssignToCourse(Course course)
-        {
-            if (Subject == course.Subject)
-            {
-                course.Teacher = this;
-                TaughtCourse = course;
-            }
-            else
-            {
-                TeacherException.LogError();
-                throw new TeacherSubjectMismatchException($"The subject that the teacher spelcializes in: {Subject} does not match with the course subject: {course.Subject}");
-            }
+        //public void AssignToCourse(Course course)
+        //{
+        //    if (Subject == course.Subject)
+        //    {
+        //        course.Teacher = this;
+        //        TaughtCourse = course;
+        //    }
+        //    else
+        //    {
+        //        TeacherException.LogError();
+        //        throw new TeacherSubjectMismatchException($"The subject that the teacher spelcializes in: {Subject} does not match with the course subject: {course.Subject}");
+        //    }
 
-        }
+        //}
 
         public override string ToString()
         {

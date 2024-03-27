@@ -1,5 +1,7 @@
 ﻿using Backend.Exceptions.AbsenceException;
+using Backend.Exceptions.CourseException;
 using Backend.Exceptions.Placeholders;
+using Backend.Exceptions.StudentException;
 using Backend.Models;
 using Backend.Repository;
 using Backend.Utils;
@@ -13,7 +15,7 @@ using System.Xml.Linq;
 
 namespace Backend.Service
 {
-    public class StudentService : ISchoolService
+    public class StudentService : IStudentService
     {
 
         private readonly StudentRepository _studentRepository;
@@ -23,10 +25,10 @@ namespace Backend.Service
             _studentRepository = repository;
         }
 
-        public void AddGrade(int grade, Course course,int studentID,List<Student> students)
+        public void AddGrade(int grade, Course course, int studentID, List<Student> students)
         {
 
-            Student dbStudent = _studentRepository.GetStudentById(studentID,students);
+            Student dbStudent = _studentRepository.GetStudentById(studentID, students);
 
             bool checkIfPresent = dbStudent.Grades.TryGetValue(course, out var list);
             if (checkIfPresent)
@@ -34,7 +36,9 @@ namespace Backend.Service
                 Message.GradeMessage(grade, dbStudent, course.Name);
                 Logger.LogMethodCall(nameof(AddGrade), true);
                 list.Add(grade);
-                //mock db update
+                //Mock db update
+                //Update with grade
+                //_studentRepository.UpdateStudent()
             }
             else
             {
@@ -58,7 +62,9 @@ namespace Backend.Service
             List<int> grades = new List<int>();
             dbStudent.GPAs.Add(course, 0);
             dbStudent.Grades.Add(course, grades);
-            //mock db update
+            //Mock db update
+            //Update with grade
+            //_studentRepository.UpdateStudent()
         }
 
         public void AddAbsence(Absence absence, int studentID, List<Student> students)
@@ -80,8 +86,76 @@ namespace Backend.Service
             Message.AbsenceMessage(dbStudent, absence);
             Logger.LogMethodCall(nameof(AddAbsence), true);
             dbStudent.Absences.Add(absence);
-            //mock db update
+            //Update with grade
+            //_studentRepository.UpdateStudent()
+            //Mock db update
         }
 
+        public void AddGpa(decimal grade, Course course, int studentId, List<Student> students)
+        {
+
+            Student dbStudent = _studentRepository.GetStudentById(studentId, students);
+
+
+            //bool checkIfPresent = dbStudent.GPAs.TryGetValue(course, out var GPA);
+            if (dbStudent.GPAs.TryGetValue(course, out var GPA))
+            {
+                GPA = grade;
+                dbStudent.GPAs[course] = GPA;
+                //Update with grade
+                //_studentRepository.UpdateStudent()
+            }
+            else
+            {
+                StudentException.LogError();
+                throw new StudentException($"Student {dbStudent.Name} is not enrolled into the course: {course.Name}, therefor the GPA cannot be computed");
+            }
+        }
+
+        public void RemoveGrade(int grade, Course course, int studentId, List<Student> students)
+        {
+
+            Student dbStudent = _studentRepository.GetStudentById(studentId, students);
+
+            bool checkIfPresent = dbStudent.Grades.TryGetValue(course, out var list);
+            if (checkIfPresent)
+            {
+                list.Remove(grade);
+                //Update with grade
+                //_studentRepository.UpdateStudent()
+            }
+            else
+            {
+                StudentException.LogError();
+                throw new StudentException($"Student is not enrolled into the course {course.Name}");
+            }
+        }
+
+        public void MotivateAbsence(DateTime date, Course course, int studentId, List<Student> students)
+        {
+
+            //need to find course by name;
+
+            Student dbStudent = _studentRepository.GetStudentById(studentId, students);
+
+
+            if (course == null)
+            {
+                CourseException.LogError();
+                throw new NullCourseException("This course is not valid");
+            }
+            else if (!course.Students.Contains(dbStudent))
+            {
+                StudentException.LogError();
+                throw new StudentNotEnrolledException($"Cannot motivate absence for {dbStudent.Name} because he is not enrolled into {course.Name}");
+            }
+            foreach (Absence absence in dbStudent.Absences)
+            {
+                if (absence.Date == date.Date && absence.Course.Name.Equals(course.Name))
+                {
+                    dbStudent.Absences.Remove(absence);
+                }
+            }
+        }
     }
 }

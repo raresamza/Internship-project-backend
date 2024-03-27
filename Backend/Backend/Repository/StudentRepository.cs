@@ -31,6 +31,7 @@ namespace Backend.Repository
             {
                 throw new StudentNotFoundException($"Student with ID: {studentId} not found!");
             }
+            //return null;
             return students.First(student => student.ID == studentId);
         }
 

@@ -8,6 +8,6 @@ namespace Backend.Repository
 {
     public class SchoolRepository : ISchoolRepository
     {
-        //db mock
+        //Db mock
     }
 }

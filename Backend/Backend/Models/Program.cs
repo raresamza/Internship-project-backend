@@ -20,15 +20,27 @@ internal class Program
         Catalogue catalogue = new Catalogue(classroom1);
 
         StudentRepository studentRepository = new StudentRepository();
-        StudentService studentService= new StudentService(studentRepository);
+        StudentService studentService = new StudentService(studentRepository);
+        //ClassroomService classroomService=new ClassroomService()
 
-        classroom1.AddStudent(rares1);
-        classroom1.AddTeacher(teacher);
-        classroom1.AddStudent(rares);
+        //classroom1.AddStudent(rares1);
+        //classroom1.AddTeacher(teacher);
+        //classroom1.AddStudent(rares);
 
         studentService.EnrollIntoCourse(math, 1, students);
         studentService.EnrollIntoCourse(english, 1, students);
 
+        studentService.AddGrade(10, english, 1, students);
+        studentService.AddGrade(10, english, 1, students);
+        studentService.AddGrade(10, english, 1, students);
+        studentService.AddGrade(7, english, 1, students);
+        studentService.AddGrade(9, english, 1, students);
+        studentService.AddGrade(10, math, 1, students);
+        studentService.AddGrade(5, math, 1, students);
+        studentService.AddAbsence(new Absence(math), 1, students);
+        studentService.AddAbsence(new Absence(english), 1, students);
+        studentService.AddGpa(4, math, 1, students);
+        Console.WriteLine(rares);
         //rares.EnrollIntoCourse(math);
         //rares.EnrollIntoCourse(english);
         //rares1.EnrollIntoCourse(english);
@@ -45,8 +57,8 @@ internal class Program
 
         try
         {
-            rares.AddAbsence(new Absence(english));
-            rares.AddAbsence(new Absence(math));
+            //rares.AddAbsence(new Absence(english));
+            //rares.AddAbsence(new Absence(math));
 
         }
         catch (DuplicateAbsenceException ex)

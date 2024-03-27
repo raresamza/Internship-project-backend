@@ -8,6 +8,6 @@ namespace Backend.Repository
 {
     public class AbsenceRepository : IAbsenceRepository
     {
-        //db mock
+        //Db mock
     }
 }

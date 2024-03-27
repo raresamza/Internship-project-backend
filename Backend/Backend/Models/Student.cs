@@ -20,15 +20,17 @@ namespace Backend.Models
         //add dictionary of gpa's for final grade
 
         //public int classroomID { get; set; } = -1;
-        
+
         public Student(string parentEmail, string parentName, int age, int phoneNumber, string name, string address) : base(age, phoneNumber, name, address)
         {
-            ID++;
+            ID = ++_lastAssignedId;
             ParentName = parentName;
             ParentEmail = parentEmail;
         }
 
-        public int ID { get; set; } = 0;
+        private static int _lastAssignedId = 0;
+
+        public int ID { get; }
 
         public bool Assigned { get; set; } = false;
 
@@ -40,28 +42,28 @@ namespace Backend.Models
         public Dictionary<Course, List<int>> Grades { get; set; } = new Dictionary<Course, List<int>>();
         public Dictionary<Course, decimal> GPAs { get; set; } = new Dictionary<Course, decimal>();
 
-        public void MotivateAbsence(DateTime date, Course course)
-        {
-            if (course == null)
-            {
-                CourseException.LogError();
-                throw new NullCourseException("This course is not valid");
-            }
-            else if (!course.Students.Contains(this))
-            {
-                StudentException.LogError();
-                throw new StudentNotEnrolledException($"Cannot motivate absence for {Name} because he is not enrolled into {course.Name}");
-            }
-            foreach (Absence absence in Absences)
-            {
-                if (absence.Date == date.Date && absence.Course.Name.Equals(course.Name))
-                {
-                    Absences.Remove(absence);
-                }
-            }
+        //public void MotivateAbsence(DateTime date, Course course)
+        //{
+        //    if (course == null)
+        //    {
+        //        CourseException.LogError();
+        //        throw new NullCourseException("This course is not valid");
+        //    }
+        //    else if (!course.Students.Contains(this))
+        //    {
+        //        StudentException.LogError();
+        //        throw new StudentNotEnrolledException($"Cannot motivate absence for {Name} because he is not enrolled into {course.Name}");
+        //    }
+        //    foreach (Absence absence in Absences)
+        //    {
+        //        if (absence.Date == date.Date && absence.Course.Name.Equals(course.Name))
+        //        {
+        //            Absences.Remove(absence);
+        //        }
+        //    }
 
-            //Absences.Remove(getAbsenceByDate(date));
-        }
+        //    //Absences.Remove(getAbsenceByDate(date));
+        //}
 
         //public void AddAbsence(Absence absence)
         //{
@@ -130,35 +132,35 @@ namespace Backend.Models
         //    }
         //}
 
-        public void AddGpa(decimal grade, Course course)
-        { 
-            bool checkIfPresent = GPAs.TryGetValue(course, out var GPA);
-            if (checkIfPresent)
-            {
-                GPA = grade;
-                GPAs[course] = GPA;
-            }
-            else
-            {
-                StudentException.LogError();
-                throw new StudentException($"Student {Name} is not enrolled into the course: {course.Name}, therefor the GPA cannot be computed");
-            }
+        //public void AddGpa(decimal grade, Course course)
+        //{ 
+        //    bool checkIfPresent = GPAs.TryGetValue(course, out var GPA);
+        //    if (checkIfPresent)
+        //    {
+        //        GPA = grade;
+        //        GPAs[course] = GPA;
+        //    }
+        //    else
+        //    {
+        //        StudentException.LogError();
+        //        throw new StudentException($"Student {Name} is not enrolled into the course: {course.Name}, therefor the GPA cannot be computed");
+        //    }
 
-        }
+        //}
 
-        public void RemoveGrade(int grade, Course course)
-        {
-            bool checkIfPresent = Grades.TryGetValue(course, out var list);
-            if (checkIfPresent)
-            {
-                list.Remove(grade);
-            }
-            else
-            {
-                StudentException.LogError();
-                throw new StudentException($"Student is not enrolled into the course {course.Name}");
-            }
-        }
+        //public void RemoveGrade(int grade, Course course)
+        //{
+        //    bool checkIfPresent = Grades.TryGetValue(course, out var list);
+        //    if (checkIfPresent)
+        //    {
+        //        list.Remove(grade);
+        //    }
+        //    else
+        //    {
+        //        StudentException.LogError();
+        //        throw new StudentException($"Student is not enrolled into the course {course.Name}");
+        //    }
+        //}
         //public void EnrollIntoCourse(Course course)
         //{
         //    if (course.Students.Contains(this))
@@ -176,7 +178,7 @@ namespace Backend.Models
         public override string ToString()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append($"\nStudent details:\n\tStundent Name: {Name}\n\tStudent Age: {Age}\n\tStudent Phone Number: {PhoneNumber}\n\tStudent's Parent Name: {ParentName}\n\tStudent's Parent Email Addrees: {ParentEmail}\n\tStudent Address: {Address}\n\tStudent Grades:\n");
+            stringBuilder.Append($"\nStudent(ID: {ID}) details:\n\tStundent Name: {Name}\n\tStudent Age: {Age}\n\tStudent Phone Number: {PhoneNumber}\n\tStudent's Parent Name: {ParentName}\n\tStudent's Parent Email Addrees: {ParentEmail}\n\tStudent Address: {Address}\n\tStudent Grades:\n");
             foreach (var entry in Grades)
             {
                 Course course = entry.Key;
