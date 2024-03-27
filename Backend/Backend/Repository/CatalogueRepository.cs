@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Backend.Repository
 {
-    public interface CatalogueRepository
+    public class CatalogueRepository : ICatalogueRepository
     {
+        //db mock
     }
 }

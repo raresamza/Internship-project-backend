@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Service
 {
-    public interface TeacherServiceImpl
+    public interface IClassroomService
     {
     }
 }

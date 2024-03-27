@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.Repository
+namespace Backend.Service
 {
-    public class AbsenceRepository : IAbsenceRepository
+    public interface ISchoolService
     {
-        //db mock
     }
 }

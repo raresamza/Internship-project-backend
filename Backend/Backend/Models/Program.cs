@@ -1,6 +1,8 @@
 ﻿using Backend.Exceptions.AbsenceException;
 using Backend.Exceptions.Placeholders;
 using Backend.Models;
+using Backend.Repository;
+using Backend.Service;
 
 internal class Program
 {
@@ -10,28 +12,36 @@ internal class Program
 
         Student rares = new Student("mail@mail.com", "Adi", 11, 11111111, "Rares", "deva");
         Student rares1 = new Student("mail1@mail.com", "Adi1", 112, 11111112, "Rares1", "deva1");
+        List<Student> students = new List<Student>() { rares, rares1 };
         Teacher teacher = new Teacher(Subject.MATH, 11, 11111111, "Monea", "Deva");
         Course math = new Course("Math I", Subject.MATH);
         Course english = new Course("Advanced English", Subject.ENGLISH);
         Classroom classroom1 = new Classroom("12B");
         Catalogue catalogue = new Catalogue(classroom1);
 
+        StudentRepository studentRepository = new StudentRepository();
+        StudentService studentService= new StudentService(studentRepository);
+
         classroom1.AddStudent(rares1);
         classroom1.AddTeacher(teacher);
         classroom1.AddStudent(rares);
-        rares.EnrollIntoCourse(math);
-        rares.EnrollIntoCourse(english);
-        rares1.EnrollIntoCourse(english);
-        rares1.AddGrade(10, english);
-        rares1.AddGrade(10, english);
-        rares1.AddGrade(10, english);
-        rares1.AddGrade(10, english);
-        rares1.AddGrade(1, english);
-        rares.AddGrade(10, math);
-        rares.AddGrade(7, math);
-        rares.AddGrade(9, math);
-        rares.AddAbsence(new Absence(math));
-        rares1.AddAbsence(new Absence(english));
+
+        studentService.EnrollIntoCourse(math, 1, students);
+        studentService.EnrollIntoCourse(english, 1, students);
+
+        //rares.EnrollIntoCourse(math);
+        //rares.EnrollIntoCourse(english);
+        //rares1.EnrollIntoCourse(english);
+        //rares1.AddGrade(10, english);
+        //rares1.AddGrade(10, english);
+        //rares1.AddGrade(10, english);
+        //rares1.AddGrade(10, english);
+        //rares1.AddGrade(1, english);
+        //rares.AddGrade(10, math);
+        //rares.AddGrade(7, math);
+        //rares.AddGrade(9, math);
+        //rares.AddAbsence(new Absence(math));
+        //rares1.AddAbsence(new Absence(english));
 
         try
         {

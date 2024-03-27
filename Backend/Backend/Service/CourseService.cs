@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Service
 {
-    public interface CourseService
+    public class CourseService : ICourseService
     {
     }
 }

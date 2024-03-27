@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Repository
 {
-    public class AbsenceRepository : IAbsenceRepository
+    public interface IClassroomRepository
     {
-        //db mock
     }
 }

@@ -20,12 +20,17 @@ namespace Backend.Models
         //add dictionary of gpa's for final grade
 
         //public int classroomID { get; set; } = -1;
-        public bool Assigned { get; set; } = false;
+        
         public Student(string parentEmail, string parentName, int age, int phoneNumber, string name, string address) : base(age, phoneNumber, name, address)
         {
+            ID++;
             ParentName = parentName;
             ParentEmail = parentEmail;
         }
+
+        public int ID { get; set; } = 0;
+
+        public bool Assigned { get; set; } = false;
 
         public List<Absence> Absences { get; set; } = new List<Absence>();
 
@@ -58,28 +63,28 @@ namespace Backend.Models
             //Absences.Remove(getAbsenceByDate(date));
         }
 
-        public void AddAbsence(Absence absence)
-        {
-            //foreach (Student s in absence.Course.Students)
-            //{
-            //    Console.WriteLine("\n\n\n\n\t\t\t"+s.ToString());
-            //}
-            //Console.WriteLine($"print pentru a vedea daca student e in array: {absence.Course.Students.Contains(this)}");
-            if (!absence.Course.Students.Contains(this))
-            {
-                AbsenceException.LogError();
-                Logger.LogMethodCall(nameof(AddAbsence), false);
-                throw new InvalidAbsenceException($"Cannot mark student {Name} as absent in \"{absence.Course.Name}\" because student is not enrolled in it");
-            }
-            else if (Absences.Any(d => d.Date == absence.Date && d.Course.Subject == absence.Course.Subject))
-            {
-                Logger.LogMethodCall(nameof(AddAbsence), false);
-                throw new DuplicateAbsenceException($"Cannot mark student {Name} as absent twice in the same day ({absence.Date.ToString("dd/MM/yyyy")}) for the same course ({absence.Course.Name})");
-            }
-            Message.AbsenceMessage(this, absence);
-            Logger.LogMethodCall(nameof(AddAbsence), true);
-            Absences.Add(absence);
-        }
+        //public void AddAbsence(Absence absence)
+        //{
+        //    //foreach (Student s in absence.Course.Students)
+        //    //{
+        //    //    Console.WriteLine("\n\n\n\n\t\t\t"+s.ToString());
+        //    //}
+        //    //Console.WriteLine($"print pentru a vedea daca student e in array: {absence.Course.Students.Contains(this)}");
+        //    if (!absence.Course.Students.Contains(this))
+        //    {
+        //        AbsenceException.LogError();
+        //        Logger.LogMethodCall(nameof(AddAbsence), false);
+        //        throw new InvalidAbsenceException($"Cannot mark student {Name} as absent in \"{absence.Course.Name}\" because student is not enrolled in it");
+        //    }
+        //    else if (Absences.Any(d => d.Date == absence.Date && d.Course.Subject == absence.Course.Subject))
+        //    {
+        //        Logger.LogMethodCall(nameof(AddAbsence), false);
+        //        throw new DuplicateAbsenceException($"Cannot mark student {Name} as absent twice in the same day ({absence.Date.ToString("dd/MM/yyyy")}) for the same course ({absence.Course.Name})");
+        //    }
+        //    Message.AbsenceMessage(this, absence);
+        //    Logger.LogMethodCall(nameof(AddAbsence), true);
+        //    Absences.Add(absence);
+        //}
 
         //public void addToClassroom(Classroom classroom) {
         //    if(!(classroomID==-1))
@@ -107,23 +112,23 @@ namespace Backend.Models
         //    List<int> grades = new List<int>();
         //    Grades.Add(course, grades);
         //}
-        public void AddGrade(int grade, Course course)
-        {
+        //public void AddGrade(int grade, Course course)
+        //{
 
-            bool checkIfPresent = Grades.TryGetValue(course, out var list);
-            if (checkIfPresent)
-            {
-                Message.GradeMessage(grade, this, course.Name);
-                Logger.LogMethodCall(nameof(AddGrade), true);
-                list.Add(grade);
-            }
-            else
-            {
-                StudentException.LogError();
-                Logger.LogMethodCall(nameof(AddGrade), false);
-                throw new StudentException($"Student {Name} is not enrolled into the course: {course.Name}, therefor he can not be assigned a grade for this course");
-            }
-        }
+        //    bool checkIfPresent = Grades.TryGetValue(course, out var list);
+        //    if (checkIfPresent)
+        //    {
+        //        Message.GradeMessage(grade, this, course.Name);
+        //        Logger.LogMethodCall(nameof(AddGrade), true);
+        //        list.Add(grade);
+        //    }
+        //    else
+        //    {
+        //        StudentException.LogError();
+        //        Logger.LogMethodCall(nameof(AddGrade), false);
+        //        throw new StudentException($"Student {Name} is not enrolled into the course: {course.Name}, therefor he can not be assigned a grade for this course");
+        //    }
+        //}
 
         public void AddGpa(decimal grade, Course course)
         { 
@@ -154,20 +159,20 @@ namespace Backend.Models
                 throw new StudentException($"Student is not enrolled into the course {course.Name}");
             }
         }
-        public void EnrollIntoCourse(Course course)
-        {
-            if (course.Students.Contains(this))
-            {
-                StudentException.LogError();
-                throw new StudentException($"Student {Name} is already enrolled into this course");
-            }
-            course.Students.Add(this);
-            List<int> grades = new List<int>();
-            GPAs.Add(course, 0);
-            Grades.Add(course, grades);
+        //public void EnrollIntoCourse(Course course)
+        //{
+        //    if (course.Students.Contains(this))
+        //    {
+        //        StudentException.LogError();
+        //        throw new StudentException($"Student {Name} is already enrolled into this course");
+        //    }
+        //    course.Students.Add(this);
+        //    List<int> grades = new List<int>();
+        //    GPAs.Add(course, 0);
+        //    Grades.Add(course, grades);
 
-            //Console.WriteLine(course.Students);
-        }
+        //    //Console.WriteLine(course.Students);
+        //}
         public override string ToString()
         {
             StringBuilder stringBuilder = new StringBuilder();
