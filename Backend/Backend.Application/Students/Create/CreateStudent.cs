@@ -21,10 +21,14 @@ public class CreateStudentHandler : IRequestHandler<CreateStudent, StudentDto>
     public Task<StudentDto> Handle(CreateStudent request, CancellationToken cancellationToken)
     {
 
-        var student = new Student() { Age = request.age, ParentEmail = request.parentEmail, ParentName = request.parentName, PhoneNumber = request.phoneNumber, Name = request.name, Address = request.address };
+        var student = new Student() { Age = request.age, ParentEmail = request.parentEmail, ParentName = request.parentName, PhoneNumber = request.phoneNumber, Name = request.name, Address = request.address,ID=GetNextId() };
 
         var createdStudent = _studentRepository.Create(student);
+        return Task.FromResult(StudentDto.FromStudent(createdStudent));
+    }
 
-        return Task.FromResult(StudentDto.FromStudent(student));
+    private int GetNextId()
+    {
+        return _studentRepository.GetLastId();
     }
 }

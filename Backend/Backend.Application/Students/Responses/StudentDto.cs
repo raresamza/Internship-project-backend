@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace Backend.Application.Students.Responses;
@@ -19,6 +20,9 @@ public class StudentDto
     public required string Name { get; set; }
     public required string Address { get; set; }
     public required int PhoneNumber { get; set; }
+    public Dictionary<Course, List<int>> Grades { get; set; }
+    public Dictionary<Course, decimal> GPAs { get; set; }
+    public ICollection<Absence> Absences { get; set; }
 
     public static StudentDto FromStudent(Student student)
     {
@@ -31,6 +35,9 @@ public class StudentDto
             Name = student.Name,
             Address = student.Address,
             PhoneNumber = student.PhoneNumber,
+            Grades = student.Grades,
+            GPAs = student. GPAs,
+            Absences = student.Absences,
         };
     }
 
@@ -38,29 +45,30 @@ public class StudentDto
     {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.Append($"\nStudent(ID: {ID}) details:\n\tStundent Name: {Name}\n\tStudent Age: {Age}\n\tStudent Phone Number: {PhoneNumber}\n\tStudent's Parent Name: {ParentName}\n\tStudent's Parent Email Addrees: {ParentEmail}\n\tStudent Address: {Address}\n\tStudent Grades:\n");
-        //foreach (var entry in Grades)
-        //{
-        //    Course course = entry.Key;
-        //    List<int> grades = entry.Value;
-        //    stringBuilder.Append($"\t\tCourse: {course.Name}\n");
+        foreach (var entry in Grades)
+        {
+            Course course = entry.Key;
+            List<int> grades = entry.Value;
+            stringBuilder.Append($"\t\tCourse: {course.Name}\n");
 
-        //    stringBuilder.Append("\t\t\tGrades: ");
-        //    foreach (var grade in grades)
-        //    {
-        //        stringBuilder.Append($"{grade} ");
-        //    }
-        //    stringBuilder.Append("\n\t\t\tGPA: ");
-        //    stringBuilder.Append($"{(GPAs.TryGetValue(course, out decimal res) == true ? res : "N/A")} ");
-        //    stringBuilder.Append('\n');
+            stringBuilder.Append("\t\t\tGrades: ");
+            foreach (var grade in grades)
+            {
+                stringBuilder.Append($"{grade} ");
+            }
+            stringBuilder.Append("\n\t\t\tGPA: ");
+            stringBuilder.Append($"{(GPAs.TryGetValue(course, out decimal res) == true ? res : "N/A")} ");
+            stringBuilder.Append('\n');
 
-        //}
-        //stringBuilder.Append($"\t\tAbsences:\n");
+        }
+        stringBuilder.Append($"\t\tAbsences:\n");
 
-        //foreach (Absence absence in Absences)
-        //{
-        //    stringBuilder.Append($"\t\t\t{absence.Date.ToString("dd/MM/yyyy")}, {absence.Course.Name}\n");
-        //}
+        foreach (Absence absence in Absences)
+        {
+            stringBuilder.Append($"\t\t\t{absence.Date.ToString("dd/MM/yyyy")}, {absence.Course.Name}\n");
+        }
 
         return stringBuilder.ToString();
     }
+
 }

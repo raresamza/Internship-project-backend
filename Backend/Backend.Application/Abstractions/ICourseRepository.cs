@@ -7,5 +7,5 @@ public interface ICourseRepository
 {
 
     public Course Create(Course course);
-    public Course GetCourseById(int courseId);
+    public int GetLastId();
 }

@@ -16,41 +16,28 @@ public class StudentRepository : IStudentRepository
 
     private readonly List<Student> _students = new();
 
-    public void AddStudent(Student student)
-    {
-        _students.Add(student);
-    }
-
-    public void DeleteStudentById(int studentId)
-    {
-        _students.Remove(_students.First(student => student.ID == studentId));
-    }
-
     public List<Student> GetAllStudents()
     {
-
         return _students;
     }
 
     //db mock
-    public Student GetStudentById(int studentId)
-    {
-        if (!_students.Any(student => student.ID == studentId))
-        {
-            throw new StudentNotFoundException($"Student with ID: {studentId} not found!");
-        }
-        //return null;
-        return _students.First(student => student.ID == studentId);
-    }
 
-    public void UpdateStudent(int studentID)
+    public Student? GetById(int id)
     {
-        throw new NotImplementedException();
+        return _students.FirstOrDefault(s => s.ID == id);
     }
 
     public Student Create(Student student)
     {
         _students.Add(student);
         return student;
+    }
+
+    public int GetLastId()
+    {
+        if (_students.Count == 0) return 1;
+        var lastId = _students.Max(a => a.ID);
+        return lastId + 1;
     }
 }

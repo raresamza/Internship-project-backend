@@ -28,15 +28,15 @@ public class Student : User
 
     public Student() : base()
     {
-        ID = ++_lastAssignedId;
+        //ID = ++_lastAssignedId;
         Absences = _absences;
         Grades = _grades;
         GPAs = _gpas;
     }
 
-    private static int _lastAssignedId = 0;
+    //private static int _lastAssignedId = 0;
 
-    public int ID { get; }
+    public int ID { get; set; }
 
     public bool Assigned { get; set; } = false;
 
