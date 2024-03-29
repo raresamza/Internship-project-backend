@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.Exceptions.TeacherException
+namespace Backend.Exceptions.TeacherException;
+
+public class TeacherAlreadyAssignedException : Exception
 {
-    public class TeacherAlreadyAssignedException : Exception
-    {
-        public TeacherAlreadyAssignedException() : base() { }
+    public TeacherAlreadyAssignedException() : base() { }
 
-        public TeacherAlreadyAssignedException(string message) : base(message) { }
+    public TeacherAlreadyAssignedException(string message) : base(message) { }
 
-        public TeacherAlreadyAssignedException(string message, Exception innerException) : base(message, innerException) { }
-    }
+    public TeacherAlreadyAssignedException(string message, Exception innerException) : base(message, innerException) { }
 }

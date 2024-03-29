@@ -4,13 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.Models
+namespace Backend.Domain.Models;
+public enum Subject
 {
-    public enum Subject
-    {
-        MATH,
-        ENGLISH,
-        HISTORY,
-        PHYSICS
-    }
+    MATH,
+    ENGLISH,
+    HISTORY,
+    PHYSICS
 }

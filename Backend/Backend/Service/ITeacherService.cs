@@ -1,4 +1,4 @@
-﻿using Backend.Models;
+﻿using Backend.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +9,8 @@ namespace Backend.Service
 {
     public interface ITeacherService
     {
-        public void AddToClassroom(int classroomID, int teacherID, List<Teacher> teachers,List<Classroom> classrooms);
-        public void AssignToCourse(int courseID, int teacherID, List<Teacher> teachers,List<Course> courses);
+        public void AddToClassroom(int classroomID, int teacherID);
+        public void AssignToCourse(int courseID, int teacherID);
 
     }
 }

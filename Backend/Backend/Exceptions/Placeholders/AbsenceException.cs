@@ -4,20 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.Exceptions.Placeholders
-{
-    internal class AbsenceException : Exception, Throwable
-    {
+namespace Backend.Exceptions.Placeholders;
 
-        public AbsenceException(string message) : base(message)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-        }
-        public static void LogError()
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Error logged: AbsenceException occurred.");
-            Console.ForegroundColor = ConsoleColor.White;
-        }
+internal class AbsenceException : Exception, Throwable
+{
+
+    public AbsenceException(string message) : base(message)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+    }
+    public static void LogError()
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Error logged: AbsenceException occurred.");
+        Console.ForegroundColor = ConsoleColor.White;
     }
 }

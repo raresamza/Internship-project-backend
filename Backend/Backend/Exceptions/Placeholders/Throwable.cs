@@ -5,23 +5,22 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.Exceptions.Placeholders
+namespace Backend.Exceptions.Placeholders;
+
+public interface Throwable
 {
-    public interface Throwable
+    public static void Reset()
     {
-        public static void Reset()
-        {
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-
-        //public static void LogError()
-        //{
-        //    Console.ForegroundColor = ConsoleColor.Red;
-
-        //    Console.WriteLine("Error logged: TeacherException occurred.");
-        //    Console.ForegroundColor = ConsoleColor.White;
-
-        //}
-
+        Console.ForegroundColor = ConsoleColor.White;
     }
+
+    //public static void LogError()
+    //{
+    //    Console.ForegroundColor = ConsoleColor.Red;
+
+    //    Console.WriteLine("Error logged: TeacherException occurred.");
+    //    Console.ForegroundColor = ConsoleColor.White;
+
+    //}
+
 }

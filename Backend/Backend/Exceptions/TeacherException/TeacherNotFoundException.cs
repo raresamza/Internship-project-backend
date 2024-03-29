@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.Exceptions.TeacherException
+namespace Backend.Exceptions.TeacherException;
+
+public class TeacherNotFoundException : Exception
 {
-    public class TeacherNotFoundException : Exception
-    {
-        public TeacherNotFoundException() : base() { }
+    public TeacherNotFoundException() : base() { }
 
-        public TeacherNotFoundException(string message) : base(message) { }
+    public TeacherNotFoundException(string message) : base(message) { }
 
-        public TeacherNotFoundException(string message, Exception innerException) : base(message, innerException) { }
-    }
+    public TeacherNotFoundException(string message, Exception innerException) : base(message, innerException) { }
 }

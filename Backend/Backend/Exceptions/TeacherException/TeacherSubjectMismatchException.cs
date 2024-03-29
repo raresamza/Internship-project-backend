@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.Exceptions.TeacherException
+namespace Backend.Exceptions.TeacherException;
+
+public class TeacherSubjectMismatchException : Exception
 {
-    public class TeacherSubjectMismatchException : Exception
-    {
-        public TeacherSubjectMismatchException() : base() { }
+    public TeacherSubjectMismatchException() : base() { }
 
-        public TeacherSubjectMismatchException(string message) : base(message) { }
+    public TeacherSubjectMismatchException(string message) : base(message) { }
 
-        public TeacherSubjectMismatchException(string message, Exception innerException) : base(message, innerException) { }
-    }
+    public TeacherSubjectMismatchException(string message, Exception innerException) : base(message, innerException) { }
 }
