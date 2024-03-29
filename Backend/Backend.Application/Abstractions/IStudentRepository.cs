@@ -11,5 +11,9 @@ public interface IStudentRepository
 
     public Student? GetById(int id);
 
+    public void Delete(int id);
+
+    public void UpdateStudent(Student student,int id);
+
 
 }

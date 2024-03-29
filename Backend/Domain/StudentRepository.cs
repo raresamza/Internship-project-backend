@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Backend.Domain.Models;
 using Backend.Exceptions.StudentException;
 using Backend.Application.Abstractions;
+using Backend.Exceptions.TeacherException;
 
 namespace Backend.Infrastructure;
 
@@ -39,5 +40,21 @@ public class StudentRepository : IStudentRepository
         if (_students.Count == 0) return 1;
         var lastId = _students.Max(a => a.ID);
         return lastId + 1;
+    }
+
+    public void Delete(int id)
+    {
+        var student = _students.FirstOrDefault(s => s.ID == id);
+        _students.Remove(student);
+    }
+
+    public void UpdateStudent(Student student, int id)
+    {
+        var oldStudent = GetById(id);
+        if (oldStudent == null)
+        {
+            throw new TeacherNotFoundException($"Teacher with id {id} not found");
+        }
+        oldStudent = student;
     }
 }

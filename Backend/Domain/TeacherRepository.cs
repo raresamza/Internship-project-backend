@@ -2,6 +2,7 @@
 using Backend.Domain.Models;
 using Backend.Application.Abstractions;
 using MediatR;
+using Backend.Exceptions.TeacherException;
 namespace Backend.Infrastructure;
 public class TeacherRepository : ITeacherRepository
 {
@@ -13,9 +14,15 @@ public class TeacherRepository : ITeacherRepository
         return teacher;
     }
 
+    public void Delete(int id)
+    {
+        var teacher = GetById(id);
+        _teachers.Remove(teacher);
+    }
+
     public Teacher? GetById(int id)
     {
-        return _teachers.FirstOrDefault(s => s.ID == id);
+        return _teachers.FirstOrDefault(t => t.ID == id);
     }
 
     public int GetLastId()
@@ -23,6 +30,16 @@ public class TeacherRepository : ITeacherRepository
         if (_teachers.Count == 0) return 1;
         var lastId = _teachers.Max(a => a.ID);
         return lastId + 1;
+    }
+
+    public void UpdateTeacher(Teacher teacher, int id)
+    {
+        var oldTeacher = GetById(id);
+        if (oldTeacher == null)
+        {
+            throw new TeacherNotFoundException($"Teacher with id {id} not found");
+        }
+        oldTeacher = teacher;
     }
 }
 

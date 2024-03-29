@@ -1,6 +1,7 @@
 ﻿using Backend.Exceptions.StudentException;
 using Backend.Domain.Models;
 using Backend.Application.Abstractions;
+using Backend.Exceptions.TeacherException;
 
 
 namespace Backend.Infrastructure;
@@ -31,5 +32,32 @@ public class CourseRepository : ICourseRepository
         if (_courses.Count == 0) return 1;
         var lastId = _courses.Max(a => a.ID);
         return lastId + 1;
+    }
+
+    public Course? GetById(int id)
+    {
+        return _courses.FirstOrDefault(c => c.ID == id);
+    }
+
+    public void UpdateCourse(Course course, int id)
+    {
+        var oldCoruse = GetById(id);
+        if (oldCoruse == null)
+        {
+            throw new TeacherNotFoundException($"Teacher with id {id} not found");
+        }
+        oldCoruse = course;
+    }
+
+    public void DeleteCourse(int id)
+    {
+        var course = GetById(id);
+        _courses.Remove(course);
+    }
+
+    public void Add(Student student, int s)
+    {
+        var course = GetById(student.ID);
+        course.Students.Add(student);
     }
 }

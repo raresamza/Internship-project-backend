@@ -10,4 +10,8 @@ public interface ITeacherRepository
     int GetLastId();
 
     public Teacher? GetById(int id);
+
+    public void UpdateTeacher(Teacher teacher,int id);
+
+    public void Delete(int id);    
 }

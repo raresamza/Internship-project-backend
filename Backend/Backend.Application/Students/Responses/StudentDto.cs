@@ -36,7 +36,7 @@ public class StudentDto
             Address = student.Address,
             PhoneNumber = student.PhoneNumber,
             Grades = student.Grades,
-            GPAs = student. GPAs,
+            GPAs = student.GPAs,
             Absences = student.Absences,
         };
     }

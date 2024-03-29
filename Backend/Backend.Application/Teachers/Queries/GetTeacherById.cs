@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Backend.Application.Teachers.Queries;
 
 
-public record GetTeacherById(int Id): IRequest<TeacherDto>;
+public record GetTeacherById(int Id) : IRequest<TeacherDto>;
 
 public class GetTeacherByIdHandler : IRequestHandler<GetTeacherById, TeacherDto>
 {
@@ -25,7 +25,7 @@ public class GetTeacherByIdHandler : IRequestHandler<GetTeacherById, TeacherDto>
 
     public Task<TeacherDto> Handle(GetTeacherById request, CancellationToken cancellationToken)
     {
-        var teacher=_teacherRepository.GetById(request.Id);
+        var teacher = _teacherRepository.GetById(request.Id);
         if (teacher == null)
         {
             throw new TeacherNotFoundException($"The teacher witrh id: {request.Id} was not found!");

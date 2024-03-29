@@ -28,7 +28,7 @@ public class TeacherDto
             PhoneNumber = teacher.PhoneNumber,
             Subject = teacher.Subject,
             ID = teacher.ID,
-            TaughtCourse= teacher.TaughtCourse,
+            TaughtCourse = teacher.TaughtCourse,
         };
     }
     public override string ToString()

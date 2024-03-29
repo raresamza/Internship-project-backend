@@ -9,14 +9,12 @@ public class Course
 {
     public Course(string name, Subject subject)
     {
-        ID = ++_lastAssignedId;
         Name = name;
         Subject = subject;
     }
 
     public Course()
     {
-        ID = ++_lastAssignedId;
         Students = _students;
     }
     //enroll move
@@ -27,9 +25,8 @@ public class Course
 
     public ICollection<Student> Students { get; set; }
 
-    private static int _lastAssignedId = 0;
 
-    public int ID { get; }
+    public int ID { get; set; }
 
     public override string ToString()
     {
