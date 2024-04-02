@@ -11,7 +11,8 @@ public class Logger
 
     private static readonly string LogDirectory = "Logs";
     private static readonly string logFileName = $"Logs_{DateTime.Now:dd_MM_yyyy}.txt";
-    private static readonly string logFilePath = $"..\\..\\..\\Logs\\{logFileName}";
+    //private static readonly string logFilePath = $"../Logs/{logFileName}";
+    private static readonly string logFilePath = Path.Combine("..","..", "..", "..", "Domain", "Logs", logFileName);
 
     public async static Task LogMethodCall(string methodName, bool success)
     {
@@ -28,7 +29,6 @@ public class Logger
                 }
             }
             await WriteLogAsync(logFilePath, logEntry);
-            await Console.Out.WriteLineAsync("writed");
         }
         catch (Exception ex)
         {

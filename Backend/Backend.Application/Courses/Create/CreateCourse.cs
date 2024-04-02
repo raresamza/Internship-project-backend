@@ -25,9 +25,14 @@ public class CreateCourseHandler : IRequestHandler<CreateCourse, CourseDto>
 
     public Task<CourseDto> Handle(CreateCourse request, CancellationToken cancellationToken)
     {
-        var course = new Course() { Name = request.Name, Subject = request.Subject };
+        var course = new Course() { Name = request.Name, Subject = request.Subject,ID=GetNextId() };
         var createdCourse = _courseRepository.Create(course);
         return Task.FromResult(CourseDto.FromCourse(createdCourse));
+        //add id
+    }
 
+    private int GetNextId()
+    {
+        return _courseRepository.GetLastId();
     }
 }

@@ -3,6 +3,8 @@ using Backend.Domain.Models;
 using Backend.Application.Abstractions;
 using MediatR;
 using Backend.Exceptions.TeacherException;
+using Backend.Application.Courses.Actions;
+using Backend.Infrastructure.Utils;
 namespace Backend.Infrastructure;
 public class TeacherRepository : ITeacherRepository
 {
@@ -11,6 +13,7 @@ public class TeacherRepository : ITeacherRepository
     public Teacher Create(Teacher teacher)
     {
         _teachers.Add(teacher);
+        Logger.LogMethodCall(nameof(Create), true);
         return teacher;
     }
 
@@ -18,10 +21,12 @@ public class TeacherRepository : ITeacherRepository
     {
         var teacher = GetById(id);
         _teachers.Remove(teacher);
+        Logger.LogMethodCall(nameof(Delete), true);
     }
 
     public Teacher? GetById(int id)
     {
+        Logger.LogMethodCall(nameof(GetById), true);
         return _teachers.FirstOrDefault(t => t.ID == id);
     }
 
@@ -37,9 +42,11 @@ public class TeacherRepository : ITeacherRepository
         var oldTeacher = GetById(id);
         if (oldTeacher == null)
         {
+            Logger.LogMethodCall(nameof(UpdateTeacher), false);
             throw new TeacherNotFoundException($"Teacher with id {id} not found");
         }
         oldTeacher = teacher;
+        Logger.LogMethodCall(nameof(UpdateTeacher), true);
     }
 }
 

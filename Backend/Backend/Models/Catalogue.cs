@@ -16,9 +16,15 @@ public class Catalogue
 {
     //make sure to assign catalogue to classroom;
     public Classroom Classroom { get; set; }
+    public int ID { get; set; }
     public Catalogue(Classroom classroom)
     {
         Classroom = classroom;
+    }
+
+    public Catalogue() 
+    {
+
     }
 
     public decimal ComputeGpa(Student student, Course course)

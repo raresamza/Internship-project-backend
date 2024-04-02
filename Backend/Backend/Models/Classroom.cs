@@ -13,18 +13,29 @@ namespace Backend.Domain.Models;
 public class Classroom
 {
 
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
-    public List<Course> Courses { get; set; } = new List<Course>();
+    private List<Course> _courses = new();
+    private List<Teacher> _teachers= new();
+    private List<Student> _students = new();
     public Classroom(string name)
     {
-        ID = ++_lastAssigned;
         Name = name;
     }
-    public static int _lastAssigned = 0;
-    public int ID { get; set; } = 0;
-    public List<Student> Students { get; set; } = new List<Student>();
-    public List<Teacher> Teachers { get; set; } = new List<Teacher>();
+
+    public Classroom() 
+    {
+        Courses = _courses;
+        Teachers = _teachers;
+        Students = _students;
+        
+    }
+
+    public ICollection<Course> Courses { get; set; }
+
+    public int ID { get; set; } 
+    public ICollection<Student> Students { get; set; } 
+    public ICollection<Teacher> Teachers { get; set; } 
     //public void assignCourse(Course course)
     //{
     //    if (course == null)

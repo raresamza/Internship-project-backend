@@ -2,6 +2,8 @@
 using Backend.Domain.Models;
 using Backend.Application.Abstractions;
 using Backend.Exceptions.TeacherException;
+using Backend.Application.Courses.Actions;
+using Backend.Infrastructure.Utils;
 
 
 namespace Backend.Infrastructure;
@@ -36,6 +38,7 @@ public class CourseRepository : ICourseRepository
 
     public Course? GetById(int id)
     {
+        Logger.LogMethodCall(nameof(GetById), true);
         return _courses.FirstOrDefault(c => c.ID == id);
     }
 
@@ -44,6 +47,7 @@ public class CourseRepository : ICourseRepository
         var oldCoruse = GetById(id);
         if (oldCoruse == null)
         {
+            Logger.LogMethodCall(nameof(UpdateCourse), false);
             throw new TeacherNotFoundException($"Teacher with id {id} not found");
         }
         oldCoruse = course;
@@ -53,11 +57,13 @@ public class CourseRepository : ICourseRepository
     {
         var course = GetById(id);
         _courses.Remove(course);
+        Logger.LogMethodCall(nameof(DeleteCourse), true);
     }
 
     public void Add(Student student, int s)
     {
         var course = GetById(student.ID);
         course.Students.Add(student);
+        Logger.LogMethodCall(nameof(Add), true);
     }
 }

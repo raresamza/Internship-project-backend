@@ -14,7 +14,7 @@
 //        _student= new Student("mail@mail.com", "Adi", 11, 11111111, "Rares", "deva");
 //    }
 
-
+//can add assert false
 //    [Theory]
 //    [InlineData("Adi")]
 //    public void Constructor_ParentNameTest(string expectedParentName)

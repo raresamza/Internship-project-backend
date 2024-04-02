@@ -30,6 +30,7 @@ public class AddStudentHandler : IRequestHandler<AddStudent, CourseDto>
         }
         dbCourse.Students.Add(dbStudent);
         List<int> grades = new List<int>();
+        
         dbStudent.GPAs.Add(dbCourse, 0);
         dbStudent.Grades.Add(dbCourse, grades);
         _courseRepository.UpdateCourse(dbCourse, dbCourse.ID);

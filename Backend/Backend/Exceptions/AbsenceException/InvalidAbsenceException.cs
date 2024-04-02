@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.AbsenceException;
 
-internal class InvalidAbsenceException : Exception
+public class InvalidAbsenceException : Exception
 {
     public InvalidAbsenceException() : base() { }
 

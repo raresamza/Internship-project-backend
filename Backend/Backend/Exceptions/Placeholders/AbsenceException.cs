@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Exceptions.Placeholders;
 
-internal class AbsenceException : Exception, Throwable
+public class AbsenceException : Exception, Throwable
 {
 
     public AbsenceException(string message) : base(message)
