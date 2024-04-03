@@ -1,7 +1,6 @@
 ﻿using Backend.Application.Abstractions;
 using Backend.Application.Catalogues.Response;
 using Backend.Domain.Models;
-using Backend.Service;
 using MediatR;
 using System;
 using System.Collections.Generic;

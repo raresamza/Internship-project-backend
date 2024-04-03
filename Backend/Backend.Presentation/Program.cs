@@ -22,6 +22,9 @@ using Backend.Application.Classrooms.Queries;
 using Backend.Application.Catalogues.Queries;
 using Backend.Application.Classrooms.Actions;
 using Backend.Application.Catalogues.Actions;
+using Backend.Application.Schools.Create;
+using Backend.Application.Schools.Queries;
+using Backend.Application.Schools.Actions;
 
 var diContainer = new ServiceCollection()
     .AddSingleton<IStudentRepository, StudentRepository>()
@@ -30,6 +33,7 @@ var diContainer = new ServiceCollection()
     .AddSingleton<IAbsenceRepository, AbsenceRepository>()
     .AddSingleton<IClassroomRepository, ClassroomRepository>()
     .AddSingleton<ICatalogueRepository, CatalogueRepository>()
+    .AddSingleton<ISchoolRepository, SchoolRepository>()
     .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ICourseRepository).Assembly))
     .BuildServiceProvider();
 
@@ -44,6 +48,7 @@ var absence = await mediator.Send(new CreateAbsence(course.ID));
 var absence1 = await mediator.Send(new CreateAbsence(course1.ID));
 var classroom = await mediator.Send(new CreateClassroom("12A"));
 var catalogue= await mediator.Send(new CreateCatalogue(classroom.ID));
+var school = await mediator.Send(new CreateSchool("Colegiul National Decebal Deva"));
 
 await mediator.Send(new EnrollIntoCourse(student.ID,course.ID));
 await mediator.Send(new EnrollIntoCourse(student2.ID,course.ID));
@@ -57,10 +62,14 @@ await mediator.Send(new AddStudentToClassroom(student2.ID, classroom.ID));
 
 await mediator.Send(new AddGrade(student.ID,course.ID,10));
 await mediator.Send(new AddGrade(student.ID,course.ID,3));
+await mediator.Send(new RemoveGrade(student.ID, course.ID, 3));
 await mediator.Send(new AddGrade(student.ID,course.ID,8));
 await mediator.Send(new AddAbsence(student.ID, absence.Id));
 await mediator.Send(new AddAbsence(student.ID, absence1.Id));
+await mediator.Send(new MotivateAbsence(student.ID, absence.Id,absence.Course.ID));
 await mediator.Send(new AddGpa(student.ID, course.ID));
+await mediator.Send(new AddClassroom(school.ID,classroom.ID));
+await mediator.Send(new RemoveClassroom(school.ID, classroom.ID));
 //await mediator.Send(new AddAbsence(student.ID, absence.Id));
 
 //Console.WriteLine(await mediator.Send(new GetCourseById(course.ID)));
@@ -69,4 +78,4 @@ Console.WriteLine(await mediator.Send(new GetStudentById(student.ID)));
 //Console.WriteLine(await mediator.Send(new GetAbsenceById(absence.Id)));
 //Console.WriteLine(await mediator.Send(new GetClassroomById(classroom.ID)));
 //Console.WriteLine(await mediator.Send(new GetCatalogueById(catalogue.ID)));
-
+//Console.WriteLine(await mediator.Send(new GetSchoolById(school.ID)));

@@ -114,5 +114,64 @@ public class StudentRepository : IStudentRepository
         student.Absences.Add(absence);
     }
 
-    
+    public void RemoveGrade(Student student, Course course,int grade)
+    {
+        bool checkIfPresent = student.Grades.TryGetValue(course, out var list);
+        if (checkIfPresent)
+        {
+            Logger.LogMethodCall(nameof(RemoveGrade), true);
+            list.Remove(grade);
+        }
+        else
+        {
+            StudentException.LogError();
+            Logger.LogMethodCall(nameof(RemoveGrade), false);
+            throw new StudentException($"Student is not enrolled into the course {course.Name}");
+        }
+    }
+
+    public void MotivateAbsence(DateTime date, Course course, Student student)
+    {
+
+        if (course == null)
+        {
+            CourseException.LogError();
+            Logger.LogMethodCall(nameof(MotivateAbsence), false);
+            throw new NullCourseException("This course is not valid");
+        }
+        else if (!course.Students.Contains(student))
+        {
+            StudentException.LogError();
+            Logger.LogMethodCall(nameof(MotivateAbsence), false);
+            throw new StudentNotEnrolledException($"Cannot motivate absence for {student.Name} because he is not enrolled into {course.Name}");
+        }
+        //foreach (Absence absence in student.Absences)
+        //{
+        //    if (absence.Date == date.Date && absence.Course.Name.Equals(course.Name))
+        //    {
+        //        student.Absences.Remove(absence);
+        //        Logger.LogMethodCall(nameof(MotivateAbsence), true);
+
+        //    }
+        //}
+        // Create a list to store absences to be removed
+        List<Absence> absencesToRemove = new List<Absence>();
+
+        // Iterate over the absences
+        foreach (Absence absence in student.Absences.ToList())
+        {
+            if (absence.Date == date.Date && absence.Course.Name.Equals(course.Name))
+            {
+                // Add the absence to the list of items to be removed
+                absencesToRemove.Add(absence);
+                Logger.LogMethodCall(nameof(MotivateAbsence), true);
+            }
+        }
+
+        // Remove the absences after the iteration
+        foreach (Absence absenceToRemove in absencesToRemove)
+        {
+            student.Absences.Remove(absenceToRemove);
+        }
+    }
 }
