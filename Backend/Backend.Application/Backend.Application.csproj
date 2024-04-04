@@ -14,4 +14,9 @@
     <ProjectReference Include="..\Backend\Backend.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Absences\Delete\" />
+    <Folder Include="Absences\Update\" />
+  </ItemGroup>
+
 </Project>

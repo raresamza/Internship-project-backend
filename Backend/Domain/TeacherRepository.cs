@@ -6,6 +6,7 @@ using Backend.Exceptions.TeacherException;
 using Backend.Application.Courses.Actions;
 using Backend.Infrastructure.Utils;
 using Backend.Exceptions.Placeholders;
+using Backend.Exceptions.AbsenceException;
 namespace Backend.Infrastructure;
 public class TeacherRepository : ITeacherRepository
 {
@@ -33,9 +34,8 @@ public class TeacherRepository : ITeacherRepository
         return teacher;
     }
 
-    public void Delete(int id)
+    public void Delete(Teacher teacher)
     {
-        var teacher = GetById(id);
         _teachers.Remove(teacher);
         Logger.LogMethodCall(nameof(Delete), true);
     }
@@ -63,6 +63,21 @@ public class TeacherRepository : ITeacherRepository
         }
         oldTeacher = teacher;
         Logger.LogMethodCall(nameof(UpdateTeacher), true);
+    }
+
+    Teacher ITeacherRepository.UpdateTeacher(Teacher teacher, int id)
+    {
+        var oldTeacher = _teachers.FirstOrDefault(s => s.ID == id);
+        if (oldTeacher != null)
+        {
+            oldTeacher = teacher;
+
+            return oldTeacher;
+        }
+        else
+        {
+            throw new TeacherNotFoundException($"The teacher with id: {id} was not found");
+        }
     }
 }
 

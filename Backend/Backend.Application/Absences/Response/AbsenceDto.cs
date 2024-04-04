@@ -13,7 +13,7 @@ public class AbsenceDto
     public int Id { get; set; }
 
     public DateTime Date { get; set; }
-    public Course Course { get; set; }
+    public Course? Course { get; set; }
 
     public static AbsenceDto FromAbsence(Absence absence)
     {

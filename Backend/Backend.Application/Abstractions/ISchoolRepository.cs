@@ -10,6 +10,6 @@ public interface ISchoolRepository
     int GetLastId();
     public School Create(School school);
     public School? GetById(int id);
-
-    public void UpdateSchool(School school, int id);
+    public School Update(int schoolId, School school);
+    public void Delete(School school);
 }

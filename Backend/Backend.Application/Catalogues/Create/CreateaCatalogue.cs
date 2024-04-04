@@ -1,6 +1,7 @@
 ﻿using Backend.Application.Abstractions;
 using Backend.Application.Catalogues.Response;
 using Backend.Domain.Models;
+using Backend.Exceptions.ClassroomException;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,12 @@ public class CreateaCatalogueHandler : IRequestHandler<CreateCatalogue, Catalogu
     public Task<CatalogueDto> Handle(CreateCatalogue request, CancellationToken cancellationToken)
     {
         var classroom=_classroomRepository.GetById(request.classroomId);
+
+        if(classroom == null)
+        {
+            throw new NullClassroomException($"The classroom wiht id: {request.classroomId} was not found");
+        }
+
         var catalogue = new Catalogue() { Classroom = classroom, ID =GetNextId()};
         var newCatalogue=_catalogueRepository.Create(catalogue);
 

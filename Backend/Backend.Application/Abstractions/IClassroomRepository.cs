@@ -6,7 +6,7 @@ public interface IClassroomRepository
     public Classroom Create(Classroom classroom);
     int GetLastId();
     public Classroom? GetById(int id);
-    public void Delete(int id);
+    public void Delete(Classroom classroom);
     public void UpdateClassroom(Classroom classroom, int id);
     public void AddTeacher(Teacher teacher, Classroom classroom);
     public void RemoveStudent(Student student, Classroom classroom);

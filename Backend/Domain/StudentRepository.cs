@@ -50,21 +50,25 @@ public class StudentRepository : IStudentRepository
         return lastId + 1;
     }
 
-    public void Delete(int id)
+    public void Delete(Student student)
     {
-        var student = _students.FirstOrDefault(s => s.ID == id);
         _students.Remove(student);
         Logger.LogMethodCall(nameof(Delete), true);
     }
 
-    public void UpdateStudent(Student student, int id)
+    public Student UpdateStudent(Student student, int id)
     {
-        var oldStudent = GetById(id);
-        if (oldStudent == null)
+        var oldStudent = _students.FirstOrDefault(s => s.ID == id);
+        if (oldStudent != null)
         {
-            throw new TeacherNotFoundException($"Teacher with id {id} not found");
+            oldStudent = student;
+
+            return oldStudent;
         }
-        oldStudent = student;
+        else
+        {
+            throw new StudentNotFoundException($"The student with id: {id} was not found");
+        }
     }
 
     public void AddGrade(int grade, Student student, Course course)
@@ -173,5 +177,11 @@ public class StudentRepository : IStudentRepository
         {
             student.Absences.Remove(absenceToRemove);
         }
+    }
+
+    public Student? GetByName(string name)
+    {
+        Logger.LogMethodCall(nameof(GetByName), true);
+        return _students.FirstOrDefault(s => s.Name == name);
     }
 }

@@ -4,6 +4,8 @@ using Backend.Application.Abstractions;
 using Backend.Exceptions.TeacherException;
 using Backend.Application.Courses.Actions;
 using Backend.Infrastructure.Utils;
+using Backend.Exceptions.AbsenceException;
+using Backend.Exceptions.CourseException;
 
 
 namespace Backend.Infrastructure;
@@ -42,20 +44,23 @@ public class CourseRepository : ICourseRepository
         return _courses.FirstOrDefault(c => c.ID == id);
     }
 
-    public void UpdateCourse(Course course, int id)
+    public Course UpdateCourse(Course course, int id)
     {
-        var oldCoruse = GetById(id);
-        if (oldCoruse == null)
+        var oldCourse = _courses.FirstOrDefault(s => s.ID == id);
+        if (oldCourse != null)
         {
-            Logger.LogMethodCall(nameof(UpdateCourse), false);
-            throw new TeacherNotFoundException($"Teacher with id {id} not found");
+            oldCourse = course;
+
+            return oldCourse;
         }
-        oldCoruse = course;
+        else
+        {
+            throw new NullCourseException($"The course with id: {id} was not found");
+        }
     }
 
-    public void DeleteCourse(int id)
+    public void DeleteCourse(Course course)
     {
-        var course = GetById(id);
         _courses.Remove(course);
         Logger.LogMethodCall(nameof(DeleteCourse), true);
     }

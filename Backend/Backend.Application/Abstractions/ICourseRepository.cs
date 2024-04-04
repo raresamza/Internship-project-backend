@@ -11,9 +11,9 @@ public interface ICourseRepository
 
     public Course? GetById(int id);
 
-    public void UpdateCourse(Course course, int id);
+    public Course UpdateCourse(Course course, int id);
 
-    public void DeleteCourse(int id);
+    public void DeleteCourse(Course course);
 
     public void Add(Student s,int courseId);
 }

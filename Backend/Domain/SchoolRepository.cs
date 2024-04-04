@@ -10,7 +10,7 @@ namespace Backend.Infrastructure;
 public class SchoolRepository : ISchoolRepository
 {
 
-    private readonly List<School> _schools=new(); 
+    private readonly List<School> _schools = new();
     //Db mock
     public void AddClassroom(Classroom classroom, School school)
     {
@@ -75,9 +75,32 @@ public class SchoolRepository : ISchoolRepository
         var oldSchool = GetById(id);
         if (oldSchool == null)
         {
+            Logger.LogMethodCall(nameof(UpdateSchool), false);
             throw new TeacherNotFoundException($"Teacher with id {id} not found");
         }
         oldSchool = school;
+        Logger.LogMethodCall(nameof(UpdateSchool), true);
+    }
+
+    public void Delete(School school)
+    {
+        _schools.Remove(school);
+        Logger.LogMethodCall(nameof(Delete), true);
+    }
+
+    public School Update(int schoolId, School school)
+    {
+        var oldSchool = _schools.FirstOrDefault(s => s.ID == schoolId);
+        if (oldSchool != null)
+        {
+            oldSchool = school;
+
+            return oldSchool;
+        }
+        else
+        {
+            throw new StudentNotFoundException($"The student with id: {schoolId} was not found");
+        }
     }
 }
 

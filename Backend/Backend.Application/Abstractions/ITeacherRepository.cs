@@ -11,8 +11,8 @@ public interface ITeacherRepository
 
     public Teacher? GetById(int id);
 
-    public void UpdateTeacher(Teacher teacher,int id);
+    public Teacher UpdateTeacher(Teacher teacher,int id);
     public void AssignToCourse(Course course, Teacher teacher);
 
-    public void Delete(int id);    
+    public void Delete(Teacher teacher);    
 }

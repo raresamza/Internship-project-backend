@@ -16,7 +16,7 @@ namespace Backend.Application.Absences.Queries;
 public record GetAbsenceById(int absenceId) : IRequest<AbsenceDto>;
 public class GetAbsenceByIdHandler : IRequestHandler<GetAbsenceById, AbsenceDto>
 {
-    public readonly IAbsenceRepository _absenceRepository;
+    private readonly IAbsenceRepository _absenceRepository;
 
     public GetAbsenceByIdHandler(IAbsenceRepository absenceRepository)
     {
@@ -28,7 +28,7 @@ public class GetAbsenceByIdHandler : IRequestHandler<GetAbsenceById, AbsenceDto>
         var absence = _absenceRepository.GetById(request.absenceId);
         if (absence == null)
         {
-            throw new TeacherNotFoundException($"The teacher witrh id: {request.absenceId} was not found!");
+            throw new TeacherNotFoundException($"The absence witrh id: {request.absenceId} was not found!");
         }
 
         return Task.FromResult(AbsenceDto.FromAbsence(absence));

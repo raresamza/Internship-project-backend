@@ -1,5 +1,6 @@
 ﻿using Backend.Application.Abstractions;
 using Backend.Domain.Models;
+using Backend.Exceptions.ClassroomException;
 using Backend.Exceptions.CourseException;
 using Backend.Exceptions.Placeholders;
 using Backend.Exceptions.StudentException;
@@ -46,10 +47,9 @@ public class CatalogueRepository : ICatalogueRepository
         return catalogue;
     }
 
-    public void Delete(int id)
+    public void Delete(Catalogue catalogue)
     {
-        var course = GetById(id);
-        _catalogues.Remove(course);
+        _catalogues.Remove(catalogue);
         Logger.LogMethodCall(nameof(Delete), true);
     }
 
@@ -66,15 +66,19 @@ public class CatalogueRepository : ICatalogueRepository
         return lastId + 1;
     }
 
-    public void UpdateCatalogue(Catalogue catalogue, int id)
+    public Catalogue UpdateCatalogue(Catalogue catalogue, int id)
     {
-        var oldCatalogue = GetById(id);
-        if (oldCatalogue == null)
+        var oldCatalogue = _catalogues.FirstOrDefault(s => s.ID == id);
+        if (oldCatalogue != null)
         {
-            Logger.LogMethodCall(nameof(UpdateCatalogue), false);
-            throw new ArgumentNullException($"catalgoue with id: {id} was not found");
+            oldCatalogue = catalogue;
+
+            return oldCatalogue;
         }
-        oldCatalogue = catalogue;
+        else
+        {
+            throw new NullClassroomException($"The classroom with id: {id} was not found");
+        }
     }
 
     public void AddGpa(Course course, Student student)

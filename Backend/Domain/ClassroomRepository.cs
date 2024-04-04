@@ -5,6 +5,8 @@ using Backend.Infrastructure.Utils;
 using Backend.Exceptions.TeacherException;
 using Backend.Exceptions.Placeholders;
 using Backend.Exceptions.CourseException;
+using Backend.Exceptions.AbsenceException;
+using Backend.Exceptions.ClassroomException;
 
 namespace Backend.Infrastructure;
 public class ClassroomRepository : IClassroomRepository
@@ -109,10 +111,9 @@ public class ClassroomRepository : IClassroomRepository
         return classroom;
     }
 
-    public void Delete(int id)
+    public void Delete(Classroom classroom)
     {
-        var course = GetById(id);
-        _classes.Remove(course);
+        _classes.Remove(classroom);
         Logger.LogMethodCall(nameof(Delete), true);
     }
 
@@ -129,14 +130,18 @@ public class ClassroomRepository : IClassroomRepository
         return lastId + 1;
     }
 
-    public void UpdateClassroom(Classroom classroom, int id)
+    public Classroom UpdateClassroom(Classroom classroom, int id)
     {
-        var oldClassroom = GetById(id);
-        if (oldClassroom == null)
+        var oldClassroom = _classes.FirstOrDefault(s => s.ID == id);
+        if (oldClassroom != null)
         {
-            Logger.LogMethodCall(nameof(UpdateClassroom), false);
-            throw new TeacherNotFoundException($"Classroom with id {id} not found");
+            oldClassroom = classroom;
+
+            return oldClassroom;
         }
-        oldClassroom = classroom;
+        else
+        {
+            throw new NullClassroomException($"The classroom with id: {id} was not found");
+        }
     }
 }
