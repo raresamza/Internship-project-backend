@@ -66,7 +66,7 @@ public class StudentTests
     //    }
 
     [Fact]
-    public void School_AddClassroom_AddsToClassroomsCollection()
+    public void SchoolAddClassroomAddsToClassroomsCollection()
     {
         // Arrange
         var school = new School() { Name = "" };
@@ -81,7 +81,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void School_RemoveClassroom_RemovesFromClassroomsCollection()
+    public void SchoolRemoveClassroomRemovesFromClassroomsCollection()
     {
         var school = new School() { Name = "" };
         var classroom1 = new Classroom() { Name = "" };
@@ -99,7 +99,7 @@ public class StudentTests
         });
     }
 
-    public void School_ConstructorWithName_SetsName()
+    public void SchoolConstructorWithNameSetsName()
     {
         string name = "Colegiul National Decebal Deva";
 
@@ -109,7 +109,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void School_DefaultConstructor_SetsNameToEmptyString()
+    public void SchoolDefaultConstructorSetsNameToEmptyString()
     {
         var school = new School() { Name = ""};
 
@@ -117,7 +117,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void School_DefaultConstructor_SetsClassroomsToEmptyList()
+    public void SchoolDefaultConstructorSetsClassroomsToEmptyList()
     {
         var school = new School() { Name = "" };
 
@@ -125,7 +125,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void AddClassroom_ValidClassroom_AddsToSchool()
+    public void AddClassroomValidClassroomAddsToSchool()
     {
         var repository = new SchoolRepository();
         var classroom = new Classroom() { Name = "12B" };
@@ -137,7 +137,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void AddClassroom_NullClassroom_ThrowsException()
+    public void AddClassroomNullClassroomThrowsException()
     {
         var repository = new SchoolRepository();
         var school = new School() { Name = "Colegiul National Decebal Deva" };
@@ -146,7 +146,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void AddClassroom_AlreadyRegisteredClassroom_ThrowsException()
+    public void AddClassroomAlreadyRegisteredClassroomThrowsException()
     {
         var repository = new SchoolRepository();
         var classroom = new Classroom() { Name = "12B" };
@@ -157,7 +157,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void RemoveClassroom_ValidClassroom_RemovesFromClassrooms()
+    public void RemoveClassroomValidClassroomRemovesFromClassrooms()
     {
         var repository = new SchoolRepository();
         var classroom = new Classroom() { Name = "12B" };
@@ -170,7 +170,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void RemoveClassroom_NullClassroom_ThrowsException()
+    public void RemoveClassroomNullClassroomThrowsException()
     {
         var repository = new SchoolRepository();
         var school = new School() { Name = "Colegiul National Decebal Deva" };
@@ -179,7 +179,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void RemoveClassroom_NotRegisteredClassroom_ThrowsException()
+    public void RemoveClassroomNotRegisteredClassroomThrowsException()
     {
         var repository = new SchoolRepository();
         var classroom = new Classroom() { Name = "12B" };
@@ -189,7 +189,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void GetLastId_NoSchools_ReturnsOne()
+    public void GetLastIdNoSchoolsReturnsOne()
     {
         var repository = new SchoolRepository();
 
@@ -199,7 +199,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void GetLastId_ExistingSchools_ReturnsNextId()
+    public void GetLastIdExistingSchoolsReturnsNextId()
     {
         var repository = new SchoolRepository();
         repository.Create(new School { ID = 1, Name = "Colegiul National Decebal Deva" });
@@ -211,7 +211,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void GetById_ExistingId_ReturnsSchool()
+    public void GetByIdExistingIdReturnsSchool()
     {
         var repository = new SchoolRepository();
         var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
@@ -223,7 +223,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void GetById_NonExistentId_ReturnsNull()
+    public void GetByIdNonExistentIdReturnsNull()
     {
         var repository = new SchoolRepository();
 
@@ -233,7 +233,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void Create_AddsSchoolToList()
+    public void CreateAddsSchoolToList()
     {
         var school = new School() { Name = "Colegiul National Decebal Deva" };
         var classroomExceptionMock = new Mock<ClassroomException>();
@@ -246,26 +246,23 @@ public class StudentTests
     }
 
     [Fact]
-    public void UpdateSchool_ExistingSchool_UpdatesSuccessfully()
+    public void UpdateSchoolExistingSchoolUpdatesSuccessfully()
     {
-        // Arrange
         var repository = new SchoolRepository();
         var school = new School { Name = "Colegiul National Decebal Deva", ID = 1};
         repository.Create(school);
 
         var updatedSchool = new School { Name = "Updated School", ID = 2 };
 
-        // Act
         repository.UpdateSchool(updatedSchool, school.ID);
         var retrievedSchool = repository.GetById(school.ID);
 
-        // Assert
         Assert.Equal(updatedSchool.Name, retrievedSchool.Name);
         Assert.Equal(updatedSchool.Classrooms, retrievedSchool.Classrooms);
     }
 
     [Fact]
-    public void UpdateSchool_NonExistingSchool_ThrowsException()
+    public void UpdateSchoolNonExistingSchoolThrowsException()
     {
         var repository = new SchoolRepository();
         var school = new School { ID = 1 , Name = "Colegiul National Decebal Deva" };
@@ -274,7 +271,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void Delete_RemovesSchoolFromListMethodCall()
+    public void DeleteRemovesSchoolFromListMethodCall()
     {
 
         var mockRepository = new Mock<ISchoolRepository>();
@@ -292,7 +289,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void Delete_RemovesSchoolFromList()
+    public void DeleteRemovesSchoolFromList()
     {
         var mockRepository = new Mock<ISchoolRepository>();
         var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
@@ -310,7 +307,7 @@ public class StudentTests
     }
 
     [Fact]
-    public void Update_ExistingSchool_UpdatesSuccessfully()
+    public void UpdateExistingSchoolUpdatesSuccessfully()
     {
         var repository = new SchoolRepository();
         var school = new School { ID = 1 , Name = "Colegiul National Decebal Deva" };
@@ -323,12 +320,11 @@ public class StudentTests
     }
 
     [Fact]
-    public void Update_NonExistingSchool_ThrowsException()
+    public void UpdateNonExistingSchoolThrowsException()
     {
         var repository = new SchoolRepository();
         var school = new School { ID = 1 , Name = "Colegiul National Decebal Deva" };
 
         Assert.Throws<StudentNotFoundException>(() => repository.Update(1, school));
     }
-
 }
