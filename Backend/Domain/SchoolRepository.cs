@@ -76,9 +76,11 @@ public class SchoolRepository : ISchoolRepository
         if (oldSchool == null)
         {
             Logger.LogMethodCall(nameof(UpdateSchool), false);
-            throw new TeacherNotFoundException($"Teacher with id {id} not found");
+            throw new TeacherNotFoundException($"School with id {id} not found");
         }
-        oldSchool = school;
+        //implement mapper
+        oldSchool.Name = school.Name;
+        oldSchool.Classrooms = school.Classrooms;
         Logger.LogMethodCall(nameof(UpdateSchool), true);
     }
 
@@ -101,6 +103,11 @@ public class SchoolRepository : ISchoolRepository
         {
             throw new StudentNotFoundException($"The student with id: {schoolId} was not found");
         }
+    }
+
+    public IEnumerable<School> GetAll()
+    {
+        return _schools;
     }
 }
 

@@ -34,3 +34,4 @@ public class DeleteClassroomHandler : IRequestHandler<DeleteClassroom, Classroom
 
         return Task.FromResult(ClassroomDto.FromClassroom(classroom));
     }
+}

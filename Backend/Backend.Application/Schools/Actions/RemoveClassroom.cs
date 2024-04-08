@@ -41,7 +41,7 @@ public class RemoveClassroomHandler : IRequestHandler<RemoveClassroom, SchoolDto
         }
 
         _schoolRepository.RemoveClassroom(classroom, school);
-        _schoolRepository.UpdateSchool(school, school.ID);
+        _schoolRepository.Update( school.ID, school);
 
         return Task.FromResult(SchoolDto.FromScool(school));
     }

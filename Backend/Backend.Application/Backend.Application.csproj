@@ -8,15 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Backend\Backend.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Absences\Delete\" />
-    <Folder Include="Absences\Update\" />
   </ItemGroup>
 
 </Project>

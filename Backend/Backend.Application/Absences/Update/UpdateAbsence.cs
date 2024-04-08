@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Backend.Application.Absences.Update;
 
 
-public record UpdateAbsence(int absenceId,Absence absence) : IRequest<AbsenceDto>
+public record UpdateAbsence(int absenceId,Absence absence) : IRequest<AbsenceDto>;
 public class UpdateAbsenceHandler : IRequestHandler<UpdateAbsence, AbsenceDto>
 {
 

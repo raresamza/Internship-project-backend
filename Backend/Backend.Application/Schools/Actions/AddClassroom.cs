@@ -38,7 +38,7 @@ public class AddClassroomHandler : IRequestHandler<AddClassroom, SchoolDto>
         }
 
         _schoolRepository.AddClassroom(classroom,school);
-        _schoolRepository.UpdateSchool(school,school.ID);
+        _schoolRepository.Update(school.ID, school);
 
         return Task.FromResult(SchoolDto.FromScool(school));
     }

@@ -14,10 +14,10 @@ public interface ICatalogueRepository
 
     public Catalogue? GetById(int id);
 
-    public void Delete(int id);
+    public void Delete(Catalogue catalogue);
 
     public void AddGpa(Course course, Student student);
-    public void UpdateCatalogue(Catalogue catalogue, int id);
+    public Catalogue UpdateCatalogue(Catalogue catalogue, int id);
 
     public double ComputeGpa(Student student,Course course);
 }

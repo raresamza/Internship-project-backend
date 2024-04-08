@@ -15,7 +15,8 @@ public interface IAbsenceRepository
     public int GetLastId();
     public Absence? GetById(int id);
 
-    public void DeleteAbsence(int id);
+    public Absence UpdateAbsence(int absenceId, Absence newAbsence);
+    public void DeleteAbsence(Absence absence);
 
     //public void Add(Student s, int courseId);
 }
