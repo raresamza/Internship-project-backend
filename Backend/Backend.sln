@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Domain", "Backend\B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{CFF4404F-3197-4E07-987C-8B00F3CCBCAF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Student.Tests", "Student.Tests\Student.Tests.csproj", "{769BCEB0-B2E2-414F-9682-28277DB56806}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "School.Tests", "Student.Tests\School.Tests.csproj", "{769BCEB0-B2E2-414F-9682-28277DB56806}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Infrastructure", "Domain\Backend.Infrastructure.csproj", "{4A1CC598-ADB9-4FE8-8BD1-7F0F677E3BA4}"
 EndProject

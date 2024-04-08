@@ -73,7 +73,7 @@ await mediator.Send(new RemoveClassroom(school.ID, classroom.ID));
 //await mediator.Send(new AddAbsence(student.ID, absence.Id));
 
 //Console.WriteLine(await mediator.Send(new GetCourseById(course.ID)));
-Console.WriteLine(await mediator.Send(new GetStudentById(student.ID)));
+//Console.WriteLine(await mediator.Send(new GetStudentById(student.ID)));
 //Console.WriteLine(await mediator.Send(new GetStudentById(student2.ID)));
 //Console.WriteLine(await mediator.Send(new GetAbsenceById(absence.Id)));
 //Console.WriteLine(await mediator.Send(new GetClassroomById(classroom.ID)));

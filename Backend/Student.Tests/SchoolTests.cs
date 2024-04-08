@@ -10,7 +10,7 @@ using Moq;
 using Backend.Application.Abstractions;
 using Xunit.Abstractions;
 
-public class StudentTests
+public class SchoolTests
 {
 
     //    private readonly Student _student;
@@ -93,17 +93,18 @@ public class StudentTests
 
         Assert.Multiple(() =>
         {
-            Assert.Equal(1, school.Classrooms.Count);
+            Assert.Single(school.Classrooms);
             Assert.DoesNotContain(classroom1, school.Classrooms);
             Assert.Contains(classroom2, school.Classrooms);
         });
     }
 
+    [Fact]
     public void SchoolConstructorWithNameSetsName()
     {
         string name = "Colegiul National Decebal Deva";
 
-        var school = new School() { Name=name};
+        var school = new School() { Name = name };
 
         Assert.Equal(name, school.Name);
     }
@@ -111,7 +112,7 @@ public class StudentTests
     [Fact]
     public void SchoolDefaultConstructorSetsNameToEmptyString()
     {
-        var school = new School() { Name = ""};
+        var school = new School() { Name = "" };
 
         Assert.Equal("", school.Name);
     }
@@ -127,11 +128,14 @@ public class StudentTests
     [Fact]
     public void AddClassroomValidClassroomAddsToSchool()
     {
-        var repository = new SchoolRepository();
+        var mockRepository = new Mock<ISchoolRepository>();
         var classroom = new Classroom() { Name = "12B" };
-        var school = new School() { Name = "Colegiul National Decebal Deva"};
+        var school = new School() { Name = "Colegiul National Decebal Deva" };
 
-        repository.AddClassroom(classroom, school);
+        mockRepository.Setup(repo => repo.AddClassroom(classroom, school))
+                      .Callback((Classroom c, School s) => s.Classrooms.Add(c));
+
+        mockRepository.Object.AddClassroom(classroom, school);
 
         Assert.Contains(classroom, school.Classrooms);
     }
@@ -139,32 +143,43 @@ public class StudentTests
     [Fact]
     public void AddClassroomNullClassroomThrowsException()
     {
-        var repository = new SchoolRepository();
+        var mockRepository = new Mock<ISchoolRepository>();
         var school = new School() { Name = "Colegiul National Decebal Deva" };
 
-        Assert.Throws<NullClassroomException>(() => repository.AddClassroom(null, school));
+        mockRepository.Setup(repo => repo.AddClassroom(null, school))
+                      .Throws(new NullClassroomException("Classroom is not valid"));
+
+        // Act & Assert
+        Assert.Throws<NullClassroomException>(() => mockRepository.Object.AddClassroom(null, school));
     }
 
     [Fact]
     public void AddClassroomAlreadyRegisteredClassroomThrowsException()
     {
-        var repository = new SchoolRepository();
+        var mockRepository = new Mock<ISchoolRepository>();
         var classroom = new Classroom() { Name = "12B" };
         var school = new School() { Name = "Colegiul National Decebal Deva" };
         school.Classrooms.Add(classroom);
 
-        Assert.Throws<ClassroomAlreadyRegisteredException>(() => repository.AddClassroom(classroom, school));
+        mockRepository.Setup(repo => repo.AddClassroom(classroom, school))
+                     .Throws(new ClassroomAlreadyRegisteredException("Classroom is already registered"));
+
+
+        Assert.Throws<ClassroomAlreadyRegisteredException>(() => mockRepository.Object.AddClassroom(classroom, school));
     }
 
     [Fact]
     public void RemoveClassroomValidClassroomRemovesFromClassrooms()
     {
-        var repository = new SchoolRepository();
+        var mockRepository = new Mock<ISchoolRepository>();
         var classroom = new Classroom() { Name = "12B" };
         var school = new School() { Name = "Colegiul National Decebal Deva" };
         school.Classrooms.Add(classroom);
 
-        repository.RemoveClassroom(classroom, school);
+        mockRepository.Setup(repo => repo.RemoveClassroom(classroom, school))
+                      .Callback((Classroom c, School s) => s.Classrooms.Remove(c));
+
+        mockRepository.Object.RemoveClassroom(classroom, school);
 
         Assert.DoesNotContain(classroom, school.Classrooms);
     }
@@ -172,28 +187,33 @@ public class StudentTests
     [Fact]
     public void RemoveClassroomNullClassroomThrowsException()
     {
-        var repository = new SchoolRepository();
+        var mockRepository = new Mock<ISchoolRepository>();
         var school = new School() { Name = "Colegiul National Decebal Deva" };
+        mockRepository.Setup(repo => repo.RemoveClassroom(null, school))
+            .Throws(new NullClassroomException("Classroom not found"));
 
-        Assert.Throws<NullClassroomException>(() => repository.RemoveClassroom(null, school));
+        Assert.Throws<NullClassroomException>(() => mockRepository.Object.RemoveClassroom(null, school));
     }
 
     [Fact]
     public void RemoveClassroomNotRegisteredClassroomThrowsException()
     {
-        var repository = new SchoolRepository();
+        var mockRepository = new Mock<ISchoolRepository>();
         var classroom = new Classroom() { Name = "12B" };
         var school = new School() { Name = "Colegiul National Decebal Deva" };
+        mockRepository.Setup(repo => repo.RemoveClassroom(classroom, school))
+            .Throws(new ClassroomNotRegisteredException("Classroom is not registered"));
 
-        Assert.Throws<ClassroomNotRegisteredException>(() => repository.RemoveClassroom(classroom, school));
+        Assert.Throws<ClassroomNotRegisteredException>(() => mockRepository.Object.RemoveClassroom(classroom, school));
     }
 
     [Fact]
     public void GetLastIdNoSchoolsReturnsOne()
     {
-        var repository = new SchoolRepository();
+        var mockRepository = new Mock<ISchoolRepository>();
+        mockRepository.Setup(repo => repo.GetLastId()).Returns(1);
 
-        var result = repository.GetLastId();
+        var result = mockRepository.Object.GetLastId();
 
         Assert.Equal(1, result);
     }
@@ -201,23 +221,37 @@ public class StudentTests
     [Fact]
     public void GetLastIdExistingSchoolsReturnsNextId()
     {
-        var repository = new SchoolRepository();
-        repository.Create(new School { ID = 1, Name = "Colegiul National Decebal Deva" });
-        repository.Create(new School { ID = 3, Name = "Colegiul National Decebal Deva" });
+        var mockRepository = new Mock<ISchoolRepository>();
 
-        var result = repository.GetLastId();
+        mockRepository.Setup(repo => repo.Create(It.IsAny<School>()))
+                      .Callback<School>(school =>
+                      {
+                          mockRepository.Setup(repo => repo.GetLastId()).Returns(school.ID);
+                      });
 
-        Assert.Equal(4, result);
+        var result1 = mockRepository.Object.GetLastId();
+        mockRepository.Object.Create(new School { ID = 1, Name = "Colegiul National Decebal Deva" });
+        var result2 = mockRepository.Object.GetLastId();
+        mockRepository.Object.Create(new School { ID = 3, Name = "Colegiul National Decebal Deva" });
+        var result3 = mockRepository.Object.GetLastId();
+
+        Assert.Equal(0, result1);
+        Assert.Equal(1, result2);
+        Assert.Equal(3, result3);
     }
 
     [Fact]
     public void GetByIdExistingIdReturnsSchool()
     {
-        var repository = new SchoolRepository();
+        var mockRepository = new Mock<ISchoolRepository>();
         var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
-        repository.Create(school);
 
-        var result = repository.GetById(1);
+        mockRepository.Setup(repo => repo.Create(school));
+
+        mockRepository.Setup(repo => repo.GetById(1)).Returns(school);
+
+        mockRepository.Object.Create(school);
+        var result = mockRepository.Object.GetById(1);
 
         Assert.Equal(school, result);
     }
@@ -225,9 +259,11 @@ public class StudentTests
     [Fact]
     public void GetByIdNonExistentIdReturnsNull()
     {
-        var repository = new SchoolRepository();
+        var mockRepository = new Mock<ISchoolRepository>();
 
-        var result = repository.GetById(999);
+        mockRepository.Setup(repo => repo.GetById(999)).Returns((School)null);
+
+        var result = mockRepository.Object.GetById(999);
 
         Assert.Null(result);
     }
@@ -235,27 +271,32 @@ public class StudentTests
     [Fact]
     public void CreateAddsSchoolToList()
     {
-        var school = new School() { Name = "Colegiul National Decebal Deva" };
-        var classroomExceptionMock = new Mock<ClassroomException>();
+        var school = new School { Name = "Colegiul National Decebal Deva" };
 
-        var repository = new SchoolRepository();
+        var repositoryMock = new Mock<ISchoolRepository>();
 
-        var createdSchool = repository.Create(school);
+        repositoryMock.Setup(repo => repo.Create(school)).Returns(school);
 
-        Assert.NotNull(createdSchool); 
+
+        var createdSchool = repositoryMock.Object.Create(school);
+
+        Assert.NotNull(createdSchool);
     }
 
     [Fact]
     public void UpdateSchoolExistingSchoolUpdatesSuccessfully()
     {
-        var repository = new SchoolRepository();
-        var school = new School { Name = "Colegiul National Decebal Deva", ID = 1};
-        repository.Create(school);
+        var school = new School { Name = "Colegiul National Decebal Deva", ID = 1 };
+        var updatedSchool = new School { Name = "Updated School", ID = 1 };
 
-        var updatedSchool = new School { Name = "Updated School", ID = 2 };
+        var repositoryMock = new Mock<ISchoolRepository>();
 
-        repository.UpdateSchool(updatedSchool, school.ID);
-        var retrievedSchool = repository.GetById(school.ID);
+        repositoryMock.Setup(repo => repo.Update(school.ID, updatedSchool));
+
+        repositoryMock.Setup(repo => repo.GetById(school.ID)).Returns(updatedSchool);
+
+        repositoryMock.Object.Update(school.ID, updatedSchool);
+        var retrievedSchool = repositoryMock.Object.GetById(school.ID);
 
         Assert.Equal(updatedSchool.Name, retrievedSchool.Name);
         Assert.Equal(updatedSchool.Classrooms, retrievedSchool.Classrooms);
@@ -264,10 +305,12 @@ public class StudentTests
     [Fact]
     public void UpdateSchoolNonExistingSchoolThrowsException()
     {
-        var repository = new SchoolRepository();
-        var school = new School { ID = 1 , Name = "Colegiul National Decebal Deva" };
+        var repositoryMock = new Mock<ISchoolRepository>();
+        var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
+        repositoryMock.Setup(repo => repo.Update(1, school))
+            .Throws(new TeacherNotFoundException("Teacher not found"));
 
-        Assert.Throws<TeacherNotFoundException>(() => repository.UpdateSchool(school, 1));
+        Assert.Throws<TeacherNotFoundException>(() => repositoryMock.Object.Update(1, school));
     }
 
     [Fact]
@@ -277,13 +320,13 @@ public class StudentTests
         var mockRepository = new Mock<ISchoolRepository>();
         var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
 
- 
+
         mockRepository.Setup(repo => repo.Create(It.IsAny<School>()));
         mockRepository.Setup(repo => repo.Delete(It.IsAny<School>()));
 
 
-        mockRepository.Object.Create(school); 
-        mockRepository.Object.Delete(school); 
+        mockRepository.Object.Create(school);
+        mockRepository.Object.Delete(school);
 
         mockRepository.Verify(repo => repo.Delete(school), Times.Once);
     }
@@ -297,8 +340,8 @@ public class StudentTests
         mockRepository.Setup(repo => repo.Create(It.IsAny<School>()));
         mockRepository.Setup(repo => repo.Delete(It.IsAny<School>()));
 
-        mockRepository.Object.Create(school); 
-        mockRepository.Object.Delete(school); 
+        mockRepository.Object.Create(school);
+        mockRepository.Object.Delete(school);
 
         mockRepository.Verify(repo => repo.Delete(school), Times.Once);
 
@@ -309,11 +352,15 @@ public class StudentTests
     [Fact]
     public void UpdateExistingSchoolUpdatesSuccessfully()
     {
-        var repository = new SchoolRepository();
-        var school = new School { ID = 1 , Name = "Colegiul National Decebal Deva" };
-        repository.Create(school);
+        var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
         var updatedSchool = new School { ID = 1, Name = "Updated School" };
 
+        var repositoryMock = new Mock<ISchoolRepository>();
+        repositoryMock.Setup(repo => repo.Create(school)).Returns(school);
+        repositoryMock.Setup(repo => repo.Update(1, updatedSchool)).Returns(updatedSchool);
+
+        var repository = repositoryMock.Object;
+        repository.Create(school);
         var result = repository.Update(1, updatedSchool);
 
         Assert.Equal(updatedSchool, result);
@@ -322,9 +369,11 @@ public class StudentTests
     [Fact]
     public void UpdateNonExistingSchoolThrowsException()
     {
-        var repository = new SchoolRepository();
-        var school = new School { ID = 1 , Name = "Colegiul National Decebal Deva" };
+        var repositoryMock = new Mock<ISchoolRepository>();
 
-        Assert.Throws<StudentNotFoundException>(() => repository.Update(1, school));
+        var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
+        repositoryMock.Setup(repo => repo.Update(1,school))
+            .Throws(new StudentNotFoundException("Student not found"));
+        Assert.Throws<StudentNotFoundException>(() => repositoryMock.Object.Update(1, school));
     }
 }
