@@ -15,8 +15,12 @@ public class Classroom
 
     public required string Name { get; set; }
 
-    private List<Course> _courses = new();
-    private List<Teacher> _teachers= new();
+    public School School { get; set; }
+
+    public int SchoolId { get; set; }
+
+    private List<ClassroomCourse> _classroomCourses = new();
+    private List<TeacherClassroom> _teachers= new();
     private List<Student> _students = new();
     public Classroom(string name)
     {
@@ -25,95 +29,25 @@ public class Classroom
 
     public Classroom() 
     {
-        Courses = _courses;
+        ClassroomCourses = _classroomCourses;
         Teachers = _teachers;
         Students = _students;
         
     }
 
-    public ICollection<Course> Courses { get; set; }
+    public Catalogue Catalogue { get; set; }
+
+    public ICollection<ClassroomCourse> ClassroomCourses { get; set; }
 
     public int ID { get; set; } 
     public ICollection<Student> Students { get; set; } 
-    public ICollection<Teacher> Teachers { get; set; } 
-    //public void assignCourse(Course course)
-    //{
-    //    if (course == null)
-    //    {
-    //        throw new NullCourseException("This course is not valid");
-    //    }
-    //    else if (Courses.Contains(course))
-    //    {
-    //        throw new NullCourseException($"The course {course.Name} is already assigned to the classroom {Name}");
-    //    }
-    //    Courses.Add(course);
-    //}
-
-
-    //public void AddTeacher(Teacher teacher)
-    //{
-    //    if (Teachers.Contains(teacher))
-    //    {
-    //        TeacherException.LogError();
-    //        throw new TeacherAlreadyAssignedException($"Cannot add duplicate teacher to this classroom.\nTeacher:{teacher.ToString()}");
-    //    }
-    //    foreach (Teacher teacher1 in Teachers)
-    //    {
-    //        if (teacher1.Subject == teacher.Subject)
-    //        {
-    //            TeacherException.LogError();
-    //            throw new TeacherAlreadyAssignedException($"Someone is already teaching: {teacher.Subject} for class {Name}");
-    //        }
-    //    }
-    //    Teachers.Add(teacher);
-    //}
-    //public void AddStudent(Student student)
-    //{
-    //    if (Students.Contains(student))
-    //    {
-    //        StudentException.LogError();
-    //        throw new StudentAlreadyEnrolledException($"Cannot add duplicate student to this classroom.\nStudent:{student.ToString()}");
-    //    }
-    //    if (!student.Assigned)
-    //    {
-    //        Students.Add(student);
-    //        student.Assigned = true;
-    //    }
-    //    else
-    //    {
-    //        throw new StudentAlreadyEnrolledException($"Student {Name} already is part of a classroom");
-    //    }
-    //}
-    //public void RemoveTeacher(Teacher teacher)
-    //{
-    //    if (!Teachers.Contains(teacher))
-    //    {
-    //        TeacherException.LogError();
-    //        throw new TeacherNotFoundException($"Cannot remove teacher from this classroom(He is not teaching to this classroom).\nTeacher:{teacher.ToString()}");
-    //    }
-    //    else
-    //    {
-    //        Teachers.Remove(teacher);
-    //    }
-    //}
-    //public void RemoveStudent(Student student)
-    //{
-    //    if (!Students.Contains(student))
-    //    {
-    //        TeacherException.LogError();
-    //        throw new StudentNotFoundException($"Cannot delete student from this classroom(he is not in this classroom).\nStudent:{student.ToString()}");
-    //    }
-    //    else
-    //    {
-    //        Students.Remove(student);
-    //    }
-    //}
+    public ICollection<TeacherClassroom> Teachers { get; set; } 
 
     public override string ToString()
     {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.Append($"This classrooms has the following teachers:\n");
-        foreach (Teacher teacher in Teachers)
+        foreach (TeacherClassroom teacher in Teachers)
         {
             stringBuilder.Append($"\t{teacher.ToString()}");
         }

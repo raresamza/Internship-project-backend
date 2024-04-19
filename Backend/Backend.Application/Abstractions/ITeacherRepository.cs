@@ -7,7 +7,7 @@ public interface ITeacherRepository
 {
 
     public Teacher Create(Teacher teacher);
-    int GetLastId();
+    //int GetLastId();
 
     public Teacher? GetById(int id);
 

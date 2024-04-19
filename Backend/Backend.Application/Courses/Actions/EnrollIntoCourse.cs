@@ -40,7 +40,7 @@ internal class EntollIntoCourseHandler : IRequestHandler<EnrollIntoCourse, Stude
 
         _studentRepository.EnrollIntoCourse(student, course);
         _studentRepository.UpdateStudent(student, student.ID);
-        _courseRepository.UpdateCourse(course,course.ID);
+        //_courseRepository.UpdateCourse(course,course.ID);
 
         return Task.FromResult(StudentDto.FromStudent(student));
 

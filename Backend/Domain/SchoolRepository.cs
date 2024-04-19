@@ -5,12 +5,18 @@ using Backend.Exceptions.ClassroomException;
 using Backend.Exceptions.Placeholders;
 using Backend.Infrastructure.Utils;
 using Backend.Exceptions.TeacherException;
+using Backend.Infrastructure.Contexts;
 
 namespace Backend.Infrastructure;
 public class SchoolRepository : ISchoolRepository
 {
 
-    private readonly List<School> _schools = new();
+    private readonly AppDbContext _appDbContext;
+
+    public SchoolRepository(AppDbContext appDbContext)
+    {
+        _appDbContext = appDbContext;
+    }
     //Db mock
     public void AddClassroom(Classroom classroom, School school)
     {
@@ -28,6 +34,8 @@ public class SchoolRepository : ISchoolRepository
         }
         Logger.LogMethodCall(nameof(AddClassroom), true);
         school.Classrooms.Add(classroom);
+
+        _appDbContext.SaveChanges();
     }
 
 
@@ -48,24 +56,21 @@ public class SchoolRepository : ISchoolRepository
         }
         Logger.LogMethodCall(nameof(RemoveClassroom), true);
         school.Classrooms.Remove(classroom);
+        _appDbContext.SaveChanges();
     }
 
-    public int GetLastId()
-    {
-        if (_schools.Count == 0) return 1;
-        var lastId = _schools.Max(s => s.ID);
-        return lastId + 1;
-    }
+
 
     public School? GetById(int id)
     {
         Logger.LogMethodCall(nameof(GetById), true);
-        return _schools.FirstOrDefault(s => s.ID == id);
+        return _appDbContext.Schools.FirstOrDefault(s => s.ID == id);
     }
 
     public School Create(School school)
     {
-        _schools.Add(school);
+        _appDbContext.Schools.Add(school);
+        _appDbContext.SaveChanges();
         Logger.LogMethodCall(nameof(Create), true);
         return school;
     }
@@ -86,13 +91,14 @@ public class SchoolRepository : ISchoolRepository
 
     public void Delete(School school)
     {
-        _schools.Remove(school);
+        _appDbContext.Schools.Remove(school);
+        _appDbContext.SaveChanges();
         Logger.LogMethodCall(nameof(Delete), true);
     }
 
     public School Update(int schoolId, School school)
     {
-        var oldSchool = _schools.FirstOrDefault(s => s.ID == schoolId);
+        var oldSchool = _appDbContext.Schools.FirstOrDefault(s => s.ID == schoolId);
         if (oldSchool != null)
         {
             oldSchool = school;
@@ -107,7 +113,7 @@ public class SchoolRepository : ISchoolRepository
 
     public IEnumerable<School> GetAll()
     {
-        return _schools;
+        return _appDbContext.Schools;
     }
 }
 

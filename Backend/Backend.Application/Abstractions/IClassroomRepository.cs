@@ -4,7 +4,7 @@ namespace Backend.Application.Abstractions;
 public interface IClassroomRepository
 {
     public Classroom Create(Classroom classroom);
-    int GetLastId();
+    //int GetLastId();
     public Classroom? GetById(int id);
     public void Delete(Classroom classroom);
     public Classroom UpdateClassroom(Classroom classroom, int id);

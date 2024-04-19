@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Backend.Domain.Models;
 public class Course
@@ -15,16 +12,36 @@ public class Course
 
     public Course()
     {
-        Students = _students;
+        StudentCourses = _students;
+        Grades = _grades;
+        ClassroomCourses = _classroomCourses;
+        GPAs = _gpas;
     }
-    //enroll move
+
+
+    private readonly List<StudentGPA> _gpas = new();
+    public ICollection<StudentGPA> GPAs { get; set; }
+
     public required string Name { get; set; }
     public required Subject Subject { get; set; }
+
+    [ForeignKey(nameof(TeacherId))]
+    public int? TeacherId { get; set; }
+
     public Teacher Teacher { get; set; }
-    private readonly List<Student> _students = new();
 
-    public ICollection<Student> Students { get; set; }
 
+    public ICollection<StudentCourse> StudentCourses { get; set; }
+    private readonly List<StudentCourse> _students = new();
+
+
+    public ICollection<StudentGrade> Grades { get; set; }
+    private readonly List<StudentGrade> _grades = new();
+
+
+
+    public ICollection<ClassroomCourse> ClassroomCourses { get; set; }
+    private readonly List<ClassroomCourse> _classroomCourses = new();
 
     public int ID { get; set; }
 
@@ -33,7 +50,7 @@ public class Course
         StringBuilder sb = new StringBuilder();
         if (Teacher != null)
         {
-            sb.Append($"The course {Name} has the teacher {Teacher.Name} and {Students.Count} students and the list of students enrolled is:\n");
+            sb.Append($"The course {Name} has the teacher {Teacher.Name} and {StudentCourses.Count} students and the list of students enrolled is:\n");
 
         }
         else
@@ -41,9 +58,9 @@ public class Course
             sb.Append($"The course \"{Name}\" is currently uninitilized, please proceed to do so.");
             return sb.ToString();
         }
-        foreach (Student student in Students)
+        foreach (StudentCourse student in StudentCourses)
         {
-            sb.Append($"\t\t{student.Name}");
+            sb.Append($"\t\t{student.Student?.Name}");
             sb.Append("\n");
         }
         return sb.ToString();

@@ -3,6 +3,7 @@ using Backend.Application.Abstractions;
 using Backend.Application.Students.Create;
 using Backend.Application.Students.Responses;
 using Backend.Domain.Models;
+using Backend.Exceptions.AbsenceException;
 using Backend.Exceptions.CourseException;
 using Backend.Exceptions.StudentException;
 using MediatR;
@@ -38,7 +39,7 @@ internal class AddAbsenceHandler : IRequestHandler<AddAbsence, StudentDto>
         }
         if (absence == null)
         {
-            throw new NullCourseException($"Course with id: {request.absenceId} was not found");
+            throw new InvalidAbsenceException($"Absence with id: {request.absenceId} was not found");
         }
         _studentRepository.AddAbsence(student, absence);
         _studentRepository.UpdateStudent(student, student.ID);

@@ -40,7 +40,7 @@ public class RemoveGradeHandler : IRequestHandler<RemoveGrade, StudentDto>
 
         _studentRepository.RemoveGrade(student,course,request.grade);
         _studentRepository.UpdateStudent(student, student.ID);
-        _courseRepository.UpdateCourse(course, course.ID);
+        //_courseRepository.UpdateCourse(course, course.ID);
 
         return Task.FromResult(StudentDto.FromStudent(student));
     }

@@ -42,8 +42,8 @@ public class AddGradeHandler : IRequestHandler<AddGrade, StudentDto>
         }
 
         _studentRepository.AddGrade(request.grade,student,course);
-        _studentRepository.UpdateStudent(student,student.ID);
-        _courseRepository.UpdateCourse(course,course.ID);
+        //_studentRepository.UpdateStudent(student,student.ID);
+        //_courseRepository.UpdateCourse(course,course.ID);
 
         return Task.FromResult(StudentDto.FromStudent(student));
     }

@@ -15,7 +15,8 @@ public class CourseDto
     public required Subject Subject { get; set; }
 
     public int ID { get; set; }
-    public ICollection<Student> Students { get; set; }
+    public ICollection<StudentCourse> StudentCourses { get; set; }
+    public int? TeacherId { get; set; }
     public Teacher Teacher { get; set; }
 
     public static CourseDto FromCourse(Course course)
@@ -25,8 +26,9 @@ public class CourseDto
             ID = course.ID,
             Subject = course.Subject,
             Name = course.Name,
-            Students = course.Students,
+            StudentCourses = course.StudentCourses,
             Teacher = course.Teacher,
+            TeacherId= course.TeacherId
         };
     }
 
@@ -35,7 +37,7 @@ public class CourseDto
         StringBuilder sb = new StringBuilder();
         if (Teacher != null)
         {
-            sb.Append($"The course {Name} has the teacher {Teacher.Name} and {Students.Count} students and the list of students enrolled is:\n");
+            sb.Append($"The course {Name} has the teacher {Teacher.Name} and {StudentCourses.Count} students and the list of students enrolled is:\n");
 
         }
         else
@@ -43,9 +45,9 @@ public class CourseDto
             sb.Append($"The course \"{Name}\" is currently uninitilized, please proceed to do so.");
             return sb.ToString();
         }
-        foreach (Student student in Students)
+        foreach (StudentCourse student in StudentCourses)
         {
-            sb.Append($"\t\t{student.Name}");
+            sb.Append($"\t\t{student.Student.Name}");
             sb.Append("\n");
         }
         return sb.ToString();

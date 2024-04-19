@@ -31,14 +31,15 @@ public class CreateAbsenceHandler : IRequestHandler<CreateAbsence, AbsenceDto>
         {
             throw new NullCourseException($"Could not found course with id: {request.courseId}");
         }
-        var absence = new Absence() { Course = course,Id=GetNextId() };
+        var absence = new Absence() { Course = course,CourseId = request.courseId};
+
         _absenceRepository.CreateAbsence(absence);
 
         return Task.FromResult(AbsenceDto.FromAbsence(absence));
     }
 
-    private int GetNextId()
-    {
-        return _absenceRepository.GetLastId();
-    }
+    //private int GetNextId()
+    //{
+    //    return _absenceRepository.GetLastId();
+    //}
 }

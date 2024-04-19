@@ -17,6 +17,7 @@ public class TeacherDto
     public required int PhoneNumber { get; set; }
     public required Subject Subject { get; set; }
     public Course TaughtCourse { get; set; }
+    public int? TaughtCourseId { get; set; }
     public static TeacherDto FromTeacher(Teacher teacher)
     {
         return new TeacherDto
@@ -29,10 +30,13 @@ public class TeacherDto
             Subject = teacher.Subject,
             ID = teacher.ID,
             TaughtCourse = teacher.TaughtCourse,
+            TaughtCourseId = teacher.TaughtCourseId,
         };
     }
     public override string ToString()
     {
+
+        Console.WriteLine(TaughtCourseId);
         StringBuilder stringBuilder = new StringBuilder();
         if (TaughtCourse != null)
         {

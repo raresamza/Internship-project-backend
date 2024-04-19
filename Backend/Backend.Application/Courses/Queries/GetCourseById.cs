@@ -1,6 +1,7 @@
 ﻿using Backend.Application.Abstractions;
 using Backend.Application.Courses.Response;
 using Backend.Application.Teachers.Responses;
+using Backend.Exceptions.CourseException;
 using Backend.Exceptions.TeacherException;
 using MediatR;
 using System;
@@ -27,8 +28,8 @@ public class GetCourseByIdHandler : IRequestHandler<GetCourseById, CourseDto>
     {
         var course = _courseRepository.GetById(request.courseId);
         if (course == null)
-        {
-            throw new TeacherNotFoundException($"The teacher witrh id: {request.courseId} was not found!");
+        { 
+            throw new NullCourseException($"The course with id: {request.courseId} was not found!");
         }
 
         return Task.FromResult(CourseDto.FromCourse(course));

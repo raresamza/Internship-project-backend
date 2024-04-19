@@ -1,6 +1,9 @@
 ﻿using Backend.Application.Abstractions;
 using Backend.Application.Courses.Response;
+using Backend.Domain.Models;
+using Backend.Exceptions.CourseException;
 using Backend.Exceptions.Placeholders;
+using Backend.Exceptions.StudentException;
 using MediatR;
 
 
@@ -23,19 +26,42 @@ public class AddStudentHandler : IRequestHandler<AddStudent, CourseDto>
         var dbCourse=_courseRepository.GetById(request.courseId);
         var dbStudent=_studentRepository.GetById(request.studentId);
 
-        ;
-        if (dbCourse.Students.Contains(dbStudent))
+        if(dbCourse == null )
         {
-            throw new StudentException($"Student {dbStudent.Name} is already enrolled into this course");
+            throw new NullCourseException($"The course with id: {request.courseId} was not found");
         }
-        dbCourse.Students.Add(dbStudent);
+
+        if (dbStudent == null)
+        {
+            throw new StudentNotFoundException($"The student with id: {request.studentId} was not found");
+        }
+
+        if (dbCourse.StudentCourses.Any(sc => sc.Student == dbStudent))
+        {
+            throw new StudentException($"Student {dbStudent?.Name} is already enrolled into this course");
+        }
+        var studentCourse = new StudentCourse { Student = dbStudent, Course = dbCourse, StudentId =dbStudent.ID, CourseId=dbCourse.ID };
+        dbCourse.StudentCourses.Add(studentCourse);
         List<int> grades = new List<int>();
         
-        dbStudent.GPAs.Add(dbCourse, 0);
-        dbStudent.Grades.Add(dbCourse, grades);
-        _courseRepository.UpdateCourse(dbCourse, dbCourse.ID);
+        dbStudent.GPAs.Add(new StudentGPA
+        {
+            StudentId = dbStudent.ID,
+            CourseId = dbCourse.ID,
+            GPAValue = 0,
+            Student=dbStudent,
+            Course=dbCourse,
+        });
+        dbStudent.Grades.Add(new StudentGrade
+        {
+            StudentId = dbStudent.ID,
+            CourseId = dbCourse.ID,
+            GradeValues = grades,
+            Student=dbStudent,
+            Course =dbCourse,
+        });
+        //_courseRepository.UpdateCourse(dbCourse, dbCourse.ID);
         _studentRepository.UpdateStudent(dbStudent, dbStudent.ID);
-
         return Task.FromResult(CourseDto.FromCourse(dbCourse));
     }
 }

@@ -23,13 +23,13 @@ public class CreateTeacherHandler : IRequestHandler<CreateTeacher, TeacherDto>
     }
     public Task<TeacherDto> Handle(CreateTeacher request, CancellationToken cancellationToken)
     {
-        var teacher = new Teacher() { Address = request.Address, Subject = request.Subject, Age = request.Age, PhoneNumber = request.PhoneNumber, Name = request.Name, ID = GetNextId() };
+        var teacher = new Teacher() { Address = request.Address, Subject = request.Subject, Age = request.Age, PhoneNumber = request.PhoneNumber, Name = request.Name};
         var createdTeacher = _teacherRepository.Create(teacher);
         return Task.FromResult(TeacherDto.FromTeacher(createdTeacher));
     }
 
-    private int GetNextId()
-    {
-        return _teacherRepository.GetLastId();
-    }
+    //private int GetNextId()
+    //{
+    //    return _teacherRepository.GetLastId();
+    //}
 }

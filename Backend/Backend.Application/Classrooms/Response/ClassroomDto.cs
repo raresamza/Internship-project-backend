@@ -9,19 +9,19 @@ namespace Backend.Application.Classrooms.Response;
 
 public class ClassroomDto
 {
-    public ICollection<Course> Courses { get; set; }
+    public ICollection<ClassroomCourse> ClassroomCourses { get; set; }
 
     public int ID { get; set; }
     public string Name { get; set; }
     public ICollection<Student> Students { get; set; }
-    public ICollection<Teacher> Teachers { get; set; }
+    public ICollection<TeacherClassroom> Teachers { get; set; }
 
     public static ClassroomDto FromClassroom(Classroom classroom)
     {
         return new ClassroomDto
         {
             ID= classroom.ID,
-            Courses = classroom.Courses,
+            ClassroomCourses = classroom.ClassroomCourses,
             Students = classroom.Students,
             Teachers = classroom.Teachers,
             Name = classroom.Name,
@@ -32,9 +32,9 @@ public class ClassroomDto
     {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.Append($"This classrooms has the following teachers:\n");
-        foreach (Teacher teacher in Teachers)
+        foreach (TeacherClassroom teacher in Teachers)
         {
-            stringBuilder.Append($"\t{teacher.ToString()}");
+            stringBuilder.Append($"\t{teacher.Teacher.ToString()}");
         }
         stringBuilder.Append($"This classrooms has the following students:");
         foreach (Student student in Students)

@@ -33,8 +33,10 @@ public class AssignTeacherToCourseHandler : IRequestHandler<AssignTeacherToCours
         if (course != null && teacher != null)
         {
             teacher.TaughtCourse = course;
+            teacher.TaughtCourseId=course.ID;
             _teacherRepository.UpdateTeacher(teacher, teacher.ID);
             course.Teacher = teacher;
+            course.TeacherId = teacher.ID;  
             _courseRepository.UpdateCourse(course, course.ID);
             return Task.FromResult(TeacherDto.FromTeacher(teacher));
         }

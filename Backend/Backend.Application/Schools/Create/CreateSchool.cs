@@ -23,14 +23,11 @@ public class CreateSchoolHandler : IRequestHandler<CreateSchool, SchoolDto>
 
     public Task<SchoolDto> Handle(CreateSchool request, CancellationToken cancellationToken)
     {
-        var school=new School() { Name=request.name,ID=GetNextId()};
+        var school=new School() { Name=request.name};
         var newSchool = _schoolRepository.Create(school);
 
         return Task.FromResult(SchoolDto.FromScool(newSchool));
     }
 
-    private int GetNextId()
-    {
-        return _schoolRepository.GetLastId();
-    }
+
 }

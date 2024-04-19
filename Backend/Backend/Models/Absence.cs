@@ -10,7 +10,13 @@ public class Absence
 {
 
     public DateTime Date { get; set; } = DateTime.ParseExact(DateTime.Now.ToString("dd/MM/yyyy"), "dd/MM/yyyy", null);
+
+    public int CourseId { get; set; }
     public Course Course { get; set; }
+
+    public int? StudentId { get; set; }
+
+    public Student? Student { get; set; }
 
     public int Id { get; set; }
 

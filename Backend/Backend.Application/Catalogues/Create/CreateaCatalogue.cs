@@ -32,14 +32,10 @@ public class CreateaCatalogueHandler : IRequestHandler<CreateCatalogue, Catalogu
             throw new NullClassroomException($"The classroom wiht id: {request.classroomId} was not found");
         }
 
-        var catalogue = new Catalogue() { Classroom = classroom, ID =GetNextId()};
+        var catalogue = new Catalogue() { Classroom = classroom};
         var newCatalogue=_catalogueRepository.Create(catalogue);
 
         return Task.FromResult(CatalogueDto.FromCatalogue(newCatalogue));
     }
 
-    private int GetNextId()
-    {
-        return _classroomRepository.GetLastId();
-    }
 }

@@ -6,69 +6,99 @@ using Backend.Application.Courses.Actions;
 using Backend.Infrastructure.Utils;
 using Backend.Exceptions.AbsenceException;
 using Backend.Exceptions.CourseException;
+using Backend.Infrastructure.Contexts;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Backend.Infrastructure;
 public class CourseRepository : ICourseRepository
 {
 
-    private readonly List<Course> _courses = new();
+    //private readonly List<Course> _courses = new();
+    private readonly AppDbContext _appDbContext;
+
+
+    public CourseRepository(AppDbContext app)
+    {
+        _appDbContext = app;
+    }
 
     public Course Create(Course course)
     {
-        _courses.Add(course);
+        _appDbContext.Courses.Add(course);
+        _appDbContext.SaveChanges();
         return course;
     }
 
     //Db mock
-    //public Course GetCourseById(int courseId, List<Course> courses)
-    //{
-    //    if (!_courses.Any(course => course.ID == courseId))
-    //    {
-    //        throw new StudentNotFoundException($"Student with ID: {courseId} not found!");
-    //    }
-    //    //return null;
-    //    return _courses.First(course => course.ID == courseId);
-    //}
-
-    public int GetLastId()
+    public Course GetCourseById(int courseId, List<Course> courses)
     {
-        if (_courses.Count == 0) return 1;
-        var lastId = _courses.Max(a => a.ID);
-        return lastId + 1;
+        var course = _appDbContext.Courses.FirstOrDefault(c => c.ID == courseId);
+
+        if (course == null)
+        {
+            throw new StudentNotFoundException($"Course with ID: {courseId} not found!");
+        }
+
+        return course;
     }
+
+    //public int GetLastId()
+    //{
+    //    if (_courses.Count == 0) return 1;
+    //    var lastId = _courses.Max(a => a.ID);
+    //    return lastId + 1;
+    //}
 
     public Course? GetById(int id)
     {
         Logger.LogMethodCall(nameof(GetById), true);
-        return _courses.FirstOrDefault(c => c.ID == id);
+        return _appDbContext.Courses
+                       .Include(c => c.Teacher) 
+                       .Include(c =>c.StudentCourses)
+                            .ThenInclude(sc => sc.Student)
+                       .FirstOrDefault(c => c.ID == id);
     }
 
     public Course UpdateCourse(Course course, int id)
     {
-        var oldCourse = _courses.FirstOrDefault(s => s.ID == id);
-        if (oldCourse != null)
-        {
-            oldCourse = course;
+        var courseToUpdate = _appDbContext.Courses.FirstOrDefault(c => c.ID == course.ID);
 
-            return oldCourse;
-        }
-        else
+        if (courseToUpdate == null)
         {
-            throw new NullCourseException($"The course with id: {id} was not found");
+            throw new NullCourseException($"Course with ID: {course.ID} not found");
         }
+
+        courseToUpdate.Name = course.Name;
+        courseToUpdate.Subject = course.Subject;
+        courseToUpdate.Teacher = course.Teacher;
+        courseToUpdate.TeacherId= course.TeacherId;
+
+        _appDbContext.SaveChanges();
+
+        return courseToUpdate;
     }
 
     public void DeleteCourse(Course course)
     {
-        _courses.Remove(course);
+        _appDbContext.Courses.Remove(course);
+        _appDbContext.SaveChanges();
         Logger.LogMethodCall(nameof(DeleteCourse), true);
     }
 
     public void Add(Student student, int s)
     {
         var course = GetById(student.ID);
-        course.Students.Add(student);
+        var studentCourse = new StudentCourse
+        {
+            Course = course,
+            CourseId = course.ID,
+            StudentId = student.ID,
+            Student = student,
+        };
+        course.StudentCourses.Add(studentCourse);
+        _appDbContext.StudentCourses.Add(studentCourse);
+        _appDbContext.SaveChanges();
         Logger.LogMethodCall(nameof(Add), true);
     }
 }

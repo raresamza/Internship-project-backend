@@ -29,8 +29,9 @@ public class UpdateCourseHandler : IRequestHandler<UpdateCourse, CourseDto>
         {
             throw new NullCourseException($"The course with id: {request.courseId} was not found");
         }
-        var newCourse=_courseRepository.UpdateCourse(request.course, course.ID);
+        //var newCourse=_courseRepository.UpdateCourse(request.course, course.ID);
 
-        return Task.FromResult(CourseDto.FromCourse(newCourse));
+        //return Task.FromResult(CourseDto.FromCourse(newCourse));
+        return null;
     }
 }

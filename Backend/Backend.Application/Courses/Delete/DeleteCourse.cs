@@ -30,7 +30,7 @@ public class DeleteCourseHandler : IRequestHandler<DeleteCourse, CourseDto>
             throw new NullCourseException($"The course with id: {request.courseId} was not found");
         }
 
-        _courseRepository.DeleteCourse(course);
+        //_courseRepository.DeleteCourse(course);
 
         return Task.FromResult(CourseDto.FromCourse(course));
     }

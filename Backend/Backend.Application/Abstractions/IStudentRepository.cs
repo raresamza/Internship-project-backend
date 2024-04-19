@@ -7,7 +7,7 @@ public interface IStudentRepository
 {
 
     public Student Create(Student student);
-    int GetLastId();
+    //int GetLastId();
     public void MotivateAbsence(DateTime date, Course course, Student student);
     public Student? GetById(int id);
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 using Backend.Exceptions.CourseException;
 using Backend.Exceptions.Placeholders;
 using Backend.Exceptions.StudentException;
@@ -16,13 +17,14 @@ public class Catalogue
 {
     //make sure to assign catalogue to classroom;
     public Classroom Classroom { get; set; }
+    public int ClassroomId { get; set; }
     public int ID { get; set; }
     public Catalogue(Classroom classroom)
     {
         Classroom = classroom;
     }
 
-    public Catalogue() 
+    public Catalogue()
     {
 
     }
@@ -32,7 +34,7 @@ public class Catalogue
 
 
 
-        if (!course.Students.Contains(student))
+        if (!course.StudentCourses.Any(sc => sc.Student == student))
         {
             StudentException.LogError();
             throw new StudentNotEnrolledException($"Student {student.Name} is not enrolled into the course {course.Name}");
@@ -42,21 +44,18 @@ public class Catalogue
         {
             throw new NullCourseException("This course is not valid.");
         }
-        bool checkIfPresent = student.Grades.TryGetValue(course, out var list);
-        if (list.Count == 0)
+        var studentGrade = student.Grades.FirstOrDefault(g => g.Course == course);
+        if (studentGrade == null || studentGrade.GradeValues.Count == 0)
         {
             return 0;
         }
-        if (checkIfPresent)
+
+        foreach (int grade in studentGrade.GradeValues)
         {
-            foreach (int grade in list)
-            {
-                sum += grade;
-            }
+            sum += grade;
         }
-        Message.GPAMessage(Math.Round(sum / list.Count(), 2), student, course.Name);
-        //student.AddGpa(Math.Round(sum / list.Count(), 2), course);
-        return Math.Round(sum / list.Count(), 2);
+        Message.GPAMessage(Math.Round(sum / studentGrade.GradeValues.Count(), 2), student, course.Name);
+        return Math.Round(sum / studentGrade.GradeValues.Count(), 2);
     }
 
     //public static void notifyParent(Student studen,Message message)

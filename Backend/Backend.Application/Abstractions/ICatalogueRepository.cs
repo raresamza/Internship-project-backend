@@ -10,7 +10,7 @@ namespace Backend.Application.Abstractions;
 public interface ICatalogueRepository
 {
     public Catalogue Create(Catalogue catalogue);
-    int GetLastId();
+    //int GetLastId();
 
     public Catalogue? GetById(int id);
 

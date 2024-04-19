@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Backend.Domain.Models;
+﻿using Backend.Domain.Models;
 using Backend.Exceptions.StudentException;
 using Backend.Application.Abstractions;
-using Backend.Exceptions.TeacherException;
 using Backend.Exceptions.AbsenceException;
 using Backend.Exceptions.CourseException;
-using Backend.Application.Courses.Actions;
 using Backend.Exceptions.Placeholders;
 using Backend.Infrastructure.Utils;
-using System.Xml.Linq;
+using Backend.Infrastructure.Contexts;
+using Microsoft.EntityFrameworkCore;
+using Backend.Application.Students.Update;
 
 namespace Backend.Infrastructure;
 
@@ -21,11 +16,17 @@ public class StudentRepository : IStudentRepository
 
     //add private field list of students
 
-    private readonly List<Student> _students = new();
+    private readonly AppDbContext _appDbContext;
+    //private readonly List<Student> _students = new();
+
+    public StudentRepository(AppDbContext appDbContext)
+    {
+        _appDbContext = appDbContext;
+    }
 
     public List<Student> GetAllStudents()
     {
-        return _students;
+        return _appDbContext.Students.ToList();
     }
 
     //db mock
@@ -33,37 +34,58 @@ public class StudentRepository : IStudentRepository
     public Student? GetById(int id)
     {
         Logger.LogMethodCall(nameof(GetById), true);
-        return _students.FirstOrDefault(s => s.ID == id);
+        //return _students.FirstOrDefault(s => s.ID == id);
+        return _appDbContext.Students
+            .Include(s => s.Absences)
+            .Include(s => s.Grades)
+                .ThenInclude(sg=> sg.Course)
+            .Include(s => s.GPAs)
+            .FirstOrDefault(s => s.ID == id);
     }
 
     public Student Create(Student student)
     {
-        _students.Add(student);
+        _appDbContext.Students.Add(student);
+        _appDbContext.SaveChanges();
+        //_students.Add(student);
         Logger.LogMethodCall(nameof(Create), true);
+
         return student;
     }
 
-    public int GetLastId()
-    {
-        if (_students.Count == 0) return 1;
-        var lastId = _students.Max(a => a.ID);
-        return lastId + 1;
-    }
+    //public int GetLastId()
+    //{
+    //    if (_students.Count == 0) return 1;
+    //    var lastId = _students.Max(a => a.ID);
+    //    return lastId + 1;
+    //}
 
     public void Delete(Student student)
     {
-        _students.Remove(student);
+        _appDbContext.Students.Remove(student);
+        _appDbContext.SaveChanges();
+        //_students.Remove(student);
         Logger.LogMethodCall(nameof(Delete), true);
     }
 
     public Student UpdateStudent(Student student, int id)
     {
-        var oldStudent = _students.FirstOrDefault(s => s.ID == id);
-        if (oldStudent != null)
-        {
-            oldStudent = student;
+        var existingStudent = _appDbContext.Students.Find(id);
 
-            return oldStudent;
+        if (existingStudent != null)
+        {
+            existingStudent.Assigned = student.Assigned;
+            existingStudent.Classroom = student.Classroom;
+            existingStudent.Absences = student.Absences;
+            existingStudent.StudentCoruses = student.StudentCoruses;
+            existingStudent.ParentEmail = student.ParentEmail;
+            existingStudent.ParentName = student.ParentName;
+            existingStudent.Grades = student.Grades;
+            existingStudent.GPAs = student.GPAs;
+
+            _appDbContext.SaveChanges();
+
+            return existingStudent;
         }
         else
         {
@@ -73,37 +95,76 @@ public class StudentRepository : IStudentRepository
 
     public void AddGrade(int grade, Student student, Course course)
     {
-        
 
-        bool checkIfPresent = student.Grades.TryGetValue(course, out var list);
-        if (checkIfPresent)
+        if (student != null)
         {
-            Message.GradeMessage(grade, student, course.Name);
-            Logger.LogMethodCall(nameof(AddGrade), true);
-            list.Add(grade);
+            var studentGrade = student.Grades.FirstOrDefault(g => g.Course.Name== course.Name);
+
+            if (studentGrade != null)
+            {
+                studentGrade.GradeValues.Add(grade);
+                studentGrade.Course = course;
+                Logger.LogMethodCall(nameof(AddGrade), true);
+                //_appDbContext.StudentGrades.Add(studentGrade);
+                _appDbContext.SaveChanges();
+            }
+            else
+            {
+                Logger.LogMethodCall(nameof(AddGrade), false);
+                throw new StudentException($"Student {student.Name} is not enrolled in the course: {course.Name}, therefore they cannot be assigned a grade for this course");
+            }
         }
         else
         {
-            StudentException.LogError();
-            Logger.LogMethodCall(nameof(AddGrade), false);
-            throw new StudentException($"Student {student.Name} is not enrolled into the course: {course.Name}, therefor he can not be assigned a grade for this course");
+            throw new StudentNotFoundException($"Student with ID: {student.ID} not found");
         }
     }
 
     public void EnrollIntoCourse(Student student, Course course)
     {
         List<int> grades = new List<int>();
-        course.Students.Add(student);
-        student.GPAs.Add(course, 0);
-        student.Grades.Add(course, grades);
+        var studentCourse = new StudentCourse 
+        { 
+            Student = student, 
+            Course = course, 
+            StudentId = student.ID, 
+            CourseId = course.ID 
+        };
+        var studentGpa = new StudentGPA
+        {
+            Student = student,
+            StudentId = student.ID,
+            CourseId = course.ID,
+            Course = course,
+            GPAValue = 0
+        };
+        var studentGrade = new StudentGrade
+        {
+            Course = course,
+            StudentId = student.ID,
+            Student = student,
+            CourseId = course.ID,
+            GradeValues = grades
+        };
+
+        course.StudentCourses.Add(studentCourse);
+        student.GPAs.Add(studentGpa);
+        student.Grades.Add(studentGrade);
+
+
+        _appDbContext.StudentCourses.Add(studentCourse);
+        _appDbContext.StudentGPAs.Add(studentGpa);
+        _appDbContext.StudentGrades.Add(studentGrade);
+
+        _appDbContext.SaveChanges();
         Logger.LogMethodCall(nameof(EnrollIntoCourse), true);
     }
 
     public void AddAbsence(Student student, Absence absence)
     {
-        
 
-        if (!absence.Course.Students.Contains(student))
+
+        if (!absence.Course.StudentCourses.Any(sc => sc.Student.ID == student.ID))
         {
             AbsenceException.LogError();
             Logger.LogMethodCall(nameof(AddAbsence), false);
@@ -116,15 +177,17 @@ public class StudentRepository : IStudentRepository
         }
         Logger.LogMethodCall(nameof(AddAbsence), true);
         student.Absences.Add(absence);
+        _appDbContext.SaveChanges();
     }
 
-    public void RemoveGrade(Student student, Course course,int grade)
+    public void RemoveGrade(Student student, Course course, int grade)
     {
-        bool checkIfPresent = student.Grades.TryGetValue(course, out var list);
-        if (checkIfPresent)
+        var studentGrade = student.Grades.FirstOrDefault(g => g.CourseId == course.ID);
+        if (studentGrade != null)
         {
+            studentGrade.GradeValues.Remove(grade);
+            _appDbContext.SaveChanges();
             Logger.LogMethodCall(nameof(RemoveGrade), true);
-            list.Remove(grade);
         }
         else
         {
@@ -132,6 +195,8 @@ public class StudentRepository : IStudentRepository
             Logger.LogMethodCall(nameof(RemoveGrade), false);
             throw new StudentException($"Student is not enrolled into the course {course.Name}");
         }
+
+        _appDbContext.SaveChanges();
     }
 
     public void MotivateAbsence(DateTime date, Course course, Student student)
@@ -143,45 +208,35 @@ public class StudentRepository : IStudentRepository
             Logger.LogMethodCall(nameof(MotivateAbsence), false);
             throw new NullCourseException("This course is not valid");
         }
-        else if (!course.Students.Contains(student))
+        else if (!course.StudentCourses.Any(sc => sc.Student == student))
         {
             StudentException.LogError();
             Logger.LogMethodCall(nameof(MotivateAbsence), false);
             throw new StudentNotEnrolledException($"Cannot motivate absence for {student.Name} because he is not enrolled into {course.Name}");
         }
-        //foreach (Absence absence in student.Absences)
-        //{
-        //    if (absence.Date == date.Date && absence.Course.Name.Equals(course.Name))
-        //    {
-        //        student.Absences.Remove(absence);
-        //        Logger.LogMethodCall(nameof(MotivateAbsence), true);
-
-        //    }
-        //}
-        // Create a list to store absences to be removed
         List<Absence> absencesToRemove = new List<Absence>();
 
-        // Iterate over the absences
         foreach (Absence absence in student.Absences.ToList())
         {
             if (absence.Date == date.Date && absence.Course.Name.Equals(course.Name))
             {
-                // Add the absence to the list of items to be removed
                 absencesToRemove.Add(absence);
                 Logger.LogMethodCall(nameof(MotivateAbsence), true);
             }
         }
 
-        // Remove the absences after the iteration
         foreach (Absence absenceToRemove in absencesToRemove)
         {
             student.Absences.Remove(absenceToRemove);
+            _appDbContext.Absences.Remove(absenceToRemove);
         }
+
+        _appDbContext.SaveChanges();
     }
 
     public Student? GetByName(string name)
     {
         Logger.LogMethodCall(nameof(GetByName), true);
-        return _students.FirstOrDefault(s => s.Name == name);
+        return _appDbContext.Students.FirstOrDefault(s => s.Name == name);
     }
 }
