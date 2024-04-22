@@ -39,7 +39,7 @@ public class AddStudentToClassroomHandler : IRequestHandler<AddStudentToClassroo
 
         _classroomRepository.AddStudent(student, classroom);
         _classroomRepository.UpdateClassroom(classroom, classroom.ID);
-        _studentRepository.UpdateStudent(student, classroom.ID);
+        _studentRepository.UpdateStudent(student, student.ID);
 
         return Task.FromResult(StudentDto.FromStudent(student));
     }

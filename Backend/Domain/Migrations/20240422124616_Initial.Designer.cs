@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240419175636_Initial")]
+    [Migration("20240422124616_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -82,12 +82,12 @@ namespace Backend.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SchoolID")
+                    b.Property<int>("SchoolId")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("SchoolID");
+                    b.HasIndex("SchoolId");
 
                     b.ToTable("Classrooms");
                 });
@@ -97,7 +97,7 @@ namespace Backend.Infrastructure.Migrations
                     b.Property<int>("ClassroomId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CourseId")
+                    b.Property<int?>("CourseId")
                         .HasColumnType("int");
 
                     b.HasKey("ClassroomId", "CourseId");
@@ -324,7 +324,7 @@ namespace Backend.Infrastructure.Migrations
                 {
                     b.HasOne("Backend.Domain.Models.School", "School")
                         .WithMany("Classrooms")
-                        .HasForeignKey("SchoolID")
+                        .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

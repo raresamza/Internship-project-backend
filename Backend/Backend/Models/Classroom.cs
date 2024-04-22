@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Backend.Exceptions.CourseException;
 using Backend.Exceptions.Placeholders;
 using Backend.Exceptions.StudentException;
@@ -47,14 +48,16 @@ public class Classroom
     {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.Append($"This classrooms has the following teachers:\n");
+        
         foreach (TeacherClassroom teacher in Teachers)
         {
-            stringBuilder.Append($"\t{teacher.ToString()}");
+            Console.WriteLine(teacher.TeacherId);
+            stringBuilder.Append($"\t{teacher.Teacher?.ToString()}");
         }
         stringBuilder.Append($"This classrooms has the following students:");
         foreach (Student student in Students)
         {
-            stringBuilder.Append($"\t{student.ToString()}");
+            stringBuilder.Append($"\t{student?.ToString()}");
         }
         return stringBuilder.ToString();
     }

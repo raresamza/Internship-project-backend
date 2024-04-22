@@ -81,7 +81,20 @@ public class CourseRepository : ICourseRepository
 
     public void DeleteCourse(Course course)
     {
+        //Console.WriteLine(_appDbContext.Absences.Find());
+        var absencesToRemove = _appDbContext.Absences
+        .Where(a => a.CourseId == course.ID)
+        .ToList();
+
+        _appDbContext.Absences.RemoveRange(absencesToRemove);
         _appDbContext.Courses.Remove(course);
+
+
+        //_appDbContext.ClassroomCourses.Remove(_appDbContext.ClassroomCourses.Find(course.ID));
+        //_appDbContext.StudentCourses.Remove(_appDbContext.StudentCourses.Find(course.ID));
+        //_appDbContext.StudentGrades.Remove(_appDbContext.StudentGrades.Find(course.ID));
+        //_appDbContext.Absences.Remove(course);
+        //_appDbContext.StudentGPAs.Remove
         _appDbContext.SaveChanges();
         Logger.LogMethodCall(nameof(DeleteCourse), true);
     }

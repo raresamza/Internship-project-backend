@@ -6,6 +6,7 @@ using Backend.Exceptions.Placeholders;
 using Backend.Infrastructure.Utils;
 using Backend.Exceptions.TeacherException;
 using Backend.Infrastructure.Contexts;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Infrastructure;
 public class SchoolRepository : ISchoolRepository
@@ -41,6 +42,8 @@ public class SchoolRepository : ISchoolRepository
 
     public void RemoveClassroom(Classroom classroom, School school)
     {
+
+        Console.WriteLine(classroom.ToString());
         if (classroom == null)
         {
             ClassroomException.LogError();
@@ -55,7 +58,15 @@ public class SchoolRepository : ISchoolRepository
             throw new ClassroomNotRegisteredException($"Classroom {classroom.Name} cannot be deleted because it is not registered");
         }
         Logger.LogMethodCall(nameof(RemoveClassroom), true);
-        school.Classrooms.Remove(classroom);
+        var classroomToRemove = school.Classrooms.FirstOrDefault(c => c.ID == classroom.ID);
+
+        foreach (var student in classroomToRemove.Students)
+        {
+            student.ClassroomId = null;
+        }
+
+        _appDbContext.SaveChanges();
+        school.Classrooms.Remove(classroomToRemove);
         _appDbContext.SaveChanges();
     }
 
@@ -64,7 +75,21 @@ public class SchoolRepository : ISchoolRepository
     public School? GetById(int id)
     {
         Logger.LogMethodCall(nameof(GetById), true);
-        return _appDbContext.Schools.FirstOrDefault(s => s.ID == id);
+        return _appDbContext.Schools
+            .Include(s => s.Classrooms)
+                .ThenInclude(c => c.Students)
+                    .ThenInclude(s =>s.Grades)
+                        .ThenInclude(g => g.Course)
+            .Include(s => s.Classrooms)
+                .ThenInclude(c => c.Students)
+                    .ThenInclude(s => s.GPAs)
+            .Include(s =>s.Classrooms)
+                .ThenInclude(c => c.Students)
+                    .ThenInclude(s => s.Absences)
+            .Include(s => s.Classrooms)
+                .ThenInclude(c => c.Teachers)
+                    .ThenInclude(c => c.Teacher)
+            .FirstOrDefault(s => s.ID == id);
     }
 
     public School Create(School school)

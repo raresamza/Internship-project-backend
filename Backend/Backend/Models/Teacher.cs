@@ -27,5 +27,20 @@ public class Teacher : User
     public ICollection<TeacherClassroom> TeacherClassrooms { get; set; }
 
     public int ID { get; set; }
+    public override string ToString()
+    {
 
+        StringBuilder stringBuilder = new StringBuilder();
+        if (TaughtCourse != null)
+        {
+            stringBuilder.Append($"Teacher details:\n\tTeacher Name: {Name}\n\tTeacher Age: {Age}\n\tTeacher Phone Number: {PhoneNumber}\n\tTeacher Address: {Address}\n\tTeacher Subject: {Subject}\n\tTaught Course: {TaughtCourse.ToString()}\n");
+
+        }
+        else
+        {
+            stringBuilder.Append($"Teacher details:\n\tTeacher Name: {Name}\n\tTeacher Age: {Age}\n\tTeacher Phone Number: {PhoneNumber}\n\tTeacher Address: {Address}\n\tTeacher Subject: {Subject}\n\tTaught Course: !Coruse is not assigned yet!\n");
+
+        }
+        return stringBuilder.ToString();
+    }
 }

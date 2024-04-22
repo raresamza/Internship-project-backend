@@ -74,8 +74,10 @@ public class StudentRepository : IStudentRepository
 
         if (existingStudent != null)
         {
-            existingStudent.Assigned = student.Assigned;
+            //existingStudent.Assigned = student.Assigned;
             existingStudent.Classroom = student.Classroom;
+            existingStudent.PhoneNumber = student.PhoneNumber;
+            existingStudent.Address= student.Address;
             existingStudent.Absences = student.Absences;
             existingStudent.StudentCoruses = student.StudentCoruses;
             existingStudent.ParentEmail = student.ParentEmail;
@@ -151,11 +153,10 @@ public class StudentRepository : IStudentRepository
         student.GPAs.Add(studentGpa);
         student.Grades.Add(studentGrade);
 
-
+        
         _appDbContext.StudentCourses.Add(studentCourse);
         _appDbContext.StudentGPAs.Add(studentGpa);
         _appDbContext.StudentGrades.Add(studentGrade);
-
         _appDbContext.SaveChanges();
         Logger.LogMethodCall(nameof(EnrollIntoCourse), true);
     }

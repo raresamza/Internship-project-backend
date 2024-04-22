@@ -36,7 +36,6 @@ public class TeacherDto
     public override string ToString()
     {
 
-        Console.WriteLine(TaughtCourseId);
         StringBuilder stringBuilder = new StringBuilder();
         if (TaughtCourse != null)
         {

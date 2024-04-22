@@ -5,9 +5,9 @@ using Backend.Infrastructure.Utils;
 using Backend.Exceptions.TeacherException;
 using Backend.Exceptions.Placeholders;
 using Backend.Exceptions.CourseException;
-using Backend.Exceptions.AbsenceException;
 using Backend.Exceptions.ClassroomException;
 using Backend.Infrastructure.Contexts;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Infrastructure;
 public class ClassroomRepository : IClassroomRepository
@@ -29,7 +29,11 @@ public class ClassroomRepository : IClassroomRepository
         else
         {
             Logger.LogMethodCall(nameof(RemoveStudent), true);
+            classroom.Students.FirstOrDefault(s => s.ID == student.ID).ClassroomId = null;
+            student.Assigned = false;
+            _appDbContext.SaveChanges();
             classroom.Students.Remove(student);
+            _appDbContext.SaveChanges();
         }
     }
 
@@ -97,6 +101,7 @@ public class ClassroomRepository : IClassroomRepository
         }
         else
         {
+
             Logger.LogMethodCall(nameof(AddStudent), false);
 
             throw new StudentAlreadyEnrolledException($"Student {student.Name} already is part of a classroom");
@@ -108,7 +113,7 @@ public class ClassroomRepository : IClassroomRepository
     public void AddTeacher(Teacher teacher, Classroom classroom)
     {
 
-        if (classroom.Teachers.Any(cc => cc.Classroom == classroom))
+        if (classroom.Teachers.Any(cc => cc.TeacherId == teacher.ID))
         {
             TeacherException.LogError();
             Logger.LogMethodCall(nameof(AddTeacher), false);
@@ -124,6 +129,8 @@ public class ClassroomRepository : IClassroomRepository
             }
         }
         Logger.LogMethodCall(nameof(AddTeacher), true);
+
+
         classroom.Teachers.Add(
             new TeacherClassroom
             {
@@ -153,7 +160,11 @@ public class ClassroomRepository : IClassroomRepository
     public Classroom? GetById(int id)
     {
         Logger.LogMethodCall(nameof(GetById), true);
-        return _appDbContext.Classrooms.FirstOrDefault(c => c.ID == id);
+        return _appDbContext.Classrooms
+            .Include(c => c.Students)
+            .Include(c => c.Teachers)  
+                .ThenInclude(tc => tc.Teacher)  
+            .FirstOrDefault(c => c.ID == id);
     }
 
     public Classroom UpdateClassroom(Classroom classroom, int id)

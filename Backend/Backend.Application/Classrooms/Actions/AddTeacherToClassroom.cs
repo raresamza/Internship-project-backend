@@ -1,5 +1,7 @@
 ﻿using Backend.Application.Abstractions;
 using Backend.Application.Classrooms.Response;
+using Backend.Exceptions.ClassroomException;
+using Backend.Exceptions.TeacherException;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -28,8 +30,17 @@ public class AddTeacherToClassroomHandler : IRequestHandler<AddTeacherToClassroo
         var teacher=_teacherRepository.GetById(request.teacherId);
         var classroom=_classroomRepository.GetById(request.classroomId);
 
+        if (teacher == null)
+        {
+            throw new TeacherNotFoundException($"The teacher with id: {request.teacherId} was not found");
+        }
+        if( classroom == null )
+        {
+            throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
+        }
+
         _classroomRepository.AddTeacher(teacher,classroom);
-        _classroomRepository.UpdateClassroom(classroom,classroom.ID);
+        //_classroomRepository.UpdateClassroom(classroom,classroom.ID);
         _teacherRepository.UpdateTeacher(teacher,teacher.ID);
 
         return Task.FromResult(ClassroomDto.FromClassroom(classroom));
