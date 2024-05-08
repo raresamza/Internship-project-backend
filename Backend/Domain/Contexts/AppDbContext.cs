@@ -6,6 +6,17 @@ namespace Backend.Infrastructure.Contexts;
 
 public class AppDbContext : DbContext
 {
+
+    public AppDbContext(DbContextOptions options) : base(options)
+    {
+
+    }
+
+    public AppDbContext()
+    {
+
+    }
+
     public DbSet<Student> Students { get; set; } = default!;
     public DbSet<Teacher> Teachers { get; set; } = default!;
     public DbSet<Course> Courses { get; set; } = default!;

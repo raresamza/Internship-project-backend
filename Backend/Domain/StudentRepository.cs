@@ -31,19 +31,19 @@ public class StudentRepository : IStudentRepository
 
     //db mock
 
-    public Student? GetById(int id)
+    public async Task<Student?> GetById(int id)
     {
         Logger.LogMethodCall(nameof(GetById), true);
         //return _students.FirstOrDefault(s => s.ID == id);
-        return _appDbContext.Students
+        return await _appDbContext.Students
             .Include(s => s.Absences)
             .Include(s => s.Grades)
                 .ThenInclude(sg=> sg.Course)
             .Include(s => s.GPAs)
-            .FirstOrDefault(s => s.ID == id);
+            .FirstOrDefaultAsync(s => s.ID == id);
     }
 
-    public Student Create(Student student)
+    public async Task<Student> Create(Student student)
     {
         _appDbContext.Students.Add(student);
         _appDbContext.SaveChanges();
@@ -60,17 +60,17 @@ public class StudentRepository : IStudentRepository
     //    return lastId + 1;
     //}
 
-    public void Delete(Student student)
+    public async Task Delete(Student student)
     {
         _appDbContext.Students.Remove(student);
-        _appDbContext.SaveChanges();
+        await _appDbContext.SaveChangesAsync();
         //_students.Remove(student);
         Logger.LogMethodCall(nameof(Delete), true);
     }
 
-    public Student UpdateStudent(Student student, int id)
+    public async Task<Student> UpdateStudent(Student student, int id)
     {
-        var existingStudent = _appDbContext.Students.Find(id);
+        var existingStudent =await _appDbContext.Students.FindAsync(id);
 
         if (existingStudent != null)
         {
@@ -235,9 +235,19 @@ public class StudentRepository : IStudentRepository
         _appDbContext.SaveChanges();
     }
 
-    public Student? GetByName(string name)
+    public async Task<Student?> GetByName(string name)
     {
         Logger.LogMethodCall(nameof(GetByName), true);
-        return _appDbContext.Students.FirstOrDefault(s => s.Name == name);
+        return await _appDbContext.Students.FirstOrDefaultAsync(s => s.Name == name);
+    }
+
+    public async Task<List<Student>> GetAll()
+    {
+        return await _appDbContext.Students
+             .Include(s => s.Absences)
+             .Include(s => s.Grades)
+                 .ThenInclude(sg => sg.Course)
+             .Include(s => s.GPAs)
+             .ToListAsync();
     }
 }

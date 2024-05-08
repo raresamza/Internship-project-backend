@@ -1,8 +1,11 @@
-﻿using Backend.Domain.Models;
+﻿using Backend.Application.Absences.Response;
+using Backend.Application.Courses.Response;
+using Backend.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -20,9 +23,17 @@ public class StudentDto
     public required string Name { get; set; }
     public required string Address { get; set; }
     public required int PhoneNumber { get; set; }
-    public ICollection<StudentGrade> Grades { get; set; }
-    public ICollection<StudentGPA> GPAs { get; set; }
-    public ICollection<Absence> Absences { get; set; }
+    public ICollection<StudentGradeDto>? Grades { get; set; }
+    //[JsonIgnore]
+    //public ICollection<StudentGrade> Grades { get; set; }
+    //[JsonIgnore]
+    //public ICollection<StudentGPA> GPAs { get; set; }
+    public ICollection<StudentGPADto>? GPAs { get; set; }
+    //[JsonIgnore]
+    public ICollection<AbsenceDto>? Absences { get; set; }
+
+
+    //public ICollection<AbsenceDto> Absences { get; set; }
 
     public static StudentDto FromStudent(Student student)
     {
@@ -35,9 +46,12 @@ public class StudentDto
             Name = student.Name,
             Address = student.Address,
             PhoneNumber = student.PhoneNumber,
-            Grades = student.Grades,
-            GPAs = student.GPAs,
-            Absences = student.Absences,
+            Grades = student.Grades.Select((studentGrade) => StudentGradeDto.FromStudentGrade(studentGrade)).ToList(),
+            GPAs = student.GPAs.Select((studentGpa) => StudentGPADto.FromStudentGpa(studentGpa)).ToList(),
+            Absences = student.Absences.Select((absence) => AbsenceDto.FromAbsence(absence)).ToList(),
+            //Grades = student.Grades,
+            //Absences = student.Absences,
+            //GPAs = student.GPAs
         };
     }
 
@@ -48,7 +62,7 @@ public class StudentDto
 
         foreach (var studentGrade in Grades)
         {
-            Course course = studentGrade.Course;
+            CourseDto course = studentGrade.Course;
             Console.WriteLine(studentGrade.ToString());
             List<int> grades = studentGrade.GradeValues;
             stringBuilder.Append($"\t\tCourse: {course.Name}\n");
@@ -75,7 +89,7 @@ public class StudentDto
 
         stringBuilder.Append($"\t\tAbsences:\n");
 
-        foreach (Absence absence in Absences)
+        foreach (AbsenceDto absence in Absences)
         {
             stringBuilder.Append($"\t\t\t{absence.Date.ToString("dd/MM/yyyy")}, {absence.Course.Name}\n");
         }

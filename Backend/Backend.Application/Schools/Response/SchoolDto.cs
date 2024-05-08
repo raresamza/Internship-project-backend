@@ -1,4 +1,5 @@
-﻿using Backend.Domain.Models;
+﻿using Backend.Application.Classrooms.Response;
+using Backend.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ public class SchoolDto
     public int ID { get; set; }
     public required string Name { get; set; }
     public List<Classroom> classrooms = new();
-    public ICollection<Classroom> Classrooms { get; set; }
+    public ICollection<ClassroomDto> Classrooms { get; set; }
 
     public static SchoolDto FromScool(School school) 
     {
@@ -20,7 +21,7 @@ public class SchoolDto
         {
             Name = school.Name,
             ID = school.ID,
-            Classrooms = school.Classrooms,
+            Classrooms = school.Classrooms.Select((classroom) => ClassroomDto.FromClassroom(classroom)).ToList(),
         };
     }
 
@@ -28,7 +29,7 @@ public class SchoolDto
     {
         StringBuilder sb = new StringBuilder();
         sb.Append($"The school with name: \"{Name}\" has the following classrooms:\n");
-        foreach(Classroom c in  Classrooms)
+        foreach(ClassroomDto c in  Classrooms)
         {
             sb.Append("\t"+ c.ToString()+"\n");
         }

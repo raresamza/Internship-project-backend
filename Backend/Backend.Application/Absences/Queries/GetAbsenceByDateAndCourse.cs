@@ -12,39 +12,45 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Absences.Queries;
 
-public record GetAbsenceByDateAndCourse(DateTime Date,int courseId,int studentId): IRequest<AbsenceDto>;
+public record GetAbsenceByDateAndCourse(DateTime Date, int courseId, int studentId) : IRequest<AbsenceDto>;
 public class GetAbsenceByDateAndCourseHandler : IRequestHandler<GetAbsenceByDateAndCourse, AbsenceDto>
 {
 
 
-    private readonly IAbsenceRepository _absenceRepository;
-    private readonly ICourseRepository _courseRepository;
-    private readonly IStudentRepository _studentRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GetAbsenceByDateAndCourseHandler(IAbsenceRepository absenceRepository, ICourseRepository courseRepository, IStudentRepository studentRepository)
+    public GetAbsenceByDateAndCourseHandler(IUnitOfWork unitOfWork)
     {
-        _absenceRepository = absenceRepository;
-        _courseRepository = courseRepository;
-        _studentRepository = studentRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<AbsenceDto> Handle(GetAbsenceByDateAndCourse request, CancellationToken cancellationToken)
+    public async Task<AbsenceDto> Handle(GetAbsenceByDateAndCourse request, CancellationToken cancellationToken)
     {
-        var student = _studentRepository.GetById(request.studentId);
-        var course=_courseRepository.GetById(request.courseId);
-        if(student == null)
+
+        try
         {
-            throw new StudentNotFoundException($"The student with id: {request.studentId} was not found");
+            var student = await _unitOfWork.StudentRepository.GetById(request.studentId);
+            var course = await _unitOfWork.CourseRepository.GetById(request.courseId);
+            if (student == null)
+            {
+                throw new StudentNotFoundException($"The student with id: {request.studentId} was not found");
+            }
+            if (course == null)
+            {
+                throw new NullCourseException($"The course with id: {request.courseId} was not found");
+            }
+            var absence = await _unitOfWork.AbsenceRepository.GetByDateAndCourse(request.Date, course, student);
+            if (absence == null)
+            {
+                throw new TeacherNotFoundException($"The absence for the course: {request.courseId}, on date: {request.Date} was not found!");
+            }
+            return AbsenceDto.FromAbsence(absence);
         }
-        if(course == null)
+        catch (Exception ex)
         {
-            throw new NullCourseException($"The course with id: {request.courseId} was not found");
+            Console.WriteLine(ex.Message);
+            throw;
         }
-        var absence = _absenceRepository.GetByDateAndCourse(request.Date,course,student);
-        if (absence == null)
-        {
-            throw new TeacherNotFoundException($"The absence for the course: {request.courseId}, on date: {request.Date} was not found!");
-        }
-        return Task.FromResult(AbsenceDto.FromAbsence(absence));
+
     }
 }

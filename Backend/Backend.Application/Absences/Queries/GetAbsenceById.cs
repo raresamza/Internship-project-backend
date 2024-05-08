@@ -16,21 +16,30 @@ namespace Backend.Application.Absences.Queries;
 public record GetAbsenceById(int absenceId) : IRequest<AbsenceDto>;
 public class GetAbsenceByIdHandler : IRequestHandler<GetAbsenceById, AbsenceDto>
 {
-    private readonly IAbsenceRepository _absenceRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GetAbsenceByIdHandler(IAbsenceRepository absenceRepository)
+    public GetAbsenceByIdHandler(IUnitOfWork unitOfWork)
     {
-        _absenceRepository = absenceRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<AbsenceDto> Handle(GetAbsenceById request, CancellationToken cancellationToken)
+    public async Task<AbsenceDto> Handle(GetAbsenceById request, CancellationToken cancellationToken)
     {
-        var absence = _absenceRepository.GetById(request.absenceId);
-        if (absence == null)
+        try
         {
-            throw new TeacherNotFoundException($"The absence witrh id: {request.absenceId} was not found!");
+            var absence = await _unitOfWork.AbsenceRepository.GetById(request.absenceId);
+            if (absence == null)
+            {
+                throw new TeacherNotFoundException($"The absence witrh id: {request.absenceId} was not found!");
+            }
+
+            return AbsenceDto.FromAbsence(absence);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
 
-        return Task.FromResult(AbsenceDto.FromAbsence(absence));
     }
 }

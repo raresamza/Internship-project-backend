@@ -11,27 +11,39 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Teachers.Update;
 
-public record UpdateTeacher(int teacherId,Teacher teacher) : IRequest<TeacherDto>;
+public record UpdateTeacher(int teacherId, Teacher teacher) : IRequest<TeacherDto>;
 public class UpdateTeacherHandler : IRequestHandler<UpdateTeacher, TeacherDto>
 {
 
-    private readonly ITeacherRepository _teacherRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateTeacherHandler(ITeacherRepository teacherRepository)
+    public UpdateTeacherHandler(IUnitOfWork unitOfWork)
     {
-        _teacherRepository = teacherRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<TeacherDto> Handle(UpdateTeacher request, CancellationToken cancellationToken)
+    public async Task<TeacherDto> Handle(UpdateTeacher request, CancellationToken cancellationToken)
     {
-        var teacher = _teacherRepository.GetById(request.teacherId);
 
-        if(teacher == null)
+        try
         {
-            throw new TeacherNotFoundException($"The teacher with id: {request.teacher} was not found");
+            var teacher = await _unitOfWork.TeacherRepository.GetById(request.teacherId);
+
+            if (teacher == null)
+            {
+                throw new TeacherNotFoundException($"The teacher with id: {request.teacher} was not found");
+            }
+            await _unitOfWork.BeginTransactionAsync();
+            var newTeacher = await _unitOfWork.TeacherRepository.UpdateTeacher(request.teacher, teacher.ID);
+            await _unitOfWork.CommitTransactionAsync();
+            return TeacherDto.FromTeacher(newTeacher);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
 
-        var newTeacher = _teacherRepository.UpdateTeacher(request.teacher, teacher.ID);
-        return Task.FromResult(TeacherDto.FromTeacher(newTeacher));
     }
 }

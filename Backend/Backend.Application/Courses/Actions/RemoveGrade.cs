@@ -16,32 +16,42 @@ public record RemoveGrade(int studentId, int courseId, int grade) : IRequest<Stu
 
 public class RemoveGradeHandler : IRequestHandler<RemoveGrade, StudentDto>
 {
-    private readonly ICourseRepository _courseRepository;
-    private readonly IStudentRepository _studentRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public RemoveGradeHandler(ICourseRepository courseRepository, IStudentRepository studentRepository)
+    public RemoveGradeHandler(IUnitOfWork unitOfWork)
     {
-        _courseRepository = courseRepository;
-        _studentRepository = studentRepository;
+        _unitOfWork = unitOfWork;
     }
-    public Task<StudentDto> Handle(RemoveGrade request, CancellationToken cancellationToken)
+    public async Task<StudentDto> Handle(RemoveGrade request, CancellationToken cancellationToken)
     {
-        var student = _studentRepository.GetById(request.studentId);
-        var course = _courseRepository.GetById(request.courseId);
 
-        if (student == null)
+        try
         {
-            throw new StudentNotFoundException($"Student with ID: {request.studentId} could not be found");
+            var student = await _unitOfWork.StudentRepository.GetById(request.studentId);
+            var course = await _unitOfWork.CourseRepository.GetById(request.courseId);
+
+            if (student == null)
+            {
+                throw new StudentNotFoundException($"Student with ID: {request.studentId} could not be found");
+            }
+            if (course == null)
+            {
+                throw new NullCourseException($"Could not found course with id: {request.courseId}");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            _unitOfWork.StudentRepository.RemoveGrade(student, course, request.grade);
+            await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
+            //_courseRepository.UpdateCourse(course, course.ID);
+            await _unitOfWork.CommitTransactionAsync();
+            return StudentDto.FromStudent(student);
         }
-        if (course == null)
+        catch (Exception ex)
         {
-            throw new NullCourseException($"Could not found course with id: {request.courseId}");
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
 
-        _studentRepository.RemoveGrade(student,course,request.grade);
-        _studentRepository.UpdateStudent(student, student.ID);
-        //_courseRepository.UpdateCourse(course, course.ID);
-
-        return Task.FromResult(StudentDto.FromStudent(student));
     }
 }

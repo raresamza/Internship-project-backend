@@ -9,25 +9,35 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Students.Queries;
 
-public record GetStudentByName(string studentName):IRequest<StudentDto>;
+public record GetStudentByName(string studentName) : IRequest<StudentDto>;
 public class GetStudentByNameHandler : IRequestHandler<GetStudentByName, StudentDto>
 {
 
-    private readonly IStudentRepository _studentRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GetStudentByNameHandler(IStudentRepository studentRepository)
+    public GetStudentByNameHandler(IUnitOfWork unitOfWork)
     {
-        _studentRepository = studentRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<StudentDto> Handle(GetStudentByName request, CancellationToken cancellationToken)
+    public async Task<StudentDto> Handle(GetStudentByName request, CancellationToken cancellationToken)
     {
-        var student = _studentRepository.GetByName(request.studentName);
-        if (student == null)
+
+        try
         {
-            throw new ApplicationException("Student not found");
+            var student = await _unitOfWork.StudentRepository.GetByName(request.studentName);
+            if (student == null)
+            {
+                throw new ApplicationException("Student not found");
+            }
+
+            return StudentDto.FromStudent(student);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
 
-        return Task.FromResult(StudentDto.FromStudent(student));
     }
 }

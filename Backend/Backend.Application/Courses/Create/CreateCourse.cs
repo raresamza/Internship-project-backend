@@ -16,22 +16,30 @@ public record CreateCourse(string Name, Subject Subject) : IRequest<CourseDto>;
 public class CreateCourseHandler : IRequestHandler<CreateCourse, CourseDto>
 {
 
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateCourseHandler(ICourseRepository courseRepository)
+    public CreateCourseHandler(IUnitOfWork unitOfWork)
     {
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<CourseDto> Handle(CreateCourse request, CancellationToken cancellationToken)
+    public async Task<CourseDto> Handle(CreateCourse request, CancellationToken cancellationToken)
     {
-        var course = new Course() { Name = request.Name, Subject = request.Subject};
-        var createdCourse = _courseRepository.Create(course);
-        return Task.FromResult(CourseDto.FromCourse(createdCourse));
-        //add id
+        try
+        {
+            var course = new Course() { Name = request.Name, Subject = request.Subject };
+            await _unitOfWork.BeginTransactionAsync();
+            var createdCourse = await _unitOfWork.CourseRepository.Create(course);
+            await _unitOfWork.CommitTransactionAsync();
+            return CourseDto.FromCourse(createdCourse);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+
+
     }
-    //private int GetNextId()
-    //{
-    //    return _courseRepository.GetLastId();
-    //}
 }

@@ -14,24 +14,35 @@ public record DeleteClassroom(int classroomId) : IRequest<ClassroomDto>;
 public class DeleteClassroomHandler : IRequestHandler<DeleteClassroom, ClassroomDto>
 {
 
-    private readonly IClassroomRepository _classroomRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteClassroomHandler(IClassroomRepository classroomRepository)
+    public DeleteClassroomHandler(IUnitOfWork unitOfWork)
     {
-        _classroomRepository = classroomRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<ClassroomDto> Handle(DeleteClassroom request, CancellationToken cancellationToken)
+    public async Task<ClassroomDto> Handle(DeleteClassroom request, CancellationToken cancellationToken)
     {
-        var classroom = _classroomRepository.GetById(request.classroomId);
-
-        if (classroom == null)
+        try
         {
-            throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
+            var classroom = await _unitOfWork.ClassroomRepository.GetById(request.classroomId);
+
+            if (classroom == null)
+            {
+                throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.ClassroomRepository.Delete(classroom);
+            await _unitOfWork.CommitTransactionAsync();
+            return ClassroomDto.FromClassroom(classroom);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
 
-        _classroomRepository.Delete(classroom);
-
-        return Task.FromResult(ClassroomDto.FromClassroom(classroom));
     }
 }

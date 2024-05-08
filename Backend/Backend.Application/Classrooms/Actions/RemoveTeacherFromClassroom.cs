@@ -12,36 +12,44 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Classrooms.Actions;
 
-public record RemoveTeacherFromClassroom(int teacherId,int classroomId) : IRequest<ClassroomDto>;
+public record RemoveTeacherFromClassroom(int teacherId, int classroomId) : IRequest<ClassroomDto>;
 public class RemoveTeacherFromClassroomHandler : IRequestHandler<RemoveTeacherFromClassroom, ClassroomDto>
 {
 
-    private readonly ITeacherRepository _teacherRepository;
-    private readonly IClassroomRepository _classroomRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public RemoveTeacherFromClassroomHandler(ITeacherRepository teacherRepository, IClassroomRepository classroomRepository)
+    public RemoveTeacherFromClassroomHandler(IUnitOfWork unitOfWork)
     {
-        _teacherRepository = teacherRepository;
-        _classroomRepository = classroomRepository;
+        _unitOfWork = unitOfWork;
     }
-
-    public Task<ClassroomDto> Handle(RemoveTeacherFromClassroom request, CancellationToken cancellationToken)
+    public async Task<ClassroomDto> Handle(RemoveTeacherFromClassroom request, CancellationToken cancellationToken)
     {
-        var teacher=_teacherRepository.GetById(request.teacherId);
-        var classroom=_classroomRepository.GetById(request.classroomId);
-
-        if (teacher == null)
+        try
         {
-            throw new TeacherNotFoundException($"Teacher with id: {request.teacherId} was not found");
+            var teacher = await _unitOfWork.TeacherRepository.GetById(request.teacherId);
+            var classroom = await _unitOfWork.ClassroomRepository.GetById(request.classroomId);
+
+            if (teacher == null)
+            {
+                throw new TeacherNotFoundException($"Teacher with id: {request.teacherId} was not found");
+            }
+            if (classroom == null)
+            {
+                throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            _unitOfWork.ClassroomRepository.RemoveTeacher(teacher, classroom);
+            await _unitOfWork.ClassroomRepository.UpdateClassroom(classroom, classroom.ID);
+            await _unitOfWork.CommitTransactionAsync();
+            return ClassroomDto.FromClassroom(classroom);
         }
-        if (classroom == null)
+        catch (Exception ex)
         {
-            throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
 
-        _classroomRepository.RemoveTeacher(teacher,classroom);
-        _classroomRepository.UpdateClassroom(classroom,classroom.ID);
-
-        return Task.FromResult(ClassroomDto.FromClassroom(classroom));
     }
 }

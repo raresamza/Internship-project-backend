@@ -13,23 +13,31 @@ namespace Backend.Application.Students.Update;
 public record UpdateStudent(int studentId, Domain.Models.Student student) : IRequest<StudentDto>;
 public class UpdateStudentHandler : IRequestHandler<UpdateStudent, StudentDto>
 {
-    private readonly IStudentRepository _studentRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateStudentHandler(IStudentRepository studentRepository)
+    public UpdateStudentHandler(IUnitOfWork unitOfWork)
     {
-        _studentRepository = studentRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<StudentDto> Handle(UpdateStudent request, CancellationToken cancellationToken)
+    public async Task<StudentDto> Handle(UpdateStudent request, CancellationToken cancellationToken)
     {
-        var student = _studentRepository.GetById(request.studentId);
-        if (student == null)
+        try
         {
-            throw new StudentNotFoundException($"The student with id: {request.studentId} was not found");
+            var student = await _unitOfWork.StudentRepository.GetById(request.studentId);
+            if (student == null)
+            {
+                throw new StudentNotFoundException($"The student with id: {request.studentId} was not found");
+            }
+
+            var newStudent = await _unitOfWork.StudentRepository.UpdateStudent(request.student, student.ID);
+
+            return StudentDto.FromStudent(newStudent);
         }
-
-        var newStudent = _studentRepository.UpdateStudent(request.student, student.ID);
-
-        return Task.FromResult(StudentDto.FromStudent(newStudent));
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 }

@@ -9,6 +9,7 @@ using Backend.Exceptions.Placeholders;
 using Backend.Exceptions.AbsenceException;
 using Backend.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
+
 namespace Backend.Infrastructure;
 public class TeacherRepository : ITeacherRepository
 {
@@ -31,32 +32,39 @@ public class TeacherRepository : ITeacherRepository
             throw new TeacherSubjectMismatchException($"The subject that the teacher spelcializes in: {teacher.Subject} does not match with the course subject: {course.Subject}");
         }
 
-        _appDbContext.SaveChanges();
+        _appDbContext.SaveChangesAsync();
     }
 
     //Db mock
-    public Teacher Create(Teacher teacher)
+    public async  Task<Teacher> Create(Teacher teacher)
     {
         _appDbContext.Teachers.Add(teacher);
-        _appDbContext.SaveChanges();
+        await _appDbContext.SaveChangesAsync();
         Logger.LogMethodCall(nameof(Create), true);
         return teacher;
         
     }
 
-    public void Delete(Teacher teacher)
+    public async Task Delete(Teacher teacher)
     {
         _appDbContext.Teachers.Remove(teacher);
-        _appDbContext.SaveChanges();
+        await _appDbContext.SaveChangesAsync();
         Logger.LogMethodCall(nameof(Delete), true);
     }
 
-    public Teacher? GetById(int id)
+    public async Task<List<Teacher>> GetAll()
+    {
+        return await _appDbContext.Teachers
+            .Include(t => t.TaughtCourse)
+            .ToListAsync();
+    }
+
+    public async Task<Teacher?> GetById(int id)
     {
         Logger.LogMethodCall(nameof(GetById), true);
-        return _appDbContext.Teachers
+        return await _appDbContext.Teachers
             .Include(t =>t.TaughtCourse)
-            .FirstOrDefault(t => t.ID == id);
+            .FirstOrDefaultAsync(t => t.ID == id);
     }
 
     //public int GetLastId()
@@ -66,9 +74,9 @@ public class TeacherRepository : ITeacherRepository
     //    return lastId + 1;
     //}
 
-    public Teacher UpdateTeacher(Teacher teacher, int id)
+    public async Task<Teacher> UpdateTeacher(Teacher teacher, int id)
     {
-        var oldTeacher = _appDbContext.Teachers.FirstOrDefault(s => s.ID == id);
+        var oldTeacher =await  _appDbContext.Teachers.FirstOrDefaultAsync(s => s.ID == id);
         Console.WriteLine(teacher.TaughtCourse);
         if (oldTeacher != null)
         {
@@ -80,7 +88,7 @@ public class TeacherRepository : ITeacherRepository
             oldTeacher.Subject=teacher.Subject;
             oldTeacher.TeacherClassrooms=teacher.TeacherClassrooms;
             //oldTeacher = teacher;
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
             return oldTeacher;
         }
         else

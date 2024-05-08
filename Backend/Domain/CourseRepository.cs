@@ -1,10 +1,7 @@
 ﻿using Backend.Exceptions.StudentException;
 using Backend.Domain.Models;
 using Backend.Application.Abstractions;
-using Backend.Exceptions.TeacherException;
-using Backend.Application.Courses.Actions;
 using Backend.Infrastructure.Utils;
-using Backend.Exceptions.AbsenceException;
 using Backend.Exceptions.CourseException;
 using Backend.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +11,6 @@ namespace Backend.Infrastructure;
 public class CourseRepository : ICourseRepository
 {
 
-    //private readonly List<Course> _courses = new();
     private readonly AppDbContext _appDbContext;
 
 
@@ -23,17 +19,16 @@ public class CourseRepository : ICourseRepository
         _appDbContext = app;
     }
 
-    public Course Create(Course course)
+    public async Task<Course> Create(Course course)
     {
         _appDbContext.Courses.Add(course);
-        _appDbContext.SaveChanges();
+        await _appDbContext.SaveChangesAsync();
         return course;
     }
 
-    //Db mock
-    public Course GetCourseById(int courseId, List<Course> courses)
+    public async Task<Course> GetCourseById(int courseId, List<Course> courses)
     {
-        var course = _appDbContext.Courses.FirstOrDefault(c => c.ID == courseId);
+        var course = await _appDbContext.Courses.FirstOrDefaultAsync(c => c.ID == courseId);
 
         if (course == null)
         {
@@ -43,26 +38,21 @@ public class CourseRepository : ICourseRepository
         return course;
     }
 
-    //public int GetLastId()
-    //{
-    //    if (_courses.Count == 0) return 1;
-    //    var lastId = _courses.Max(a => a.ID);
-    //    return lastId + 1;
-    //}
+    
 
-    public Course? GetById(int id)
+    public async Task<Course?> GetById(int id)
     {
         Logger.LogMethodCall(nameof(GetById), true);
-        return _appDbContext.Courses
+        return await _appDbContext.Courses
                        .Include(c => c.Teacher) 
                        .Include(c =>c.StudentCourses)
                             .ThenInclude(sc => sc.Student)
-                       .FirstOrDefault(c => c.ID == id);
+                       .FirstOrDefaultAsync(c => c.ID == id);
     }
 
-    public Course UpdateCourse(Course course, int id)
+    public async Task<Course> UpdateCourse(Course course, int id)
     {
-        var courseToUpdate = _appDbContext.Courses.FirstOrDefault(c => c.ID == course.ID);
+        var courseToUpdate = await _appDbContext.Courses.FirstOrDefaultAsync(c => c.ID == course.ID);
 
         if (courseToUpdate == null)
         {
@@ -74,14 +64,13 @@ public class CourseRepository : ICourseRepository
         courseToUpdate.Teacher = course.Teacher;
         courseToUpdate.TeacherId= course.TeacherId;
 
-        _appDbContext.SaveChanges();
+        await _appDbContext.SaveChangesAsync();
 
         return courseToUpdate;
     }
 
-    public void DeleteCourse(Course course)
+    public async Task DeleteCourse(Course course)
     {
-        //Console.WriteLine(_appDbContext.Absences.Find());
         var absencesToRemove = _appDbContext.Absences
         .Where(a => a.CourseId == course.ID)
         .ToList();
@@ -99,9 +88,9 @@ public class CourseRepository : ICourseRepository
         Logger.LogMethodCall(nameof(DeleteCourse), true);
     }
 
-    public void Add(Student student, int s)
+    public async void Add(Student student, int s)
     {
-        var course = GetById(student.ID);
+        Course? course = await GetById(s);
         var studentCourse = new StudentCourse
         {
             Course = course,
@@ -113,5 +102,14 @@ public class CourseRepository : ICourseRepository
         _appDbContext.StudentCourses.Add(studentCourse);
         _appDbContext.SaveChanges();
         Logger.LogMethodCall(nameof(Add), true);
+    }
+
+    public async Task<List<Course>> GetAll()
+    {
+        return await _appDbContext.Courses
+                       .Include(c => c.Teacher)
+                       .Include(c => c.StudentCourses)
+                            .ThenInclude(sc => sc.Student)
+                       .ToListAsync();
     }
 }

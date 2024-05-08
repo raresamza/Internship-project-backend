@@ -143,33 +143,33 @@ public class ClassroomRepository : IClassroomRepository
         _appDbContext.SaveChanges();
     }
 
-    public Classroom Create(Classroom classroom)
+    public async Task<Classroom> Create(Classroom classroom)
     {
         _appDbContext.Classrooms.Add(classroom);
-        _appDbContext.SaveChanges();
+        await _appDbContext.SaveChangesAsync();
         return classroom;
     }
 
-    public void Delete(Classroom classroom)
+    public async Task Delete(Classroom classroom)
     {
         _appDbContext.Classrooms.Remove(classroom);
-        _appDbContext.SaveChanges();
+        await _appDbContext.SaveChangesAsync();
         Logger.LogMethodCall(nameof(Delete), true);
     }
 
-    public Classroom? GetById(int id)
+    public async Task<Classroom?> GetById(int id)
     {
         Logger.LogMethodCall(nameof(GetById), true);
-        return _appDbContext.Classrooms
+        return await _appDbContext.Classrooms
             .Include(c => c.Students)
             .Include(c => c.Teachers)  
                 .ThenInclude(tc => tc.Teacher)  
-            .FirstOrDefault(c => c.ID == id);
+            .FirstOrDefaultAsync(c => c.ID == id);
     }
 
-    public Classroom UpdateClassroom(Classroom classroom, int id)
+    public async Task<Classroom> UpdateClassroom(Classroom classroom, int id)
     {
-        var oldClassroom = _appDbContext.Classrooms.FirstOrDefault(s => s.ID == id);
+        var oldClassroom = await _appDbContext.Classrooms.FirstOrDefaultAsync(s => s.ID == id);
         if (oldClassroom != null)
         {
 
@@ -179,12 +179,27 @@ public class ClassroomRepository : IClassroomRepository
             oldClassroom.Catalogue = classroom.Catalogue;
             oldClassroom.ClassroomCourses = classroom.ClassroomCourses;
             oldClassroom.Name = classroom.Name;
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
             return oldClassroom;
         }
         else
         {
             throw new NullClassroomException($"The classroom with id: {id} was not found");
         }
+    }
+
+    public async Task<List<Classroom>> GetAll()
+    {
+        return await _appDbContext.Classrooms
+            .Include(c => c.Students)
+                .ThenInclude(s => s.GPAs)
+            .Include(c => c.Students)
+                .ThenInclude(s => s.Grades)
+            .Include(c => c.Students)
+                .ThenInclude(s => s.Absences)
+            .Include(c => c.Teachers)
+                .ThenInclude(tc => tc.Teacher)
+                    .ThenInclude(t => t.TaughtCourse)
+            .ToListAsync();
     }
 }

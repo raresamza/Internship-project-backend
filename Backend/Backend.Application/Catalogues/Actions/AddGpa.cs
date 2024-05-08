@@ -15,34 +15,42 @@ public record AddGpa(int studentId, int courseId) : IRequest<StudentDto>;
 public class AddGpaHandler : IRequestHandler<AddGpa, StudentDto>
 {
 
-    private readonly IStudentRepository _studentRepository;
-    private readonly ICourseRepository _courseRepository;
-    private readonly ICatalogueRepository _catalogueRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AddGpaHandler(IStudentRepository studentRepository, ICourseRepository courseRepository, ICatalogueRepository catalogueRepository)
+    public AddGpaHandler(IUnitOfWork unitOfWork)
     {
-        _studentRepository = studentRepository;
-        _courseRepository = courseRepository;
-        _catalogueRepository= catalogueRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    Task<StudentDto> IRequestHandler<AddGpa, StudentDto>.Handle(AddGpa request, CancellationToken cancellationToken)
+    async Task<StudentDto> IRequestHandler<AddGpa, StudentDto>.Handle(AddGpa request, CancellationToken cancellationToken)
     {
-        var course=_courseRepository.GetById(request.courseId);
-        var student=_studentRepository.GetById(request.studentId);
-        if (course == null)
+
+        try
         {
-            throw new NullCourseException($"Course with id: {request.courseId} was not found");
+            var course = await _unitOfWork.CourseRepository.GetById(request.courseId);
+            var student = await _unitOfWork.StudentRepository.GetById(request.studentId);
+            if (course == null)
+            {
+                throw new NullCourseException($"Course with id: {request.courseId} was not found");
+            }
+            if (student == null)
+            {
+                throw new StudentNotFoundException($"Student with id: {request.studentId} was not found");
+            }
+
+
+            await _unitOfWork.BeginTransactionAsync();
+            _unitOfWork.CatalogueRepository.AddGpa(course, student);
+            await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
+            await _unitOfWork.CommitTransactionAsync();
+            return StudentDto.FromStudent(student);
+
         }
-        if(student == null)
+        catch (Exception ex)
         {
-            throw new StudentNotFoundException($"Student with id: {request.studentId} was not found");
+            await Console.Out.WriteLineAsync(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
-
-        _catalogueRepository.AddGpa(course, student);
-        _studentRepository.UpdateStudent(student,student.ID);
-
-        return Task.FromResult(StudentDto.FromStudent(student));
-
     }
 }

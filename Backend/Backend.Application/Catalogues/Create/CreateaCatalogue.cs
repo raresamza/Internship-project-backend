@@ -14,28 +14,40 @@ namespace Backend.Application.Catalogues.Create;
 public record CreateCatalogue(int classroomId) : IRequest<CatalogueDto>;
 public class CreateaCatalogueHandler : IRequestHandler<CreateCatalogue, CatalogueDto>
 {
-
+    //will remove with more unit of work implmentations
     private readonly IClassroomRepository _classroomRepository;
-    private readonly ICatalogueRepository _catalogueRepository;
-    public CreateaCatalogueHandler(IClassroomRepository classroomRepository, ICatalogueRepository catalogueRepository)
+    private readonly IUnitOfWork _unitOfWork;
+    public CreateaCatalogueHandler(IClassroomRepository classroomRepository, IUnitOfWork unitOfWork)
     {
-        _classroomRepository = classroomRepository;
-        _catalogueRepository = catalogueRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<CatalogueDto> Handle(CreateCatalogue request, CancellationToken cancellationToken)
+    public async Task<CatalogueDto> Handle(CreateCatalogue request, CancellationToken cancellationToken)
     {
-        var classroom=_classroomRepository.GetById(request.classroomId);
-
-        if(classroom == null)
+        try
         {
-            throw new NullClassroomException($"The classroom wiht id: {request.classroomId} was not found");
+            var classroom = await _unitOfWork.ClassroomRepository.GetById(request.classroomId);
+
+            if (classroom == null)
+            {
+                throw new NullClassroomException($"The classroom wiht id: {request.classroomId} was not found");
+            }
+
+            var catalogue = new Catalogue() { Classroom = classroom };
+
+            await _unitOfWork.BeginTransactionAsync();
+            var newCatalogue = await _unitOfWork.CatalogueRepository.Create(catalogue);
+            await _unitOfWork.CommitTransactionAsync();
+
+
+            return CatalogueDto.FromCatalogue(newCatalogue);
+        } catch (Exception ex)
+        {
+            await Console.Out.WriteLineAsync(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
-
-        var catalogue = new Catalogue() { Classroom = classroom};
-        var newCatalogue=_catalogueRepository.Create(catalogue);
-
-        return Task.FromResult(CatalogueDto.FromCatalogue(newCatalogue));
+        
     }
 
 }

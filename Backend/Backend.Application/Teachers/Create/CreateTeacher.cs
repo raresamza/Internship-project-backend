@@ -15,21 +15,31 @@ public record CreateTeacher(int Age, int PhoneNumber, string Name, string Addres
 
 public class CreateTeacherHandler : IRequestHandler<CreateTeacher, TeacherDto>
 {
-    private readonly ITeacherRepository _teacherRepository;
+    private readonly IUnitOfWork _unitOfWOork;
 
-    public CreateTeacherHandler(ITeacherRepository teacherRepository)
+    public CreateTeacherHandler(IUnitOfWork unitOfWork)
     {
-        _teacherRepository = teacherRepository;
+        _unitOfWOork = unitOfWork;
     }
-    public Task<TeacherDto> Handle(CreateTeacher request, CancellationToken cancellationToken)
+    public async Task<TeacherDto> Handle(CreateTeacher request, CancellationToken cancellationToken)
     {
-        var teacher = new Teacher() { Address = request.Address, Subject = request.Subject, Age = request.Age, PhoneNumber = request.PhoneNumber, Name = request.Name};
-        var createdTeacher = _teacherRepository.Create(teacher);
-        return Task.FromResult(TeacherDto.FromTeacher(createdTeacher));
-    }
 
-    //private int GetNextId()
-    //{
-    //    return _teacherRepository.GetLastId();
-    //}
+        try
+        {
+            var teacher = new Teacher() { Address = request.Address, Subject = request.Subject, Age = request.Age, PhoneNumber = request.PhoneNumber, Name = request.Name };
+
+            await _unitOfWOork.BeginTransactionAsync();
+            var createdTeacher = await _unitOfWOork.TeacherRepository.Create(teacher);
+            await _unitOfWOork.CommitTransactionAsync();
+            return TeacherDto.FromTeacher(createdTeacher);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWOork.RollbackTransactionAsync();
+            throw;
+        }
+
+
+    }
 }

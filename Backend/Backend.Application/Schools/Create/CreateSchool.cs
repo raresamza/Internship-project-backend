@@ -10,23 +10,34 @@ using Backend.Application.Abstractions;
 
 namespace Backend.Application.Schools.Create;
 
-public record CreateSchool(string name): IRequest<SchoolDto>;
+public record CreateSchool(string name) : IRequest<SchoolDto>;
 public class CreateSchoolHandler : IRequestHandler<CreateSchool, SchoolDto>
 {
 
-    private readonly ISchoolRepository _schoolRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateSchoolHandler(ISchoolRepository schoolRepository)
+    public CreateSchoolHandler(IUnitOfWork unitOfWork)
     {
-        _schoolRepository = schoolRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<SchoolDto> Handle(CreateSchool request, CancellationToken cancellationToken)
+    public async Task<SchoolDto> Handle(CreateSchool request, CancellationToken cancellationToken)
     {
-        var school=new School() { Name=request.name};
-        var newSchool = _schoolRepository.Create(school);
+        try
+        {
+            var school = new School() { Name = request.name };
+            await _unitOfWork.BeginTransactionAsync();
+            var newSchool = await _unitOfWork.SchoolRepository.Create(school);
+            await _unitOfWork.CommitTransactionAsync();
+            return SchoolDto.FromScool(newSchool);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
 
-        return Task.FromResult(SchoolDto.FromScool(newSchool));
     }
 
 

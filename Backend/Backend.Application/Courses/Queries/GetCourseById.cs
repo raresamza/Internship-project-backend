@@ -17,21 +17,21 @@ public record GetCourseById(int courseId) : IRequest<CourseDto>;
 public class GetCourseByIdHandler : IRequestHandler<GetCourseById, CourseDto>
 {
 
-    public readonly ICourseRepository _courseRepository;
+    public readonly IUnitOfWork _unitOfWork;
 
-    public GetCourseByIdHandler(ICourseRepository courseRepository)
+    public GetCourseByIdHandler(IUnitOfWork unitOfWork)
     {
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<CourseDto> Handle(GetCourseById request, CancellationToken cancellationToken)
+    public async Task<CourseDto> Handle(GetCourseById request, CancellationToken cancellationToken)
     {
-        var course = _courseRepository.GetById(request.courseId);
+        var course = await _unitOfWork.CourseRepository.GetById(request.courseId);
         if (course == null)
         { 
             throw new NullCourseException($"The course with id: {request.courseId} was not found!");
         }
 
-        return Task.FromResult(CourseDto.FromCourse(course));
+        return CourseDto.FromCourse(course);
     }
 }

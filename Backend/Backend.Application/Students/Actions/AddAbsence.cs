@@ -16,33 +16,46 @@ using System.Xml.Linq;
 
 namespace Backend.Application.Students.Actions;
 
-public record AddAbsence(int studentId,int absenceId) : IRequest<StudentDto>;
+public record AddAbsence(int studentId, int absenceId) : IRequest<StudentDto>;
 internal class AddAbsenceHandler : IRequestHandler<AddAbsence, StudentDto>
 {
 
-    private readonly IStudentRepository _studentRepository;
-    private readonly IAbsenceRepository _absenceRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AddAbsenceHandler(IStudentRepository studentRepository, IAbsenceRepository absenceRepository)
+    public AddAbsenceHandler(IUnitOfWork unitOfWork)
     {
-        _studentRepository = studentRepository;
-        _absenceRepository = absenceRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<StudentDto> Handle(AddAbsence request, CancellationToken cancellationToken)
+    public async Task<StudentDto> Handle(AddAbsence request, CancellationToken cancellationToken)
     {
-        var student = _studentRepository.GetById(request.studentId);
-        var absence=_absenceRepository.GetById(request.absenceId);
-        if(student == null)
+
+        try
         {
-            throw new StudentNotFoundException($"Student with id: {request.studentId} was not found");
+            var student = await _unitOfWork.StudentRepository.GetById(request.studentId);
+            var absence = await _unitOfWork.AbsenceRepository.GetById(request.absenceId);
+            if (student == null)
+            {
+                throw new StudentNotFoundException($"Student with id: {request.studentId} was not found");
+            }
+            if (absence == null)
+            {
+                throw new InvalidAbsenceException($"Absence with id: {request.absenceId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            _unitOfWork.StudentRepository.AddAbsence(student, absence);
+            await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
+            await _unitOfWork.CommitTransactionAsync();
+
+            return StudentDto.FromStudent(student);
         }
-        if (absence == null)
+        catch (Exception ex)
         {
-            throw new InvalidAbsenceException($"Absence with id: {request.absenceId} was not found");
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
-        _studentRepository.AddAbsence(student, absence);
-        _studentRepository.UpdateStudent(student, student.ID);
-        return Task.FromResult(StudentDto.FromStudent(student));
+
     }
 }

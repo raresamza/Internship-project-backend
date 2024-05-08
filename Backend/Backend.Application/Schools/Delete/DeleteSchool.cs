@@ -13,24 +13,35 @@ namespace Backend.Application.Schools.Delete;
 public record DeleteSchool(int schoolId) : IRequest<SchoolDto>;
 public class DeleteSchoolHandle : IRequestHandler<DeleteSchool, SchoolDto>
 {
-    private readonly ISchoolRepository _schoolRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteSchoolHandle(ISchoolRepository schoolRepository)
+    public DeleteSchoolHandle(IUnitOfWork unitOfWork)
     {
-        _schoolRepository = schoolRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<SchoolDto> Handle(DeleteSchool request, CancellationToken cancellationToken)
+    public async Task<SchoolDto> Handle(DeleteSchool request, CancellationToken cancellationToken)
     {
-        var school=_schoolRepository.GetById(request.schoolId);
-
-        if (school == null)
+        try
         {
-            throw new SchoolNotFoundException($"School with id: {request.schoolId} was not found");
+            var school = await _unitOfWork.SchoolRepository.GetById(request.schoolId);
+
+            if (school == null)
+            {
+                throw new SchoolNotFoundException($"School with id: {request.schoolId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.SchoolRepository.Delete(school);
+            await _unitOfWork.CommitTransactionAsync();
+            return SchoolDto.FromScool(school);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
 
-        _schoolRepository.Delete(school);
-
-        return Task.FromResult(SchoolDto.FromScool(school));
     }
 }

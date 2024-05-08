@@ -10,13 +10,13 @@ namespace Backend.Application.Abstractions;
 
 public interface IAbsenceRepository
 {
-    public Absence CreateAbsence(Absence absence);
-    public Absence? GetByDateAndCourse(DateTime Date, Course course, Student student);
-    //public int GetLastId();
-    public Absence? GetById(int id);
+    public Task<Absence> CreateAbsence(Absence absence);
+    public Task<List<Absence>> GetAll(); 
+    public Task<Absence?> GetByDateAndCourse(DateTime Date, Course course, Student student);
+    public Task<Absence?> GetById(int id);
 
-    public Absence UpdateAbsence(int absenceId, Absence newAbsence);
-    public void DeleteAbsence(Absence absence);
+    public Task<Absence> UpdateAbsence(int absenceId, Absence newAbsence);
+    public Task DeleteAbsence(Absence absence);
 
     //public void Add(Student s, int courseId);
 }

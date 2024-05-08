@@ -10,27 +10,40 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Absences.Delete;
 
-public record DeleteAbsence(int absenceId): IRequest<AbsenceDto>;
+public record DeleteAbsence(int absenceId) : IRequest<AbsenceDto>;
 public class DeleteAbsenceHandler : IRequestHandler<DeleteAbsence, AbsenceDto>
 {
 
-    private readonly IAbsenceRepository _absenceRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteAbsenceHandler(IAbsenceRepository absenceRepository)
+    public DeleteAbsenceHandler(IUnitOfWork unitOfWork)
     {
-        _absenceRepository = absenceRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<AbsenceDto> Handle(DeleteAbsence request, CancellationToken cancellationToken)
+    public async Task<AbsenceDto> Handle(DeleteAbsence request, CancellationToken cancellationToken)
     {
-        var absence=_absenceRepository.GetById(request.absenceId);
-        if (absence == null)
+
+        try
         {
-            throw new InvalidAbsenceException($"The absence with id: {request.absenceId} was not found");
+            var absence = await _unitOfWork.AbsenceRepository.GetById(request.absenceId);
+            if (absence == null)
+            {
+                throw new InvalidAbsenceException($"The absence with id: {request.absenceId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.AbsenceRepository.DeleteAbsence(absence);
+            await _unitOfWork.CommitTransactionAsync();
+
+            return AbsenceDto.FromAbsence(absence);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
 
-        _absenceRepository.DeleteAbsence(absence);
-
-        return Task.FromResult(AbsenceDto.FromAbsence(absence));
     }
 }

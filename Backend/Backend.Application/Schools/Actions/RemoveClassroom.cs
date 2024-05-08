@@ -17,32 +17,42 @@ public record RemoveClassroom(int schoolId, int classroomId) : IRequest<SchoolDt
 public class RemoveClassroomHandler : IRequestHandler<RemoveClassroom, SchoolDto>
 {
 
-    private readonly ISchoolRepository _schoolRepository;
-    private readonly IClassroomRepository _classroomRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public RemoveClassroomHandler(ISchoolRepository schoolRepository, IClassroomRepository classroomRepository)
+    public RemoveClassroomHandler(IUnitOfWork unitOfWork)
     {
-        _schoolRepository = schoolRepository;
-        _classroomRepository = classroomRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<SchoolDto> Handle(RemoveClassroom request, CancellationToken cancellationToken)
+    public async Task<SchoolDto> Handle(RemoveClassroom request, CancellationToken cancellationToken)
     {
-        var school = _schoolRepository.GetById(request.schoolId);
-        var classroom = _classroomRepository.GetById(request.classroomId);
 
-        if (school == null)
+        try
         {
-            throw new SchoolNotFoundException($"The school with id: {request.schoolId} was not found");
+            var school = await _unitOfWork.SchoolRepository.GetById(request.schoolId);
+            var classroom = await _unitOfWork.ClassroomRepository.GetById(request.classroomId);
+
+            if (school == null)
+            {
+                throw new SchoolNotFoundException($"The school with id: {request.schoolId} was not found");
+            }
+            if (classroom == null)
+            {
+                throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            _unitOfWork.SchoolRepository.RemoveClassroom(classroom, school);
+            await _unitOfWork.SchoolRepository.Update(school.ID, school);
+            await _unitOfWork.CommitTransactionAsync();
+            return SchoolDto.FromScool(school);
         }
-        if (classroom == null)
+        catch (Exception ex)
         {
-            throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
 
-        _schoolRepository.RemoveClassroom(classroom, school);
-        _schoolRepository.Update( school.ID, school);
-
-        return Task.FromResult(SchoolDto.FromScool(school));
     }
 }

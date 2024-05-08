@@ -16,25 +16,34 @@ public record UpdateSchool(int schoolId, School school) : IRequest<SchoolDto>;
 public class UpdateSchoolHandler : IRequestHandler<UpdateSchool, SchoolDto>
 {
 
-    private ISchoolRepository _schoolRepository;
+    private IUnitOfWork _unitOfWork;
 
-    public UpdateSchoolHandler(ISchoolRepository schoolRepository)
+    public UpdateSchoolHandler(IUnitOfWork unitOfWork)
     {
-        _schoolRepository = schoolRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<SchoolDto> Handle(UpdateSchool request, CancellationToken cancellationToken)
+    public async Task<SchoolDto> Handle(UpdateSchool request, CancellationToken cancellationToken)
     {
-
-        var school = _schoolRepository.GetById(request.schoolId);
-
-        if (school == null)
+        try
         {
-            throw new SchoolNotFoundException($"School with id: {request.schoolId} was not found");
+            var school = await _unitOfWork.SchoolRepository.GetById(request.schoolId);
+
+            if (school == null)
+            {
+                throw new SchoolNotFoundException($"School with id: {request.schoolId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            var newSchool = await _unitOfWork.SchoolRepository.Update(school.ID, school);
+            await _unitOfWork.CommitTransactionAsync();
+            return SchoolDto.FromScool(newSchool);
         }
-
-        var newSchool = _schoolRepository.Update(school.ID,school);
-
-        return Task.FromResult(SchoolDto.FromScool(newSchool));
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
     }
 }

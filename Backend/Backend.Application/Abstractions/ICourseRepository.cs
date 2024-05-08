@@ -6,14 +6,14 @@ namespace Backend.Application.Abstractions;
 public interface ICourseRepository
 {
 
-    public Course Create(Course course);
-    //public int GetLastId();
+    public Task<Course> Create(Course course);
 
-    public Course? GetById(int id);
+    public Task<Course?> GetById(int id);
+    public Task<List<Course>> GetAll();
 
-    public Course UpdateCourse(Course course, int id);
+    public Task<Course> UpdateCourse(Course course, int id);
 
-    public void DeleteCourse(Course course);
+    public Task DeleteCourse(Course course);
 
     public void Add(Student s,int courseId);
 }

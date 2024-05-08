@@ -14,33 +14,42 @@ namespace Backend.Application.Classrooms.Actions;
 public record AddStudentToClassroom(int studentId, int classroomId) : IRequest<StudentDto>;
 public class AddStudentToClassroomHandler : IRequestHandler<AddStudentToClassroom, StudentDto>
 {
-    private readonly IStudentRepository _studentRepository;
-    private readonly IClassroomRepository _classroomRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AddStudentToClassroomHandler(IStudentRepository studentRepository, IClassroomRepository classroomRepository)
+    public AddStudentToClassroomHandler(IUnitOfWork unitOfWork)
     {
-        _studentRepository = studentRepository;
-        _classroomRepository = classroomRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<StudentDto> Handle(AddStudentToClassroom request, CancellationToken cancellationToken)
+    public async Task<StudentDto> Handle(AddStudentToClassroom request, CancellationToken cancellationToken)
     {
-        var student = _studentRepository.GetById(request.studentId);
-        var classroom = _classroomRepository.GetById(request.classroomId);
 
-        if(student == null)
+        try
         {
-            throw new StudentNotFoundException($"Student with id: {request.studentId} was not found");
-        }
-        if (classroom == null) 
+            var student = await _unitOfWork.StudentRepository.GetById(request.studentId);
+            var classroom = await _unitOfWork.ClassroomRepository.GetById(request.classroomId);
+
+            if (student == null)
+            {
+                throw new StudentNotFoundException($"Student with id: {request.studentId} was not found");
+            }
+            if (classroom == null)
+            {
+                throw new NullClassroomException($"Classroom with id: {request.classroomId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            _unitOfWork.ClassroomRepository.AddStudent(student, classroom);
+            await _unitOfWork.ClassroomRepository.UpdateClassroom(classroom, classroom.ID);
+            await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
+            await _unitOfWork.CommitTransactionAsync();
+            return StudentDto.FromStudent(student);
+        } catch (Exception ex)
         {
-            throw new NullClassroomException($"Classroom with id: {request.classroomId} was not found");
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
 
-        _classroomRepository.AddStudent(student, classroom);
-        _classroomRepository.UpdateClassroom(classroom, classroom.ID);
-        _studentRepository.UpdateStudent(student, student.ID);
-
-        return Task.FromResult(StudentDto.FromStudent(student));
     }
 }

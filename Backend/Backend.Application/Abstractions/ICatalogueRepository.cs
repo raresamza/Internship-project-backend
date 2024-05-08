@@ -9,15 +9,16 @@ namespace Backend.Application.Abstractions;
 
 public interface ICatalogueRepository
 {
-    public Catalogue Create(Catalogue catalogue);
+    public Task<Catalogue> Create(Catalogue catalogue);
     //int GetLastId();
+    public Task<List<Catalogue>> GetAll();
 
-    public Catalogue? GetById(int id);
+    public Task<Catalogue?> GetById(int id);
 
-    public void Delete(Catalogue catalogue);
+    public Task Delete(Catalogue catalogue);
 
     public void AddGpa(Course course, Student student);
-    public Catalogue UpdateCatalogue(Catalogue catalogue, int id);
+    public Task<Catalogue> UpdateCatalogue(Catalogue catalogue, int id);
 
     public double ComputeGpa(Student student,Course course);
 }

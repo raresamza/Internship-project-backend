@@ -13,38 +13,47 @@ using Backend.Domain.Models;
 
 namespace Backend.Application.Courses.Actions;
 
-public record AddGrade(int studentId,int courseId, int grade) : IRequest<StudentDto>;
+public record AddGrade(int studentId, int courseId, int grade) : IRequest<StudentDto>;
 
 
 public class AddGradeHandler : IRequestHandler<AddGrade, StudentDto>
 {
-    private readonly ICourseRepository _courseRepository;
-    private readonly IStudentRepository _studentRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AddGradeHandler(ICourseRepository courseRepository, IStudentRepository studentRepository)
+    public AddGradeHandler(IUnitOfWork unitOfWork)
     {
-        _courseRepository = courseRepository;
-        _studentRepository = studentRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<StudentDto> Handle(AddGrade request, CancellationToken cancellationToken)
+    public async Task<StudentDto> Handle(AddGrade request, CancellationToken cancellationToken)
     {
-        var student=_studentRepository.GetById(request.studentId);
-        var course=_courseRepository.GetById(request.courseId);
-
-        if(student == null)
+        try
         {
-            throw new StudentNotFoundException($"Student with ID: {request.studentId} could not be found");
+            var student = await _unitOfWork.StudentRepository.GetById(request.studentId);
+            var course = await _unitOfWork.CourseRepository.GetById(request.courseId);
+
+            if (student == null)
+            {
+                throw new StudentNotFoundException($"Student with ID: {request.studentId} could not be found");
+            }
+            if (course == null)
+            {
+                throw new NullCourseException($"Could not found course with id: {request.courseId}");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            _unitOfWork.StudentRepository.AddGrade(request.grade, student, course);
+            //_studentRepository.UpdateStudent(student,student.ID);
+            //_courseRepository.UpdateCourse(course,course.ID);
+            await _unitOfWork.CommitTransactionAsync();
+            return StudentDto.FromStudent(student);
         }
-        if(course == null)
+        catch (Exception ex)
         {
-            throw new NullCourseException($"Could not found course with id: {request.courseId}");
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
 
-        _studentRepository.AddGrade(request.grade,student,course);
-        //_studentRepository.UpdateStudent(student,student.ID);
-        //_courseRepository.UpdateCourse(course,course.ID);
-
-        return Task.FromResult(StudentDto.FromStudent(student));
     }
 }

@@ -3,11 +3,13 @@
 namespace Backend.Application.Abstractions;
 public interface IClassroomRepository
 {
-    public Classroom Create(Classroom classroom);
+    public Task<Classroom> Create(Classroom classroom);
+
+    public Task<List<Classroom>> GetAll();
     //int GetLastId();
-    public Classroom? GetById(int id);
-    public void Delete(Classroom classroom);
-    public Classroom UpdateClassroom(Classroom classroom, int id);
+    public Task<Classroom?> GetById(int id);
+    public Task Delete(Classroom classroom);
+    public Task<Classroom> UpdateClassroom(Classroom classroom, int id);
     public void AddTeacher(Teacher teacher, Classroom classroom);
     public void RemoveStudent(Student student, Classroom classroom);
     public void RemoveTeacher(Teacher teacher, Classroom classroom);

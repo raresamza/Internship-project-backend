@@ -72,10 +72,10 @@ public class SchoolRepository : ISchoolRepository
 
 
 
-    public School? GetById(int id)
+    public async Task<School?> GetById(int id)
     {
-        Logger.LogMethodCall(nameof(GetById), true);
-        return _appDbContext.Schools
+        await Logger.LogMethodCall(nameof(GetById), true);
+        return await _appDbContext.Schools
             .Include(s => s.Classrooms)
                 .ThenInclude(c => c.Students)
                     .ThenInclude(s =>s.Grades)
@@ -89,41 +89,41 @@ public class SchoolRepository : ISchoolRepository
             .Include(s => s.Classrooms)
                 .ThenInclude(c => c.Teachers)
                     .ThenInclude(c => c.Teacher)
-            .FirstOrDefault(s => s.ID == id);
+            .FirstOrDefaultAsync(s => s.ID == id);
     }
 
-    public School Create(School school)
+    public async Task<School> Create(School school)
     {
         _appDbContext.Schools.Add(school);
-        _appDbContext.SaveChanges();
-        Logger.LogMethodCall(nameof(Create), true);
+        await _appDbContext.SaveChangesAsync();
+        await Logger.LogMethodCall(nameof(Create), true);
         return school;
     }
 
-    public void UpdateSchool(School school, int id)
-    {
-        var oldSchool = GetById(id);
-        if (oldSchool == null)
-        {
-            Logger.LogMethodCall(nameof(UpdateSchool), false);
-            throw new TeacherNotFoundException($"School with id {id} not found");
-        }
-        //implement mapper
-        oldSchool.Name = school.Name;
-        oldSchool.Classrooms = school.Classrooms;
-        Logger.LogMethodCall(nameof(UpdateSchool), true);
-    }
+    //public void UpdateSchool(School school, int id)
+    //{
+    //    var oldSchool = GetById(id);
+    //    if (oldSchool == null)
+    //    {
+    //        Logger.LogMethodCall(nameof(UpdateSchool), false);
+    //        throw new TeacherNotFoundException($"School with id {id} not found");
+    //    }
+    //    //implement mapper
+    //    oldSchool.Name = school.Name;
+    //    oldSchool.Classrooms = school.Classrooms;
+    //    Logger.LogMethodCall(nameof(UpdateSchool), true);
+    //}
 
-    public void Delete(School school)
+    public async Task Delete(School school)
     {
         _appDbContext.Schools.Remove(school);
-        _appDbContext.SaveChanges();
-        Logger.LogMethodCall(nameof(Delete), true);
+        await _appDbContext.SaveChangesAsync();
+        await Logger.LogMethodCall(nameof(Delete), true);
     }
 
-    public School Update(int schoolId, School school)
+    public async Task<School> Update(int schoolId, School school)
     {
-        var oldSchool = _appDbContext.Schools.FirstOrDefault(s => s.ID == schoolId);
+        var oldSchool = await _appDbContext.Schools.FirstOrDefaultAsync(s => s.ID == schoolId);
         if (oldSchool != null)
         {
             oldSchool = school;
@@ -136,9 +136,23 @@ public class SchoolRepository : ISchoolRepository
         }
     }
 
-    public IEnumerable<School> GetAll()
+    public async Task<IEnumerable<School>> GetAll()
     {
-        return _appDbContext.Schools;
+        return await _appDbContext.Schools
+            .Include(s => s.Classrooms)
+                .ThenInclude(c => c.Students)
+                    .ThenInclude(s => s.Grades)
+                        .ThenInclude(g => g.Course)
+            .Include(s => s.Classrooms)
+                .ThenInclude(c => c.Students)
+                    .ThenInclude(s => s.GPAs)
+            .Include(s => s.Classrooms)
+                .ThenInclude(c => c.Students)
+                    .ThenInclude(s => s.Absences)
+            .Include(s => s.Classrooms)
+                .ThenInclude(c => c.Teachers)
+                    .ThenInclude(c => c.Teacher)
+            .ToListAsync();
     }
 }
 

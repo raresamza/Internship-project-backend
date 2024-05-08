@@ -15,24 +15,37 @@ public record UpdateClassroom(int classroomId,Classroom classroom): IRequest<Cla
 public class UpdateClassroomHandler : IRequestHandler<UpdateClassroom, ClassroomDto>
 {
 
-    private readonly IClassroomRepository _classroomRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateClassroomHandler(IClassroomRepository classroomRepository)
+    public UpdateClassroomHandler(IUnitOfWork unitOfWork)
     {
-        _classroomRepository = classroomRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<ClassroomDto> Handle(UpdateClassroom request, CancellationToken cancellationToken)
+    public async Task<ClassroomDto> Handle(UpdateClassroom request, CancellationToken cancellationToken)
     {
-        var classroom = _classroomRepository.GetById(request.classroomId);
 
-        if (classroom == null)
+        try
         {
-            throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
+            var classroom = await _unitOfWork.ClassroomRepository.GetById(request.classroomId);
+
+            if (classroom == null)
+            {
+                throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
+            }
+
+
+            await _unitOfWork.BeginTransactionAsync();
+            var newClassroom = await _unitOfWork.ClassroomRepository.UpdateClassroom(request.classroom, classroom.ID);
+            await _unitOfWork.CommitTransactionAsync();
+            return ClassroomDto.FromClassroom(newClassroom);
+        } catch (Exception ex)
+        {
+            Console.Write(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
 
-        var newClassroom = _classroomRepository.UpdateClassroom(request.classroom, classroom.ID);
-
-        return Task.FromResult(ClassroomDto.FromClassroom(newClassroom));
+        
     }
 }

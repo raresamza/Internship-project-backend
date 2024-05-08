@@ -12,29 +12,40 @@ using System.Threading.Tasks;
 namespace Backend.Application.Absences.Update;
 
 
-public record UpdateAbsence(int absenceId,Absence absence) : IRequest<AbsenceDto>;
+public record UpdateAbsence(int absenceId, Absence absence) : IRequest<AbsenceDto>;
 public class UpdateAbsenceHandler : IRequestHandler<UpdateAbsence, AbsenceDto>
 {
 
-    private readonly IAbsenceRepository _absenceRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateAbsenceHandler(IAbsenceRepository absenceRepository)
+    public UpdateAbsenceHandler(IUnitOfWork unitOfWork)
     {
-        _absenceRepository = absenceRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<AbsenceDto> Handle(UpdateAbsence request, CancellationToken cancellationToken)
+    public async Task<AbsenceDto> Handle(UpdateAbsence request, CancellationToken cancellationToken)
     {
-        var absence=_absenceRepository.GetById(request.absenceId);
-
-        if(absence == null)
+        try
         {
-            throw new InvalidAbsenceException($"The absence with id: {request.absenceId} was not found");
+            var absence = await _unitOfWork.AbsenceRepository.GetById(request.absenceId);
+
+            if (absence == null)
+            {
+                throw new InvalidAbsenceException($"The absence with id: {request.absenceId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            var newAbs = await _unitOfWork.AbsenceRepository.UpdateAbsence(absence.Id, request.absence);
+            await _unitOfWork.CommitTransactionAsync();
+            return AbsenceDto.FromAbsence(newAbs);
+
         }
-
-        var newAbs=_absenceRepository.UpdateAbsence(absence.Id, request.absence);
-
-        return Task.FromResult(AbsenceDto.FromAbsence(newAbs));
+        catch (Exception ex)
+        {
+            Console.Write(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
 
     }
 }

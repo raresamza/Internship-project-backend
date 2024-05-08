@@ -14,22 +14,31 @@ public record GetClassroomById(int classroomId): IRequest<ClassroomDto>;
 public class GetClassroomByIdHandler : IRequestHandler<GetClassroomById, ClassroomDto>
 {
 
-    private readonly IClassroomRepository _classroomRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GetClassroomByIdHandler(IClassroomRepository classroomRepository)
+    public GetClassroomByIdHandler(IUnitOfWork unitOfWork)
     {
-        _classroomRepository = classroomRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    Task<ClassroomDto> IRequestHandler<GetClassroomById, ClassroomDto>.Handle(GetClassroomById request, CancellationToken cancellationToken)
+    async Task<ClassroomDto> IRequestHandler<GetClassroomById, ClassroomDto>.Handle(GetClassroomById request, CancellationToken cancellationToken)
     {
-        var classroom=_classroomRepository.GetById(request.classroomId);
 
-        if (classroom == null)
+        try
         {
-            throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
-        }
+            var classroom = await _unitOfWork.ClassroomRepository.GetById(request.classroomId);
 
-        return Task.FromResult(ClassroomDto.FromClassroom(classroom));
+            if (classroom == null)
+            {
+                throw new NullClassroomException($"The classroom with id: {request.classroomId} was not found");
+            }
+
+            return ClassroomDto.FromClassroom(classroom);
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+        
     }
 }

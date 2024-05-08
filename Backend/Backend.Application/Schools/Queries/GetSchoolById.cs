@@ -10,25 +10,34 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Schools.Queries;
 
-public record GetSchoolById(int schoolId):IRequest<SchoolDto>;
+public record GetSchoolById(int schoolId) : IRequest<SchoolDto>;
 public class GetSchoolByIdHandler : IRequestHandler<GetSchoolById, SchoolDto>
 {
 
-    private readonly ISchoolRepository _schoolRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GetSchoolByIdHandler(ISchoolRepository schoolRepository)
+    public GetSchoolByIdHandler(IUnitOfWork unitOfWork)
     {
-        _schoolRepository = schoolRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<SchoolDto> Handle(GetSchoolById request, CancellationToken cancellationToken)
+    public async Task<SchoolDto> Handle(GetSchoolById request, CancellationToken cancellationToken)
     {
-        var school= _schoolRepository.GetById(request.schoolId);
-        if(school == null)
+        try
         {
-            throw new SchoolNotFoundException($"School with id: {request.schoolId} was not found");
+            var school = await _unitOfWork.SchoolRepository.GetById(request.schoolId);
+            if (school == null)
+            {
+                throw new SchoolNotFoundException($"School with id: {request.schoolId} was not found");
+            }
+
+            return SchoolDto.FromScool(school);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
 
-        return Task.FromResult(SchoolDto.FromScool(school));
     }
 }

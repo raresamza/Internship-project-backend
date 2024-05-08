@@ -29,6 +29,7 @@ using Backend.Application.Students.Update;
 
 var diContainer = new ServiceCollection()
     .AddSingleton<IStudentRepository, StudentRepository>()
+    .AddScoped<IUnitOfWork, UnitOfWork>()
     .AddSingleton<ITeacherRepository, TeacherRepository>()
     .AddSingleton<ICourseRepository, CourseRepository>()
     .AddSingleton<IAbsenceRepository, AbsenceRepository>()
@@ -52,14 +53,14 @@ var mediator = diContainer.GetRequiredService<IMediator>();
 //var catalogue= await mediator.Send(new CreateCatalogue(2));
 //var school = await mediator.Send(new CreateSchool("Colegiul National Decebal Deva"));
 
-//await mediator.Send(new EnrollIntoCourse(1,2));
+//await mediator.Send(new EnrollIntoCourse(4,2));
 //await mediator.Send(new EnrollIntoCourse(student2.ID,course.ID));
 //await mediator.Send(new EnrollIntoCourse(student.ID,course1.ID));
 //await mediator.Send(new UpdateStudent(1, new Student { Address = "Deva City", Age=1, Name = "Rarez", ParentEmail= "parent email", ParentName="Parent Nmae", PhoneNumber=1 }));
 //await mediator.Send(new AssignTeacherToCourse(2,1));
 
 //await mediator.Send(new AddTeacherToClassroom(1,1));
-//await mediator.Send(new AddStudentToClassroom(1, 1));
+//await mediator.Send(new AddStudentToClassroom(5,1));
 //await mediator.Send(new AddStudentToClassroom(student2.ID, classroom.ID));
 
 //await mediator.Send(new AddGrade(1,2,10));
@@ -77,7 +78,7 @@ var mediator = diContainer.GetRequiredService<IMediator>();
 
 //Console.WriteLine(await mediator.Send(new GetCourseById(1)));
 //Console.WriteLine(await mediator.Send(new GetTeacherById(1)));
-Console.WriteLine(await mediator.Send(new DeleteCourse(4)));
+//Console.WriteLine(await mediator.Send(new DeleteCourse(4)));
 //Console.WriteLine(await mediator.Send(new GetStudentById(1)));
 //Console.WriteLine(await mediator.Send(new DeleteSchool(1)));
 //Console.WriteLine(await mediator.Send(new GetStudentById(student2.ID)));

@@ -15,21 +15,31 @@ public record GetStudentById(int studentId) : IRequest<StudentDto>;
 
 public class GetStudentByIdHandler : IRequestHandler<GetStudentById, StudentDto>
 {
-    private readonly IStudentRepository _studentRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GetStudentByIdHandler(IStudentRepository studentRepository)
+    public GetStudentByIdHandler(IUnitOfWork unitOfWork)
     {
-        _studentRepository = studentRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<StudentDto> Handle(GetStudentById request, CancellationToken cancellationToken)
+    public async Task<StudentDto> Handle(GetStudentById request, CancellationToken cancellationToken)
     {
-        var student = _studentRepository.GetById(request.studentId);
-        if (student == null)
+        try
         {
-            throw new ApplicationException("Student not found");
+            var student = await _unitOfWork.StudentRepository.GetById(request.studentId);
+            if (student == null)
+            {
+                throw new ApplicationException("Student not found");
+            }
+
+            return StudentDto.FromStudent(student);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
 
-        return Task.FromResult(StudentDto.FromStudent(student));
+
     }
 }

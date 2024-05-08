@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Backend.Exceptions.TeacherException;
+using System.Runtime.InteropServices;
 
 namespace Backend.Application.Teachers.Actions;
 
@@ -17,29 +18,42 @@ public record AssignTeacherToCourse(int courseId, int teacherId) : IRequest<Teac
 public class AssignTeacherToCourseHandler : IRequestHandler<AssignTeacherToCourse, TeacherDto>
 {
 
-    public readonly ITeacherRepository _teacherRepository;
-    public readonly ICourseRepository _courseRepository;
+    public readonly IUnitOfWork _unitOfWork;
 
-    public AssignTeacherToCourseHandler(ITeacherRepository teacherRepository, ICourseRepository courseRepository)
+    public AssignTeacherToCourseHandler(IUnitOfWork unitOfWork)
     {
-        _teacherRepository = teacherRepository;
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<TeacherDto> Handle(AssignTeacherToCourse request, CancellationToken cancellationToken)
+    public async Task<TeacherDto> Handle(AssignTeacherToCourse request, CancellationToken cancellationToken)
     {
-        var teacher = _teacherRepository.GetById(request.teacherId);
-        var course = _courseRepository.GetById(request.courseId);
-        if (course != null && teacher != null)
+
+        try
         {
-            teacher.TaughtCourse = course;
-            teacher.TaughtCourseId=course.ID;
-            _teacherRepository.UpdateTeacher(teacher, teacher.ID);
-            course.Teacher = teacher;
-            course.TeacherId = teacher.ID;  
-            _courseRepository.UpdateCourse(course, course.ID);
-            return Task.FromResult(TeacherDto.FromTeacher(teacher));
+            var teacher = await _unitOfWork.TeacherRepository.GetById(request.teacherId);
+            var course = await _unitOfWork.CourseRepository.GetById(request.courseId);
+            if (course != null && teacher != null)
+            {
+
+                await _unitOfWork.BeginTransactionAsync();
+                teacher.TaughtCourse = course;
+                teacher.TaughtCourseId = course.ID;
+                await _unitOfWork.TeacherRepository.UpdateTeacher(teacher, teacher.ID);
+                course.Teacher = teacher;
+                course.TeacherId = teacher.ID;
+                await _unitOfWork.CourseRepository.UpdateCourse(course, course.ID);
+                await _unitOfWork.CommitTransactionAsync();
+                return TeacherDto.FromTeacher(teacher);
+            }
+            throw new TeacherNotFoundException("S");
         }
-        throw new TeacherNotFoundException("S");
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+
+
     }
 }

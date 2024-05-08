@@ -1,8 +1,10 @@
-﻿using Backend.Domain.Models;
+﻿using Backend.Application.Courses.Response;
+using Backend.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Backend.Application.Teachers.Responses;
@@ -16,21 +18,30 @@ public class TeacherDto
     public required string Address { get; set; }
     public required int PhoneNumber { get; set; }
     public required Subject Subject { get; set; }
-    public Course TaughtCourse { get; set; }
+
+    //[JsonIgnore]
+    //public CourseDto? TaughtCourse { get; set; }
+    public string? CourseName { get; set; }
+    public CourseDto? TaughtCourse { get; set; }
+
+    public ICollection<StudentCourseDto>? StudentCourses { get; set; }
     public int? TaughtCourseId { get; set; }
     public static TeacherDto FromTeacher(Teacher teacher)
     {
+        Console.WriteLine(teacher);
         return new TeacherDto
         {
-
+            TaughtCourseId = teacher.TaughtCourse.TeacherId,
             Address = teacher.Address,
             Age = teacher.Age,
             Name = teacher.Name,
             PhoneNumber = teacher.PhoneNumber,
             Subject = teacher.Subject,
             ID = teacher.ID,
-            TaughtCourse = teacher.TaughtCourse,
-            TaughtCourseId = teacher.TaughtCourseId,
+            StudentCourses = teacher.TaughtCourse.StudentCourses.Select((studentCourse) => StudentCourseDto.FromStudentCourse(studentCourse)).ToList(),
+            TaughtCourse = CourseDto.FromCourse(teacher.TaughtCourse),
+            CourseName = teacher.TaughtCourse.Name,
+
         };
     }
     public override string ToString()

@@ -7,6 +7,7 @@ using Backend.Exceptions.StudentException;
 using Backend.Exceptions.TeacherException;
 using Backend.Infrastructure.Contexts;
 using Backend.Infrastructure.Utils;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,35 +52,36 @@ public class CatalogueRepository : ICatalogueRepository
         }
     }
 
-    public Catalogue Create(Catalogue catalogue)
+    public async Task<Catalogue> Create(Catalogue catalogue)
     {
         _appDbContext.Catalogues.Add(catalogue);
-        _appDbContext.SaveChanges();
+        await _appDbContext.SaveChangesAsync();
         return catalogue;
     }
 
-    public void Delete(Catalogue catalogue)
+    public async Task Delete(Catalogue catalogue)
     {
         _appDbContext.Catalogues.Remove(catalogue);
-        _appDbContext.SaveChanges();
-        Logger.LogMethodCall(nameof(Delete), true);
+        await _appDbContext.SaveChangesAsync();
+        await Logger.LogMethodCall(nameof(Delete), true);
     }
 
-    public Catalogue? GetById(int id)
+    public async Task<Catalogue?> GetById(int id)
     {
-        Logger.LogMethodCall(nameof(GetById), true);
-        return _appDbContext.Catalogues.FirstOrDefault(c => c.ID == id);
+        await Logger.LogMethodCall(nameof(GetById), true);
+        return await _appDbContext.Catalogues
+            .FirstOrDefaultAsync(c => c.ID == id);
     }
 
 
 
-    public Catalogue UpdateCatalogue(Catalogue catalogue, int id)
+    public async  Task<Catalogue> UpdateCatalogue(Catalogue catalogue, int id)
     {
-        var oldCatalogue = _appDbContext.Catalogues.FirstOrDefault(s => s.ID == id);
+        var oldCatalogue = await _appDbContext.Catalogues.FirstOrDefaultAsync(s => s.ID == id);
         if (oldCatalogue != null)
         {
             oldCatalogue = catalogue;
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
 
             return oldCatalogue;
 
@@ -106,4 +108,8 @@ public class CatalogueRepository : ICatalogueRepository
         }
     }
 
+    public async Task<List<Catalogue>> GetAll()
+    {
+        return await _appDbContext.Catalogues.ToListAsync();
+    }
 }

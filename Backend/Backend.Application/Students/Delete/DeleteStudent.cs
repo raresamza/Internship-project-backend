@@ -10,26 +10,39 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Students.Delete;
 
-public record DeleteStudent(int studentId):IRequest<StudentDto>;
+public record DeleteStudent(int studentId) : IRequest<StudentDto>;
 public class DeleteStudentHandler : IRequestHandler<DeleteStudent, StudentDto>
 {
 
-    private readonly IStudentRepository _studentRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteStudentHandler(IStudentRepository studentRepository)
+    public DeleteStudentHandler(IUnitOfWork unitOfWork)
     {
-        _studentRepository = studentRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<StudentDto> Handle(DeleteStudent request, CancellationToken cancellationToken)
+    public async Task<StudentDto> Handle(DeleteStudent request, CancellationToken cancellationToken)
     {
-        var student=_studentRepository.GetById(request.studentId);
-        if(student == null)
-        {
-            throw new StudentNotFoundException($"The student with id: {request.studentId} was not found");
-        }
-        _studentRepository.Delete(student);
 
-        return Task.FromResult(StudentDto.FromStudent(student));
+        try
+        {
+            var student = await _unitOfWork.StudentRepository.GetById(request.studentId);
+            if (student == null)
+            {
+                throw new StudentNotFoundException($"The student with id: {request.studentId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.StudentRepository.Delete(student);
+            await _unitOfWork.CommitTransactionAsync();
+            return StudentDto.FromStudent(student);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+
     }
 }

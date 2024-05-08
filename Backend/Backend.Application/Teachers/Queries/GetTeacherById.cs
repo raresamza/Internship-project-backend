@@ -16,21 +16,30 @@ public record GetTeacherById(int Id) : IRequest<TeacherDto>;
 public class GetTeacherByIdHandler : IRequestHandler<GetTeacherById, TeacherDto>
 {
 
-    private readonly ITeacherRepository _teacherRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GetTeacherByIdHandler(ITeacherRepository teacherRepository)
+    public GetTeacherByIdHandler(IUnitOfWork unitOfWork)
     {
-        _teacherRepository = teacherRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<TeacherDto> Handle(GetTeacherById request, CancellationToken cancellationToken)
+    public async Task<TeacherDto> Handle(GetTeacherById request, CancellationToken cancellationToken)
     {
-        var teacher = _teacherRepository.GetById(request.Id);
-        if (teacher == null)
+
+        try
         {
-            throw new TeacherNotFoundException($"The teacher witrh id: {request.Id} was not found!");
+            var teacher = await _unitOfWork.TeacherRepository.GetById(request.Id);
+            if (teacher == null)
+            {
+                throw new TeacherNotFoundException($"The teacher witrh id: {request.Id} was not found!");
+            }
+            return TeacherDto.FromTeacher(teacher);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
 
-        return Task.FromResult(TeacherDto.FromTeacher(teacher));
     }
 }

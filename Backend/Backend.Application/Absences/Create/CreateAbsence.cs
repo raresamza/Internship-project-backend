@@ -15,27 +15,37 @@ public record CreateAbsence(int courseId):IRequest<AbsenceDto>;
 public class CreateAbsenceHandler : IRequestHandler<CreateAbsence, AbsenceDto>
 {
 
-    private readonly IAbsenceRepository _absenceRepository;
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateAbsenceHandler(IAbsenceRepository absenceReposutory, ICourseRepository courseRepository)
+    public CreateAbsenceHandler(IUnitOfWork unitOfWork)
     {
-        _absenceRepository = absenceReposutory;
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<AbsenceDto> Handle(CreateAbsence request, CancellationToken cancellationToken)
+    public async Task<AbsenceDto> Handle(CreateAbsence request, CancellationToken cancellationToken)
     {
-        var course = _courseRepository.GetById(request.courseId);
-        if (course == null)
+
+        try
         {
-            throw new NullCourseException($"Could not found course with id: {request.courseId}");
+            var course = await _unitOfWork.CourseRepository.GetById(request.courseId);
+            if (course == null)
+            {
+                throw new NullCourseException($"Could not found course with id: {request.courseId}");
+            }
+            var absence = new Absence() { Course = course, CourseId = request.courseId };
+
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.AbsenceRepository.CreateAbsence(absence);
+            await _unitOfWork.CommitTransactionAsync();
+
+            return AbsenceDto.FromAbsence(absence);
+        } catch (Exception ex)
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            await Console.Out.WriteLineAsync(ex.Message);
+            throw;
         }
-        var absence = new Absence() { Course = course,CourseId = request.courseId};
-
-        _absenceRepository.CreateAbsence(absence);
-
-        return Task.FromResult(AbsenceDto.FromAbsence(absence));
+        
     }
 
     //private int GetNextId()

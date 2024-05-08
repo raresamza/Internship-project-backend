@@ -1,7 +1,9 @@
 ﻿using Backend.Application.Abstractions;
 using Backend.Application.Catalogues.Response;
 using Backend.Domain.Exceptions.Catalogue;
+using Backend.Domain.Models;
 using MediatR;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,24 +17,35 @@ public record DeleteCatalogue(int catalogueId) : IRequest<CatalogueDto>;
 public class DeleteCatalogueHandler : IRequestHandler<DeleteCatalogue, CatalogueDto>
 {
 
-    private readonly ICatalogueRepository _catalogueRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteCatalogueHandler(ICatalogueRepository catalogueRepository)
+    public DeleteCatalogueHandler(IUnitOfWork unitOfWork)
     {
-        _catalogueRepository = catalogueRepository;
+        _unitOfWork=unitOfWork;
     }
 
-    public Task<CatalogueDto> Handle(DeleteCatalogue request, CancellationToken cancellationToken)
+    public async Task<CatalogueDto> Handle(DeleteCatalogue request, CancellationToken cancellationToken)
     {
-        var catalogue=_catalogueRepository.GetById(request.catalogueId);
-
-        if(catalogue == null)
+        try
         {
-            throw new CatalogueNotFoundException($"The catalogue with id: {request.catalogueId} was not found");
+            Catalogue? catalogue = await _unitOfWork.CatalogueRepository.GetById(request.catalogueId);
+
+            if (catalogue == null)
+            {
+                throw new CatalogueNotFoundException($"The catalogue with id: {request.catalogueId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.CatalogueRepository.Delete(catalogue);
+            await _unitOfWork.CommitTransactionAsync();
+
+            return CatalogueDto.FromCatalogue(catalogue);
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
-
-        _catalogueRepository.Delete(catalogue);
-
-        return Task.FromResult(CatalogueDto.FromCatalogue(catalogue));
+        
     }
 }

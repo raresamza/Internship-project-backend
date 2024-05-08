@@ -11,27 +11,39 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Courses.Update;
 
-public record UpdateCourse(int courseId,Course course) : IRequest<CourseDto>;
+public record UpdateCourse(int courseId, Course course) : IRequest<CourseDto>;
 public class UpdateCourseHandler : IRequestHandler<UpdateCourse, CourseDto>
 {
 
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateCourseHandler(ICourseRepository courseRepository)
+    public UpdateCourseHandler(IUnitOfWork unitOfWork)
     {
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public Task<CourseDto> Handle(UpdateCourse request, CancellationToken cancellationToken)
+    public async Task<CourseDto> Handle(UpdateCourse request, CancellationToken cancellationToken)
     {
-        var course = _courseRepository.GetById(request.courseId);
-        if (course == null)
-        {
-            throw new NullCourseException($"The course with id: {request.courseId} was not found");
-        }
-        //var newCourse=_courseRepository.UpdateCourse(request.course, course.ID);
 
-        //return Task.FromResult(CourseDto.FromCourse(newCourse));
-        return null;
+        try
+        {
+            var course = await _unitOfWork.CourseRepository.GetById(request.courseId);
+            if (course == null)
+            {
+                throw new NullCourseException($"The course with id: {request.courseId} was not found");
+            }
+
+            await _unitOfWork.BeginTransactionAsync();
+            var newCourse = await _unitOfWork.CourseRepository.UpdateCourse(request.course, course.ID);
+            await _unitOfWork.CommitTransactionAsync();
+            return CourseDto.FromCourse(newCourse);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+
     }
 }
