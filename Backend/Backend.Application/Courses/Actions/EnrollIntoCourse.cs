@@ -1,8 +1,10 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Abstractions;
 using Backend.Application.Students.Responses;
 using Backend.Exceptions.CourseException;
 using Backend.Exceptions.StudentException;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +17,14 @@ public record EnrollIntoCourse(int studentId, int courseId) : IRequest<StudentDt
 
 internal class EntollIntoCourseHandler : IRequestHandler<EnrollIntoCourse, StudentDto>
 {
-    private IUnitOfWork _unitOfWork;
-
-    public EntollIntoCourseHandler(IUnitOfWork unitOfWork)
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+    private readonly ILogger<EntollIntoCourseHandler> _logger;
+    public EntollIntoCourseHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<EntollIntoCourseHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<StudentDto> Handle(EnrollIntoCourse request, CancellationToken cancellationToken)
@@ -44,10 +49,12 @@ internal class EntollIntoCourseHandler : IRequestHandler<EnrollIntoCourse, Stude
             await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             //_courseRepository.UpdateCourse(course,course.ID);
             await _unitOfWork.CommitTransactionAsync();
+            _logger.LogInformation($"Action in course at: {DateTime.Now.TimeOfDay}");
             return StudentDto.FromStudent(student);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Error in course at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

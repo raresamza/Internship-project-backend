@@ -1,8 +1,11 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Absences.Queries;
+using Backend.Application.Abstractions;
 using Backend.Application.Classrooms.Response;
 using Backend.Domain.Models;
 using Backend.Exceptions.ClassroomException;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +19,13 @@ public class UpdateClassroomHandler : IRequestHandler<UpdateClassroom, Classroom
 {
 
     private readonly IUnitOfWork _unitOfWork;
-
-    public UpdateClassroomHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<UpdateClassroomHandler> _logger;
+    public UpdateClassroomHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UpdateClassroomHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<ClassroomDto> Handle(UpdateClassroom request, CancellationToken cancellationToken)
@@ -38,9 +44,15 @@ public class UpdateClassroomHandler : IRequestHandler<UpdateClassroom, Classroom
             await _unitOfWork.BeginTransactionAsync();
             var newClassroom = await _unitOfWork.ClassroomRepository.UpdateClassroom(request.classroom, classroom.ID);
             await _unitOfWork.CommitTransactionAsync();
-            return ClassroomDto.FromClassroom(newClassroom);
-        } catch (Exception ex)
+            _logger.LogInformation($"Action in classroom at: {DateTime.Now.TimeOfDay}");
+
+            //return ClassroomDto.FromClassroom(newClassroom);
+            return _mapper.Map<ClassroomDto>(newClassroom);
+
+        }
+        catch (Exception ex)
         {
+            _logger.LogError($"Error in classroom at: {DateTime.Now.TimeOfDay}");
             Console.Write(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

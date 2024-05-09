@@ -41,7 +41,6 @@ public class TeacherDto
             StudentCourses = teacher.TaughtCourse.StudentCourses.Select((studentCourse) => StudentCourseDto.FromStudentCourse(studentCourse)).ToList(),
             TaughtCourse = CourseDto.FromCourse(teacher.TaughtCourse),
             CourseName = teacher.TaughtCourse.Name,
-
         };
     }
     public override string ToString()

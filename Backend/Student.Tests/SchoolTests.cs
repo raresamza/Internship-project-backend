@@ -1,4 +1,4 @@
-namespace Student.Tests;
+namespace Stchools.Tests;
 
 using Backend.Domain.Models;
 using Backend.Exceptions.ClassroomException;

@@ -17,7 +17,7 @@ builder.Services.AddRepositories();
 builder.Services.AddMediatR();
 builder.Services.AddDbContext();
 //builder.Services.AddJsonOptions();
-
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

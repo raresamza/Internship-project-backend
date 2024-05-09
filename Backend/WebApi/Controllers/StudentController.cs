@@ -6,8 +6,6 @@ using Backend.Application.Students.Update;
 using Backend.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Xml.Linq;
 
 namespace WebApi.Controllers;
 

@@ -1,6 +1,9 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Abstractions;
+using Backend.Application.Schools.Update;
 using Backend.Application.Students.Responses;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +17,13 @@ public class GetStudentByNameHandler : IRequestHandler<GetStudentByName, Student
 {
 
     private readonly IUnitOfWork _unitOfWork;
-
-    public GetStudentByNameHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<GetStudentByNameHandler> _logger;
+    public GetStudentByNameHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<GetStudentByNameHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<StudentDto> Handle(GetStudentByName request, CancellationToken cancellationToken)
@@ -30,11 +36,14 @@ public class GetStudentByNameHandler : IRequestHandler<GetStudentByName, Student
             {
                 throw new ApplicationException("Student not found");
             }
+            _logger.LogInformation($"Action in students at: {DateTime.Now.TimeOfDay}");
 
-            return StudentDto.FromStudent(student);
+            //return StudentDto.FromStudent(student);
+            return _mapper.Map<StudentDto>(student);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Error in students at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             throw;
         }

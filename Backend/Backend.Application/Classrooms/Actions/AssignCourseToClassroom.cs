@@ -1,8 +1,11 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Absences.Queries;
+using Backend.Application.Abstractions;
 using Backend.Application.Classrooms.Response;
 using Backend.Exceptions.ClassroomException;
 using Backend.Exceptions.CourseException;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +19,13 @@ public class AssignCourseToClassroomHadnler : IRequestHandler<AssignCourseToClas
 {
 
     private readonly IUnitOfWork _unitOfWork;
-
-    public AssignCourseToClassroomHadnler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<AssignCourseToClassroomHadnler> _logger;
+    public AssignCourseToClassroomHadnler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AssignCourseToClassroomHadnler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
     public async Task<ClassroomDto> Handle(AssignCourseToClassroom request, CancellationToken cancellationToken)
     {
@@ -40,9 +46,15 @@ public class AssignCourseToClassroomHadnler : IRequestHandler<AssignCourseToClas
             _unitOfWork.ClassroomRepository.AssignCourse(course, classroom);
             await _unitOfWork.ClassroomRepository.UpdateClassroom(classroom, classroom.ID);
             await _unitOfWork.CommitTransactionAsync();
-            return ClassroomDto.FromClassroom(classroom);
-        } catch (Exception ex)
+            _logger.LogInformation($"Action in classroom at: {DateTime.Now.TimeOfDay}");
+
+            //return ClassroomDto.FromClassroom(classroom);
+            return _mapper.Map<ClassroomDto>(classroom);
+
+        }
+        catch (Exception ex)
         {
+            _logger.LogError($"Error in classroom at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

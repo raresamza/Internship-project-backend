@@ -10,6 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Backend.Domain.Models;
+using AutoMapper;
+using Backend.Application.Classrooms.Actions;
+using Microsoft.Extensions.Logging;
 
 namespace Backend.Application.Courses.Actions;
 
@@ -19,10 +22,13 @@ public record AddGrade(int studentId, int courseId, int grade) : IRequest<Studen
 public class AddGradeHandler : IRequestHandler<AddGrade, StudentDto>
 {
     private readonly IUnitOfWork _unitOfWork;
-
-    public AddGradeHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<AddGradeHandler> _logger;
+    public AddGradeHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AddGradeHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<StudentDto> Handle(AddGrade request, CancellationToken cancellationToken)
@@ -46,10 +52,12 @@ public class AddGradeHandler : IRequestHandler<AddGrade, StudentDto>
             //_studentRepository.UpdateStudent(student,student.ID);
             //_courseRepository.UpdateCourse(course,course.ID);
             await _unitOfWork.CommitTransactionAsync();
+            _logger.LogInformation($"Action in course at: {DateTime.Now.TimeOfDay}");
             return StudentDto.FromStudent(student);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Error in course at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

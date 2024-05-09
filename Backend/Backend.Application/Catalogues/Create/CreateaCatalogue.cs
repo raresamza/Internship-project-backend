@@ -1,8 +1,13 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Absences.Queries;
+using Backend.Application.Abstractions;
+using Backend.Application.Catalogues.Actions;
 using Backend.Application.Catalogues.Response;
+using Backend.Application.Students.Responses;
 using Backend.Domain.Models;
 using Backend.Exceptions.ClassroomException;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +19,14 @@ namespace Backend.Application.Catalogues.Create;
 public record CreateCatalogue(int classroomId) : IRequest<CatalogueDto>;
 public class CreateaCatalogueHandler : IRequestHandler<CreateCatalogue, CatalogueDto>
 {
-    //will remove with more unit of work implmentations
-    private readonly IClassroomRepository _classroomRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public CreateaCatalogueHandler(IClassroomRepository classroomRepository, IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<CreateaCatalogueHandler> _logger;
+    public CreateaCatalogueHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateaCatalogueHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<CatalogueDto> Handle(CreateCatalogue request, CancellationToken cancellationToken)
@@ -39,10 +46,16 @@ public class CreateaCatalogueHandler : IRequestHandler<CreateCatalogue, Catalogu
             var newCatalogue = await _unitOfWork.CatalogueRepository.Create(catalogue);
             await _unitOfWork.CommitTransactionAsync();
 
+            _logger.LogInformation($"Catalogue action executed at: {DateTime.Now.TimeOfDay}");
 
-            return CatalogueDto.FromCatalogue(newCatalogue);
-        } catch (Exception ex)
+            //return CatalogueDto.FromCatalogue(newCatalogue);
+            return _mapper.Map<CatalogueDto>(catalogue);
+
+        }
+        catch (Exception ex)
         {
+            _logger.LogError($"Error in catalogue at: {DateTime.Now.TimeOfDay}");
+
             await Console.Out.WriteLineAsync(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

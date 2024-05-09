@@ -1,8 +1,12 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Absences.Queries;
+using Backend.Application.Abstractions;
+using Backend.Application.Catalogues.Actions;
 using Backend.Application.Catalogues.Response;
 using Backend.Domain.Exceptions.Catalogue;
 using Backend.Domain.Models;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -18,10 +22,13 @@ public class DeleteCatalogueHandler : IRequestHandler<DeleteCatalogue, Catalogue
 {
 
     private readonly IUnitOfWork _unitOfWork;
-
-    public DeleteCatalogueHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<DeleteCatalogueHandler> _logger;
+    public DeleteCatalogueHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<DeleteCatalogueHandler> logger)
     {
-        _unitOfWork=unitOfWork;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<CatalogueDto> Handle(DeleteCatalogue request, CancellationToken cancellationToken)
@@ -38,10 +45,16 @@ public class DeleteCatalogueHandler : IRequestHandler<DeleteCatalogue, Catalogue
             await _unitOfWork.BeginTransactionAsync();
             await _unitOfWork.CatalogueRepository.Delete(catalogue);
             await _unitOfWork.CommitTransactionAsync();
+            _logger.LogInformation($"Catalogue action executed at: {DateTime.Now.TimeOfDay}");
 
-            return CatalogueDto.FromCatalogue(catalogue);
-        } catch (Exception ex)
+            //return CatalogueDto.FromCatalogue(catalogue);
+            return _mapper.Map<CatalogueDto>(catalogue);
+
+        }
+        catch (Exception ex)
         {
+            _logger.LogError($"Error in catalogue at: {DateTime.Now.TimeOfDay}");
+
             Console.WriteLine(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

@@ -1,10 +1,12 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Abstractions;
 using Backend.Application.Courses.Response;
 using Backend.Domain.Models;
 using Backend.Exceptions.CourseException;
 using Backend.Exceptions.Placeholders;
 using Backend.Exceptions.StudentException;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 
 namespace Backend.Application.Courses.Actions;
@@ -13,10 +15,13 @@ public record AddStudent(int studentId, int courseId) : IRequest<CourseDto>;
 public class AddStudentHandler : IRequestHandler<AddStudent, CourseDto>
 {
     private readonly IUnitOfWork _unitOfWork;
-
-    public AddStudentHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<AddStudentHandler> _logger;
+    public AddStudentHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AddStudentHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<CourseDto> Handle(AddStudent request, CancellationToken cancellationToken)
@@ -66,10 +71,12 @@ public class AddStudentHandler : IRequestHandler<AddStudent, CourseDto>
             await _unitOfWork.BeginTransactionAsync();
             await _unitOfWork.StudentRepository.UpdateStudent(dbStudent, dbStudent.ID);
             await _unitOfWork.CommitTransactionAsync();
+            _logger.LogInformation($"Action in course at: {DateTime.Now.TimeOfDay}");
             return CourseDto.FromCourse(dbCourse);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Error in course at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

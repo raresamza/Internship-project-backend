@@ -1,9 +1,13 @@
-﻿using Backend.Application.Absences.Response;
+﻿using AutoMapper;
+using Backend.Application.Absences.Delete;
+using Backend.Application.Absences.Response;
 using Backend.Application.Abstractions;
 using Backend.Exceptions.CourseException;
 using Backend.Exceptions.StudentException;
 using Backend.Exceptions.TeacherException;
+using Castle.Core.Logging;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +22,13 @@ public class GetAbsenceByDateAndCourseHandler : IRequestHandler<GetAbsenceByDate
 
 
     private readonly IUnitOfWork _unitOfWork;
-
-    public GetAbsenceByDateAndCourseHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<GetAbsenceByDateAndCourseHandler> _logger;
+    public GetAbsenceByDateAndCourseHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<GetAbsenceByDateAndCourseHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<AbsenceDto> Handle(GetAbsenceByDateAndCourse request, CancellationToken cancellationToken)
@@ -44,10 +51,13 @@ public class GetAbsenceByDateAndCourseHandler : IRequestHandler<GetAbsenceByDate
             {
                 throw new TeacherNotFoundException($"The absence for the course: {request.courseId}, on date: {request.Date} was not found!");
             }
-            return AbsenceDto.FromAbsence(absence);
+            //return AbsenceDto.FromAbsence(absence);
+            _logger.LogError($"Absence action executed at: {DateTime.Now.TimeOfDay}");
+            return _mapper.Map<AbsenceDto>(absence);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Error in absence at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             throw;
         }

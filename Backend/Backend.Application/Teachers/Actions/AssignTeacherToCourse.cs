@@ -9,6 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Backend.Exceptions.TeacherException;
 using System.Runtime.InteropServices;
+using AutoMapper;
+using Backend.Application.Students.Update;
+using Microsoft.Extensions.Logging;
 
 namespace Backend.Application.Teachers.Actions;
 
@@ -18,11 +21,14 @@ public record AssignTeacherToCourse(int courseId, int teacherId) : IRequest<Teac
 public class AssignTeacherToCourseHandler : IRequestHandler<AssignTeacherToCourse, TeacherDto>
 {
 
-    public readonly IUnitOfWork _unitOfWork;
-
-    public AssignTeacherToCourseHandler(IUnitOfWork unitOfWork)
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+    private readonly ILogger<AssignTeacherToCourseHandler> _logger;
+    public AssignTeacherToCourseHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AssignTeacherToCourseHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<TeacherDto> Handle(AssignTeacherToCourse request, CancellationToken cancellationToken)
@@ -43,12 +49,15 @@ public class AssignTeacherToCourseHandler : IRequestHandler<AssignTeacherToCours
                 course.TeacherId = teacher.ID;
                 await _unitOfWork.CourseRepository.UpdateCourse(course, course.ID);
                 await _unitOfWork.CommitTransactionAsync();
-                return TeacherDto.FromTeacher(teacher);
+                _logger.LogInformation($"Action in teacehr at: {DateTime.Now.TimeOfDay}");
+                //return TeacherDto.FromTeacher(teacher);
+                return _mapper.Map<TeacherDto>(teacher);
             }
             throw new TeacherNotFoundException("S");
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Error in teacehr at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

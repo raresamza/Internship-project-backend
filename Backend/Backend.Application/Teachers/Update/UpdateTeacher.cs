@@ -1,8 +1,11 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Abstractions;
+using Backend.Application.Students.Update;
 using Backend.Application.Teachers.Responses;
 using Backend.Domain.Models;
 using Backend.Exceptions.TeacherException;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +19,13 @@ public class UpdateTeacherHandler : IRequestHandler<UpdateTeacher, TeacherDto>
 {
 
     private readonly IUnitOfWork _unitOfWork;
-
-    public UpdateTeacherHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<UpdateTeacherHandler> _logger;
+    public UpdateTeacherHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UpdateTeacherHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<TeacherDto> Handle(UpdateTeacher request, CancellationToken cancellationToken)
@@ -36,10 +42,13 @@ public class UpdateTeacherHandler : IRequestHandler<UpdateTeacher, TeacherDto>
             await _unitOfWork.BeginTransactionAsync();
             var newTeacher = await _unitOfWork.TeacherRepository.UpdateTeacher(request.teacher, teacher.ID);
             await _unitOfWork.CommitTransactionAsync();
-            return TeacherDto.FromTeacher(newTeacher);
+            _logger.LogInformation($"Action in teacehr at: {DateTime.Now.TimeOfDay}");
+            //return TeacherDto.FromTeacher(newTeacher);
+            return _mapper.Map<TeacherDto>(newTeacher);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Error in teacehr at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

@@ -1,8 +1,11 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Absences.Queries;
+using Backend.Application.Abstractions;
 using Backend.Application.Students.Responses;
 using Backend.Exceptions.CourseException;
 using Backend.Exceptions.StudentException;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +19,13 @@ public class AddGpaHandler : IRequestHandler<AddGpa, StudentDto>
 {
 
     private readonly IUnitOfWork _unitOfWork;
-
-    public AddGpaHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<AddGpaHandler> _logger;
+    public AddGpaHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AddGpaHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     async Task<StudentDto> IRequestHandler<AddGpa, StudentDto>.Handle(AddGpa request, CancellationToken cancellationToken)
@@ -43,11 +49,14 @@ public class AddGpaHandler : IRequestHandler<AddGpa, StudentDto>
             _unitOfWork.CatalogueRepository.AddGpa(course, student);
             await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             await _unitOfWork.CommitTransactionAsync();
-            return StudentDto.FromStudent(student);
+            _logger.LogInformation($"Catalogue action executed at: {DateTime.Now.TimeOfDay}");
 
+            //return StudentDto.FromStudent(student);
+            return _mapper.Map<StudentDto>(student);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Error in catalogue at: {DateTime.Now.TimeOfDay}");
             await Console.Out.WriteLineAsync(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

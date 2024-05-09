@@ -1,6 +1,10 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Absences.Queries;
+using Backend.Application.Abstractions;
+using Backend.Application.Catalogues.Actions;
 using Backend.Application.Catalogues.Response;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +19,19 @@ public class GetCataloguesHandler : IRequestHandler<GetCatalogues, List<Catalogu
 {
 
     private readonly IUnitOfWork _unitOfWork;
-    public GetCataloguesHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<GetCataloguesHandler> _logger;
+    public GetCataloguesHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<GetCataloguesHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
     public async Task<List<CatalogueDto>> Handle(GetCatalogues request, CancellationToken cancellationToken)
     {
         var catalogues = await _unitOfWork.CatalogueRepository.GetAll();
-        return catalogues.Select((catalogue) => CatalogueDto.FromCatalogue(catalogue)).ToList();
+        _logger.LogInformation($"Catalogue action executed at: {DateTime.Now.TimeOfDay}");
+
+        return catalogues.Select((catalogue) => _mapper.Map<CatalogueDto>(catalogue)).ToList();
     }
 }

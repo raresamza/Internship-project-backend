@@ -4,6 +4,7 @@ using Backend.Domain.Models;
 using Backend.Exceptions.AbsenceException;
 using Backend.Infrastructure.Contexts;
 using Backend.Infrastructure.Utils;
+using Castle.Core.Logging;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

@@ -23,7 +23,7 @@ public class AbsenceController : ControllerBase
     private readonly IEmailSenderService _service;
     private readonly IMediator _mediator;
 
-    public AbsenceController(IEmailSenderService service, IMediator mediator)
+    public AbsenceController(IEmailSenderService service, IMediator mediator, ILogger<AbsenceController> logger)
     {
         _service = service;
         _mediator = mediator;

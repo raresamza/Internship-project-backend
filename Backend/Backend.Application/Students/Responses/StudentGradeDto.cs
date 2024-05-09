@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Students.Responses;
 
-public class StudentGradeDto
-{
-    //public int StudentId { get; set; }
-    [JsonIgnore]
-    public StudentDto? Student { get; set; }
-    public int CourseId { get; set; }
-    public String? CourseName { get; set; }
-    [JsonIgnore]
-    public CourseDto? Course { get; set; }
-    public List<int> GradeValues { get; set; } = new();
+    public class StudentGradeDto
+    {
+        //public int StudentId { get; set; }
+        [JsonIgnore]
+        public StudentDto? Student { get; set; }
+        public int CourseId { get; set; }
+        public String? CourseName { get; set; }
+        [JsonIgnore]
+        public CourseDto? Course { get; set; }
+        public List<int> GradeValues { get; set; } = new();
 
 
     public static StudentGradeDto FromStudentGrade(StudentGrade studentGrade)

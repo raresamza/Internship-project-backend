@@ -1,9 +1,12 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Absences.Queries;
+using Backend.Application.Abstractions;
 using Backend.Application.Classrooms.Response;
 using Backend.Application.Students.Responses;
 using Backend.Exceptions.ClassroomException;
 using Backend.Exceptions.StudentException;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,17 +14,20 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Backend.Application.Classrooms.Actions;
-public record AddStudentToClassroom(int studentId, int classroomId) : IRequest<StudentDto>;
-public class AddStudentToClassroomHandler : IRequestHandler<AddStudentToClassroom, StudentDto>
+public record AddStudentToClassroom(int studentId, int classroomId) : IRequest<ClassroomDto>;
+public class AddStudentToClassroomHandler : IRequestHandler<AddStudentToClassroom, ClassroomDto>
 {
     private readonly IUnitOfWork _unitOfWork;
-
-    public AddStudentToClassroomHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<AddStudentToClassroomHandler> _logger;
+    public AddStudentToClassroomHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AddStudentToClassroomHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
-    public async Task<StudentDto> Handle(AddStudentToClassroom request, CancellationToken cancellationToken)
+    public async Task<ClassroomDto> Handle(AddStudentToClassroom request, CancellationToken cancellationToken)
     {
 
         try
@@ -43,9 +49,13 @@ public class AddStudentToClassroomHandler : IRequestHandler<AddStudentToClassroo
             await _unitOfWork.ClassroomRepository.UpdateClassroom(classroom, classroom.ID);
             await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             await _unitOfWork.CommitTransactionAsync();
-            return StudentDto.FromStudent(student);
+            _logger.LogInformation($"Action in classroom at: {DateTime.Now.TimeOfDay}");
+
+            //return StudentDto.FromStudent(student);
+            return _mapper.Map<ClassroomDto>(classroom);
         } catch (Exception ex)
         {
+            _logger.LogError($"Error in classroom at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;

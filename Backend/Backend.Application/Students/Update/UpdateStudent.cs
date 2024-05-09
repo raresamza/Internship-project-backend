@@ -1,7 +1,10 @@
-﻿using Backend.Application.Abstractions;
+﻿using AutoMapper;
+using Backend.Application.Abstractions;
+using Backend.Application.Schools.Update;
 using Backend.Application.Students.Responses;
 using Backend.Exceptions.StudentException;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +17,13 @@ public record UpdateStudent(int studentId, Domain.Models.Student student) : IReq
 public class UpdateStudentHandler : IRequestHandler<UpdateStudent, StudentDto>
 {
     private readonly IUnitOfWork _unitOfWork;
-
-    public UpdateStudentHandler(IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    private readonly ILogger<UpdateStudentHandler> _logger;
+    public UpdateStudentHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UpdateStudentHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<StudentDto> Handle(UpdateStudent request, CancellationToken cancellationToken)
@@ -31,11 +37,14 @@ public class UpdateStudentHandler : IRequestHandler<UpdateStudent, StudentDto>
             }
 
             var newStudent = await _unitOfWork.StudentRepository.UpdateStudent(request.student, student.ID);
+            _logger.LogInformation($"Action in students at: {DateTime.Now.TimeOfDay}");
 
-            return StudentDto.FromStudent(newStudent);
+            //return StudentDto.FromStudent(newStudent);
+            return _mapper.Map<StudentDto>(newStudent);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Error in students at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             throw;
         }
