@@ -2,6 +2,7 @@
 using Backend.Application.Abstractions;
 using Backend.Application.Schools.Update;
 using Backend.Application.Students.Responses;
+using Backend.Exceptions.AbsenceException;
 using Backend.Exceptions.CourseException;
 using Backend.Exceptions.StudentException;
 using MediatR;
@@ -34,7 +35,6 @@ public class MotivateAbsenceHandler : IRequestHandler<MotivateAbsence, StudentDt
 
         try
         {
-
             var student = await _unitOfWork.StudentRepository.GetById(request.studentId);
             var absence = await _unitOfWork.AbsenceRepository.GetById(request.absenceId);
             var course = await _unitOfWork.CourseRepository.GetById(request.courseId);
@@ -49,7 +49,7 @@ public class MotivateAbsenceHandler : IRequestHandler<MotivateAbsence, StudentDt
             }
             if (absence == null)
             {
-                throw new NullCourseException($"Course with id: {request.absenceId} was not found");
+                throw new InvalidAbsenceException($"Absence with id: {request.absenceId} was not found");
             }
 
             await _unitOfWork.BeginTransactionAsync();
@@ -71,4 +71,5 @@ public class MotivateAbsenceHandler : IRequestHandler<MotivateAbsence, StudentDt
         }
 
     }
+
 }

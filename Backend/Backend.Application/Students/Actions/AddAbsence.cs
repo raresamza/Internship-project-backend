@@ -20,7 +20,7 @@ using System.Xml.Linq;
 namespace Backend.Application.Students.Actions;
 
 public record AddAbsence(int studentId, int absenceId) : IRequest<StudentDto>;
-internal class AddAbsenceHandler : IRequestHandler<AddAbsence, StudentDto>
+public class AddAbsenceHandler : IRequestHandler<AddAbsence, StudentDto>
 {
 
     private readonly IUnitOfWork _unitOfWork;
@@ -66,4 +66,5 @@ internal class AddAbsenceHandler : IRequestHandler<AddAbsence, StudentDto>
         }
 
     }
+
 }
