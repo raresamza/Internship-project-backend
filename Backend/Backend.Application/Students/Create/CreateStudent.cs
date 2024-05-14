@@ -28,7 +28,7 @@ public class CreateStudentHandler : IRequestHandler<CreateStudent, StudentDto>
     {
         try
         {
-            var student = new Student() { Age = request.age, ParentEmail = request.parentEmail, ParentName = request.parentName, PhoneNumber = request.phoneNumber, Name = request.name, Address = request.address };
+            var student = new Student() { Age = request.age, ParentEmail = request.parentEmail, ParentName = request.parentName, PhoneNumber = request.phoneNumber, Name = request.name, Address = request.address};
 
             var createdStudent = await _unitOfWork.StudentRepository.Create(student);
             _logger.LogInformation($"Action in students at: {DateTime.Now.TimeOfDay}");

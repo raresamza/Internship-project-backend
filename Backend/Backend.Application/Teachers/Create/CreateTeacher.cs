@@ -33,7 +33,7 @@ public class CreateTeacherHandler : IRequestHandler<CreateTeacher, TeacherDto>
 
         try
         {
-            var teacher = new Teacher() { Address = request.Address, Subject = request.Subject, Age = request.Age, PhoneNumber = request.PhoneNumber, Name = request.Name };
+            var teacher = new Teacher() { Address = request.Address, Subject = request.Subject, Age = request.Age, PhoneNumber = request.PhoneNumber, Name = request.Name};
 
             await _unitOfWork.BeginTransactionAsync();
             var createdTeacher = await _unitOfWork.TeacherRepository.Create(teacher);

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Backend.Application.Abstractions;
+using Backend.Application.Students.Queries;
 using Backend.Application.Students.Responses;
 using Backend.Application.Students.Update;
 using Backend.Application.Teachers.Responses;
@@ -14,9 +15,9 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Teachers.Queries;
 
-public record GetTeachers() : IRequest<List<TeacherDto>>;
+public record GetTeachers(int PageNumber = 1, int PageSize = 10) : IRequest<PaginatedResult<TeacherDto>>;
 
-public class GetTeachersHandler : IRequestHandler<GetTeachers, List<TeacherDto>>
+public class GetTeachersHandler : IRequestHandler<GetTeachers, PaginatedResult<TeacherDto>>
 {
 
     private readonly IUnitOfWork _unitOfWork;
@@ -28,12 +29,25 @@ public class GetTeachersHandler : IRequestHandler<GetTeachers, List<TeacherDto>>
         _mapper = mapper;
         _logger = logger;
     }
-    public async Task<List<TeacherDto>> Handle(GetTeachers request, CancellationToken cancellationToken)
+    public async Task<PaginatedResult<TeacherDto>> Handle(GetTeachers request, CancellationToken cancellationToken)
     {
-        var teachers= await _unitOfWork.TeacherRepository.GetAll();
-        //return teachers.Select((teacher) => TeacherDto.FromTeacher(teacher)).ToList();
-        _logger.LogInformation($"Action in teacehr at: {DateTime.Now.TimeOfDay}");
-        return teachers.Select(teacher => _mapper.Map<TeacherDto>(teacher)).ToList();
+        var teachers = await _unitOfWork.TeacherRepository.GetAll();
+        var totalCount = teachers.Count;
 
+        var pagedTeachers = teachers
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToList();
+
+        var teacherDtos = _mapper.Map<List<TeacherDto>>(pagedTeachers);
+
+        _logger.LogInformation($"Retrieved {teacherDtos.Count} students at: {DateTime.Now.TimeOfDay}");
+
+        return new PaginatedResult<TeacherDto>(
+            request.PageNumber,
+            request.PageSize,
+            totalCount,
+            teacherDtos
+        );
     }
 }

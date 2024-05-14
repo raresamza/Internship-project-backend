@@ -5,6 +5,7 @@ using Backend.Application.Students.Responses;
 using Backend.Application.Students.Update;
 using Backend.Domain.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
@@ -12,6 +13,7 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+//[Authorize]
 public class StudentController : ControllerBase
 {
 
@@ -23,12 +25,16 @@ public class StudentController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAllStudents()
+    //[Authorize(Roles ="Student, Teacher")]
+    public async Task<ActionResult> GetAllStudents(int pageNumber = 1, int pageSize = 10)
     {
-        return Ok(await _mediator.Send(new GetStudents()));
+        var query = new GetStudents(pageNumber, pageSize);
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
+    //[Authorize(Roles = "Teacher")]
     public async Task<ActionResult> GetStudent(int id)
     {
         return Ok(await _mediator.Send(new GetStudentById(id)));
@@ -40,7 +46,7 @@ public class StudentController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-
+        //CreatedAtAction for all posts
         return Ok(await _mediator.Send(new CreateStudent(student.ParentEmail,student.ParentName,student.Age,student.PhoneNumber,student.Name,student.Address)));
     }
     [HttpPut("{id}")]

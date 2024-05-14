@@ -49,7 +49,7 @@ public class AddAbsenceHandler : IRequestHandler<AddAbsence, StudentDto>
                 throw new InvalidAbsenceException($"Absence with id: {request.absenceId} was not found");
             }
 
-            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.BeginTransactionAsync();//move
             _unitOfWork.StudentRepository.AddAbsence(student, absence);
             await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             await _unitOfWork.CommitTransactionAsync();

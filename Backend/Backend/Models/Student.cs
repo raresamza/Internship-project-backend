@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -51,9 +52,11 @@ public class Student : User
     public ICollection<StudentCourse> StudentCoruses { get; set; }
 
     private readonly List<StudentCourse> _courses = new();
-
+    [Required]
+    [StringLength(100)]
     public required string ParentEmail { get; set; }
-
+    [Required]
+    [StringLength(100)]
     public required string ParentName { get; set; }
 
 

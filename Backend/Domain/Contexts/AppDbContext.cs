@@ -1,18 +1,15 @@
 ﻿using Backend.Domain.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Backend.Infrastructure.Contexts;
-
-public class AppDbContext : DbContext
+//IdentityDbContext<User, IdentityRole<int>, int>
+public class AppDbContext : IdentityDbContext
 {
 
     public AppDbContext(DbContextOptions options) : base(options)
-    {
-
-    }
-
-    public AppDbContext()
     {
 
     }
@@ -30,6 +27,8 @@ public class AppDbContext : DbContext
     public DbSet<StudentCourse> StudentCourses { get; set; } = default!;
     public DbSet<StudentGrade> StudentGrades { get; set; } = default!;
     public DbSet<TeacherClassroom> TeacherClassrooms { get; set; } = default!;
+
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

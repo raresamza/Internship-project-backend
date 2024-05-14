@@ -26,6 +26,7 @@ using Backend.Application.Classrooms.Queries;
 using Backend.Application.Absences.Queries;
 using Backend.Application.Courses.Delete;
 using Backend.Application.Students.Update;
+using AutoMapper;
 
 var diContainer = new ServiceCollection()
     .AddSingleton<IStudentRepository, StudentRepository>()
@@ -34,6 +35,7 @@ var diContainer = new ServiceCollection()
     .AddSingleton<ICourseRepository, CourseRepository>()
     .AddSingleton<IAbsenceRepository, AbsenceRepository>()
     .AddSingleton<IClassroomRepository, ClassroomRepository>()
+    .AddScoped<IMapper, Mapper>()
     .AddSingleton<ICatalogueRepository, CatalogueRepository>()
     .AddDbContext<AppDbContext>()
     .AddSingleton<ISchoolRepository, SchoolRepository>()
@@ -42,7 +44,7 @@ var diContainer = new ServiceCollection()
 
 var mediator = diContainer.GetRequiredService<IMediator>();
 
-//var student = await mediator.Send(new CreateStudent("mail@mail.com", "Adi", 11, 1111111, "Rares", "deva"));
+//avar student = await mediator.Send(new CreateStudent("mail@mail.com", "Adi", 11, 1111111, "Rares", "deva"));
 //var student2 = await mediator.Send(new CreateStudent("email@email.com", "Ady", 22, 2222222, "Rares Amza", "geva"));
 //var course = await mediator.Send(new CreateCourse("Physics I", Subject.PHYSICS));
 //var course1 = await mediator.Send(new CreateCourse("Math I", Subject.MATH));

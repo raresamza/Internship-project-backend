@@ -2,18 +2,13 @@
 using Backend.Application.Absences.Response;
 using Backend.Application.Abstractions;
 using Backend.Application.Students.Actions;
-using Backend.Application.Students.Queries;
 using Backend.Application.Students.Responses;
 using Backend.Domain.Models;
 using Backend.Exceptions.AbsenceException;
 using Backend.Exceptions.StudentException;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace School.Tests.CommandHandlers;
 

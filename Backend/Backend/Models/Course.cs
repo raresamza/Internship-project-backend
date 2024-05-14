@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Backend.Domain.Models;
@@ -21,8 +22,10 @@ public class Course
 
     private readonly List<StudentGPA> _gpas = new();
     public ICollection<StudentGPA> GPAs { get; set; }
-
+    [Required]
+    [StringLength(100)]
     public required string Name { get; set; }
+    [Required]
     public required Subject Subject { get; set; }
 
     [ForeignKey(nameof(TeacherId))]

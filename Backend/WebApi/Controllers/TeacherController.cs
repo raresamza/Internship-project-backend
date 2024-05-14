@@ -1,4 +1,5 @@
-﻿using Backend.Application.Teachers.Create;
+﻿using Backend.Application.Students.Queries;
+using Backend.Application.Teachers.Create;
 using Backend.Application.Teachers.Delete;
 using Backend.Application.Teachers.Queries;
 using Backend.Application.Teachers.Responses;
@@ -20,12 +21,14 @@ public class TeacherController : ControllerBase
     public TeacherController(IMediator mediator)
     {
         _mediator = mediator;
-    }  
+    }
 
     [HttpGet]
-    public async Task<ActionResult> GetAllTeachers()
+    public async Task<ActionResult> GetAllTeachers(int pageNumber = 1, int pageSize = 10)
     {
-        return Ok(await _mediator.Send(new GetTeachers()));
+        var query = new GetTeachers(pageNumber, pageSize);
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]

@@ -23,6 +23,7 @@ public class StudentDto
     public required string Name { get; set; }
     public required string Address { get; set; }
     public required int PhoneNumber { get; set; }
+
     public ICollection<StudentGradeDto>? Grades { get; set; }
     //[JsonIgnore]
     //public ICollection<StudentGrade> Grades { get; set; }

@@ -1,23 +1,31 @@
+using Backend.Domain.Models;
+using Backend.Infrastructure.Contexts;
+using Microsoft.AspNetCore.Identity;
 using WebApi.Config;
+using WebApi.Extensions;
 using WebApi.Middleware;
+using WebApi.Options;
 using WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.RegisterAuthentication();
 
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwagger();
 builder.Services.AddScoped<IEmailSenderService,EmailService>();
 
 builder.Services.AddRepositories();
 builder.Services.AddMediatR();
 builder.Services.AddDbContext();
 //builder.Services.AddJsonOptions();
+builder.Services.AddSingleton<IdentityService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -44,6 +52,7 @@ app.UseTiming();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

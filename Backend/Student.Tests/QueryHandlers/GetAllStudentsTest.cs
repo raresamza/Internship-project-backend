@@ -2,15 +2,9 @@
 using Backend.Application.Abstractions;
 using Backend.Application.Students.Queries;
 using Backend.Application.Students.Responses;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
 using Backend.Domain.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace School.Tests.QueryHandlers;
 
@@ -50,11 +44,14 @@ public class GetAllStudentsTest
             PhoneNumber = s.PhoneNumber
         }).ToList();
 
-        _mockMapper.Setup(mapper => mapper.Map<StudentDto>(It.IsAny<Student>())).Returns((Student student) =>
-        {
-            var matchingStudentDto = expectedStudentDtos.FirstOrDefault(dto => dto.ID == student.ID);
-            return matchingStudentDto;
-        });
+        _mockMapper.Setup(mapper => mapper.Map<IEnumerable<StudentDto>>(It.IsAny<IEnumerable<Student>>()))
+    .Returns((IEnumerable<Student> students) =>
+    {
+        var matchingStudentDtos = students
+            .Select(student => expectedStudentDtos.FirstOrDefault(dto => dto.ID == student.ID))
+            .ToList();
+        return matchingStudentDtos;
+    });
 
         var handler = new GetStudentsHandler(_mockUnitOfWork.Object, _mockMapper.Object, _mockLogger.Object);
 
@@ -63,10 +60,9 @@ public class GetAllStudentsTest
 
         // Assert
         Assert.NotNull(actualResult);
-        Assert.Equal(students.Count, actualResult.Count);
-        Assert.Equal(expectedStudentDtos, actualResult);
+        Assert.Equal(expectedStudentDtos.Count, actualResult.TotalCount);
+        Assert.Equal(expectedStudentDtos, actualResult.Items.ToList());
 
-        // Verify that GetAll method was called
         _mockUnitOfWork.Verify(uow => uow.StudentRepository.GetAll(), Times.Once());
     }
 
@@ -78,6 +74,9 @@ public class GetAllStudentsTest
         var emptyList = new List<Student>();
         _mockUnitOfWork.Setup(uow => uow.StudentRepository.GetAll()).ReturnsAsync(emptyList);
 
+        _mockMapper.Setup(mapper => mapper.Map<IEnumerable<StudentDto>>(It.IsAny<IEnumerable<Student>>()))
+       .Returns(new List<StudentDto>());
+
         var handler = new GetStudentsHandler(_mockUnitOfWork.Object, _mockMapper.Object, _mockLogger.Object);
 
         // Act
@@ -85,9 +84,8 @@ public class GetAllStudentsTest
 
         // Assert
         Assert.NotNull(actualResult);
-        Assert.Empty(actualResult);
+        Assert.Empty(actualResult.Items.ToList());
 
-        // Verify that GetAll method was called
         _mockUnitOfWork.Verify(uow => uow.StudentRepository.GetAll(), Times.Once());
     }
 
