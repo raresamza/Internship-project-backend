@@ -8,6 +8,7 @@ using Backend.Application.Catalogues.Delete;
 using Backend.Application.Catalogues.Queries;
 using Backend.Application.Catalogues.Response;
 using Backend.Application.Catalogues.Update;
+using Backend.Application.Students.Queries;
 using Backend.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -30,10 +31,11 @@ public class CatalogueController : ControllerBase
 
 
     [HttpGet]
-    public async Task<ActionResult> GetAllACatalogues()
+    public async Task<ActionResult> GetAllCatalogues(int pageNumber = 1, int pageSize = 10)
     {
-        //_service.SendEmail("Hello email");
-        return Ok(await _mediator.Send(new GetCatalogues()));
+        var query = new GetCatalogues(pageNumber, pageSize);
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]

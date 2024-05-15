@@ -3,6 +3,7 @@ using Backend.Application.Courses.Delete;
 using Backend.Application.Courses.Queries;
 using Backend.Application.Courses.Response;
 using Backend.Application.Courses.Update;
+using Backend.Application.Students.Queries;
 using Backend.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -25,10 +26,11 @@ public class CourseController : ControllerBase
 
 
     [HttpGet]
-    public async Task<ActionResult> GetAllCourses()
+    public async Task<ActionResult> GetAllCourses(int pageNumber = 1, int pageSize = 10)
     {
-        //_service.SendEmail("Hello email");
-        return Ok(await _mediator.Send(new GetCourses()));
+        var query = new GetCourses(pageNumber, pageSize);
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]

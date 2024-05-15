@@ -26,9 +26,11 @@ public class SchoolController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAllStudents()
+    public async Task<ActionResult> GetAllSchools(int pageNumber = 1, int pageSize = 10)
     {
-        return Ok(await _mediator.Send(new GetSchools()));
+        var query = new GetSchools(pageNumber, pageSize);
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]

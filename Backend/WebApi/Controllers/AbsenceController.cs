@@ -8,6 +8,7 @@ using Backend.Application.Classrooms.Delete;
 using Backend.Application.Classrooms.Queries;
 using Backend.Application.Classrooms.Response;
 using Backend.Application.Classrooms.Update;
+using Backend.Application.Students.Queries;
 using Backend.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -31,10 +32,11 @@ public class AbsenceController : ControllerBase
 
 
     [HttpGet]
-    public async Task<ActionResult> GetAllAbsences()
+    public async Task<ActionResult> GetAllAbsences(int pageNumber = 1, int pageSize = 10)
     {
-        //_service.SendEmail("Hello email");
-        return Ok(await _mediator.Send(new GetAbsences()));
+        var query = new GetAbsences(pageNumber, pageSize);
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
