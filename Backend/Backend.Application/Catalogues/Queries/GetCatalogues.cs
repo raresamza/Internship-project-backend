@@ -31,7 +31,7 @@ public class GetCataloguesHandler : IRequestHandler<GetCatalogues, PaginatedResu
     }
     public async Task<PaginatedResult<CatalogueDto>> Handle(GetCatalogues request, CancellationToken cancellationToken)
     {
-        var catalogues = await _unitOfWork.StudentRepository.GetAll();
+        var catalogues = await _unitOfWork.CatalogueRepository.GetAll();
         var totalCount = catalogues.Count;
 
         var pagedCatalogues = catalogues

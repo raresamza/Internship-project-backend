@@ -33,7 +33,7 @@ public class GetCoursesHandler : IRequestHandler<GetCourses, PaginatedResult<Cou
 
     public async Task<PaginatedResult<CourseDto>> Handle(GetCourses request, CancellationToken cancellationToken)
     {
-        var courses = await _unitOfWork.StudentRepository.GetAll();
+        var courses = await _unitOfWork.CourseRepository.GetAll();
         var totalCount = courses.Count;
 
         var pagedCoruses = courses

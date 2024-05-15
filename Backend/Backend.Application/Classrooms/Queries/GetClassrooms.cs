@@ -33,7 +33,7 @@ public class GetClassroomsHandler : IRequestHandler<GetClassrooms, PaginatedResu
 
     public async Task<PaginatedResult<ClassroomDto>> Handle(GetClassrooms request, CancellationToken cancellationToken)
     {
-        var classrooms = await _unitOfWork.StudentRepository.GetAll();
+        var classrooms = await _unitOfWork.ClassroomRepository.GetAll();
         var totalCount = classrooms.Count;
 
         var pagedClassrooms = classrooms

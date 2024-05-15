@@ -32,7 +32,7 @@ public class GetAbsencesHandler : IRequestHandler<GetAbsences, PaginatedResult<A
     }
     public async Task<PaginatedResult<AbsenceDto>> Handle(GetAbsences request, CancellationToken cancellationToken)
     {
-        var absences = await _unitOfWork.StudentRepository.GetAll();
+        var absences = await _unitOfWork.AbsenceRepository.GetAll();
         var totalCount = absences.Count;
 
         var pagedAbsences = absences

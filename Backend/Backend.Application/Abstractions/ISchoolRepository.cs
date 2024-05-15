@@ -9,7 +9,7 @@ public interface ISchoolRepository
     public void RemoveClassroom(Classroom classroom, School school);
     //int GetLastId();
 
-    public Task<IEnumerable<School>> GetAll();
+    public Task<List<School>> GetAll();
     public Task<School> Create(School school);
     public Task<School?> GetById(int id);
     public Task<School> Update(int schoolId, School school);

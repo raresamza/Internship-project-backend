@@ -136,7 +136,7 @@ public class SchoolRepository : ISchoolRepository
         }
     }
 
-    public async Task<IEnumerable<School>> GetAll()
+    public async Task<List<School>> GetAll()
     {
         return await _appDbContext.Schools
             .Include(s => s.Classrooms)
