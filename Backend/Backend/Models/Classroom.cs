@@ -18,7 +18,7 @@ public class Classroom
     [StringLength(100)]
     public required string Name { get; set; }
 
-    public School School { get; set; }
+    public UpdateSchoolDto School { get; set; }
 
     public int SchoolId { get; set; }
 

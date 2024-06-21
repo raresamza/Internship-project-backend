@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Students.Update;
 
-public record UpdateStudent(int studentId, Domain.Models.Student student) : IRequest<StudentDto>;
+public record UpdateStudent(int studentId, StudentUpdateDto student) : IRequest<StudentDto>;
 public class UpdateStudentHandler : IRequestHandler<UpdateStudent, StudentDto>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -35,7 +35,7 @@ public class UpdateStudentHandler : IRequestHandler<UpdateStudent, StudentDto>
             {
                 throw new StudentNotFoundException($"The student with id: {request.studentId} was not found");
             }
-
+            var studentUpdateDto= new StudentUpdateDto { Address=student.Address,Age=student.Age,Name=student.Name,ParentEmail=student.ParentEmail,ParentName=student.ParentName,PhoneNumber=student.PhoneNumber };
             var newStudent = await _unitOfWork.StudentRepository.UpdateStudent(request.student, student.ID);
             _logger.LogInformation($"Action in students at: {DateTime.Now.TimeOfDay}");
 

@@ -20,7 +20,7 @@ public class ClassroomDto
 
     public ICollection<StudentDto> Students { get; set; }
     //public ICollection<StudentDto> Students { get; set; }
-    [JsonIgnore]
+    //[JsonIgnore]
     public ICollection<TeacherClassroomDto> Teachers { get; set; }
     //public ICollection<TeacherClassroomDto> Teachers { get; set; }
 

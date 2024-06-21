@@ -8,6 +8,7 @@ using Backend.Exceptions.CourseException;
 using Backend.Exceptions.ClassroomException;
 using Backend.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Backend.Application.Classrooms.Response;
 
 namespace Backend.Infrastructure;
 public class ClassroomRepository : IClassroomRepository
@@ -167,17 +168,17 @@ public class ClassroomRepository : IClassroomRepository
             .FirstOrDefaultAsync(c => c.ID == id);
     }
 
-    public async Task<Classroom> UpdateClassroom(Classroom classroom, int id)
+    public async Task<Classroom> UpdateClassroom(ClassroomUpdateDto classroom, int id)
     {
         var oldClassroom = await _appDbContext.Classrooms.FirstOrDefaultAsync(s => s.ID == id);
         if (oldClassroom != null)
         {
 
-            oldClassroom.School = classroom.School;
-            oldClassroom.Teachers = classroom.Teachers;
-            oldClassroom.Students = classroom.Students;
-            oldClassroom.Catalogue = classroom.Catalogue;
-            oldClassroom.ClassroomCourses = classroom.ClassroomCourses;
+            //oldClassroom.School = classroom.School;
+            //oldClassroom.Teachers = classroom.Teachers;
+            //oldClassroom.Students = classroom.Students;
+            //oldClassroom.Catalogue = classroom.Catalogue;
+            //oldClassroom.ClassroomCourses = classroom.ClassroomCourses;
             oldClassroom.Name = classroom.Name;
             await _appDbContext.SaveChangesAsync();
             return oldClassroom;

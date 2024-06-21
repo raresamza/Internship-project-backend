@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Backend.Application.Absences.Queries;
 using Backend.Application.Abstractions;
 using Backend.Application.Students.Responses;
 using Backend.Exceptions.CourseException;
@@ -14,21 +13,21 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Catalogues.Actions;
 
-public record AddGpa(int studentId, int courseId) : IRequest<StudentDto>;
-public class AddGpaHandler : IRequestHandler<AddGpa, StudentDto>
+public record UndoGpa(int studentId, int courseId) : IRequest<StudentDto>;
+public class UndoGpaHandler : IRequestHandler<UndoGpa, StudentDto>
 {
 
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly ILogger<AddGpaHandler> _logger;
-    public AddGpaHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AddGpaHandler> logger)
+    private readonly ILogger<UndoGpaHandler> _logger;
+    public UndoGpaHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UndoGpaHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
     }
 
-    async Task<StudentDto> IRequestHandler<AddGpa, StudentDto>.Handle(AddGpa request, CancellationToken cancellationToken)
+    async Task<StudentDto> IRequestHandler<UndoGpa, StudentDto>.Handle(UndoGpa request, CancellationToken cancellationToken)
     {
 
         try
@@ -46,7 +45,7 @@ public class AddGpaHandler : IRequestHandler<AddGpa, StudentDto>
 
 
             await _unitOfWork.BeginTransactionAsync();
-            _unitOfWork.CatalogueRepository.AddGpa(course, student);
+            _unitOfWork.CatalogueRepository.UndoGpa(course, student);
             //await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Catalogue action executed at: {DateTime.Now.TimeOfDay}");

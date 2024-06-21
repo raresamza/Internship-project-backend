@@ -9,6 +9,7 @@ using Backend.Exceptions.Placeholders;
 using Backend.Exceptions.AbsenceException;
 using Backend.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Backend.Application.Teachers.Responses;
 
 namespace Backend.Infrastructure;
 public class TeacherRepository : ITeacherRepository
@@ -19,21 +20,39 @@ public class TeacherRepository : ITeacherRepository
     {
         _appDbContext = appDbContext;
     }
-    public void AssignToCourse(Course course, Teacher teacher)
+    public async Task<Teacher> AssignToCourse(Course course, Teacher teacher)
     {
         if (teacher.Subject == course.Subject)
         {
+            if (!_appDbContext.Courses.Local.Any(c => c.ID == course.ID))
+            {
+                _appDbContext.Courses.Attach(course);
+            }
+
+            if (!_appDbContext.Teachers.Local.Any(t => t.ID == teacher.ID))
+            {
+                _appDbContext.Teachers.Attach(teacher);
+            }
+
             course.Teacher = teacher;
+            course.TeacherId = teacher.ID;  // Ensure TeacherId is set
+
             teacher.TaughtCourse = course;
+            teacher.TaughtCourseId = course.ID;  // Ensure TaughtCourseId is set
+
+            Console.WriteLine("Before SaveChangesAsync");
+            await _appDbContext.SaveChangesAsync();
+            Console.WriteLine("After SaveChangesAsync");
+
+            return teacher;
         }
         else
         {
             TeacherException.LogError();
-            throw new TeacherSubjectMismatchException($"The subject that the teacher spelcializes in: {teacher.Subject} does not match with the course subject: {course.Subject}");
+            throw new TeacherSubjectMismatchException($"The subject that the teacher specializes in: {teacher.Subject} does not match with the course subject: {course.Subject}");
         }
-
-        _appDbContext.SaveChangesAsync();
     }
+
 
     //Db mock
     public async  Task<Teacher> Create(Teacher teacher)
@@ -64,6 +83,8 @@ public class TeacherRepository : ITeacherRepository
         Logger.LogMethodCall(nameof(GetById), true);
         return await _appDbContext.Teachers
             .Include(t =>t.TaughtCourse)
+            .ThenInclude(c => c.StudentCourses)
+            .ThenInclude(s => s.Student)
             .FirstOrDefaultAsync(t => t.ID == id);
     }
 
@@ -74,19 +95,15 @@ public class TeacherRepository : ITeacherRepository
     //    return lastId + 1;
     //}
 
-    public async Task<Teacher> UpdateTeacher(Teacher teacher, int id)
+    public async Task<Teacher> UpdateTeacher(TeacherUpdateDto teacher, int id)
     {
         var oldTeacher =await  _appDbContext.Teachers.FirstOrDefaultAsync(s => s.ID == id);
-        Console.WriteLine(teacher.TaughtCourse);
         if (oldTeacher != null)
         {
-            oldTeacher.TaughtCourse=teacher.TaughtCourse;
-            oldTeacher.TaughtCourseId =teacher.TaughtCourseId;
             oldTeacher.Name=teacher.Name;
             oldTeacher.Address=teacher.Address;
             oldTeacher.Age=teacher.Age;
             oldTeacher.Subject=teacher.Subject;
-            oldTeacher.TeacherClassrooms=teacher.TeacherClassrooms;
             //oldTeacher = teacher;
             await _appDbContext.SaveChangesAsync();
             return oldTeacher;

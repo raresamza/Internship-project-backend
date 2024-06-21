@@ -49,7 +49,7 @@ public class SchoolController : ControllerBase
         return Ok(await _mediator.Send(new CreateSchool(school.Name)));
     }
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutSchool(int id, School school)
+    public async Task<IActionResult> PutSchool(int id, UpdateSchoolDto school)
     {
         if (!ModelState.IsValid)
         {

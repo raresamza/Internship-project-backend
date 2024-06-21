@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Courses.Update;
 
-public record UpdateCourse(int courseId, Course course) : IRequest<CourseDto>;
+public record UpdateCourse(int courseId, CourseUpdateDto course) : IRequest<CourseDto>;
 public class UpdateCourseHandler : IRequestHandler<UpdateCourse, CourseDto>
 {
 

@@ -51,7 +51,7 @@ public class AddAbsenceHandler : IRequestHandler<AddAbsence, StudentDto>
 
             await _unitOfWork.BeginTransactionAsync();//move
             _unitOfWork.StudentRepository.AddAbsence(student, absence);
-            await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
+            //await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Action in students at: {DateTime.Now.TimeOfDay}");
             //return StudentDto.FromStudent(student);

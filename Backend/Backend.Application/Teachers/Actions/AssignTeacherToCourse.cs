@@ -33,36 +33,31 @@ public class AssignTeacherToCourseHandler : IRequestHandler<AssignTeacherToCours
 
     public async Task<TeacherDto> Handle(AssignTeacherToCourse request, CancellationToken cancellationToken)
     {
-
         try
         {
             var teacher = await _unitOfWork.TeacherRepository.GetById(request.teacherId);
             var course = await _unitOfWork.CourseRepository.GetById(request.courseId);
             if (course != null && teacher != null)
             {
-
                 await _unitOfWork.BeginTransactionAsync();
-                teacher.TaughtCourse = course;
-                teacher.TaughtCourseId = course.ID;
-                await _unitOfWork.TeacherRepository.UpdateTeacher(teacher, teacher.ID);
-                course.Teacher = teacher;
-                course.TeacherId = teacher.ID;
-                await _unitOfWork.CourseRepository.UpdateCourse(course, course.ID);
+
+                await _unitOfWork.TeacherRepository.AssignToCourse(course, teacher);
+                _logger.LogInformation($"Action in teacher at: {DateTime.Now.TimeOfDay}");
+
+                // Commit the transaction to save changes
                 await _unitOfWork.CommitTransactionAsync();
-                _logger.LogInformation($"Action in teacehr at: {DateTime.Now.TimeOfDay}");
-                //return TeacherDto.FromTeacher(teacher);
+
                 return _mapper.Map<TeacherDto>(teacher);
             }
-            throw new TeacherNotFoundException("S");
+            throw new TeacherNotFoundException("Teacher or course not found");
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error in teacehr at: {DateTime.Now.TimeOfDay}");
+            _logger.LogError($"Error in teacher at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
             await _unitOfWork.RollbackTransactionAsync();
             throw;
         }
-
-
     }
+
 }

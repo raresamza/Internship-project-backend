@@ -54,7 +54,7 @@ public class MotivateAbsenceHandler : IRequestHandler<MotivateAbsence, StudentDt
 
             await _unitOfWork.BeginTransactionAsync();
             _unitOfWork.StudentRepository.MotivateAbsence(absence.Date, course, student);
-            await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
+            //await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Action in students at: {DateTime.Now.TimeOfDay}");
 

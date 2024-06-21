@@ -19,7 +19,7 @@ public class SchoolRepository : ISchoolRepository
         _appDbContext = appDbContext;
     }
     //Db mock
-    public void AddClassroom(Classroom classroom, School school)
+    public void AddClassroom(Classroom classroom, UpdateSchoolDto school)
     {
         if (classroom == null)
         {
@@ -40,7 +40,7 @@ public class SchoolRepository : ISchoolRepository
     }
 
 
-    public void RemoveClassroom(Classroom classroom, School school)
+    public void RemoveClassroom(Classroom classroom, UpdateSchoolDto school)
     {
 
         Console.WriteLine(classroom.ToString());
@@ -72,7 +72,7 @@ public class SchoolRepository : ISchoolRepository
 
 
 
-    public async Task<School?> GetById(int id)
+    public async Task<UpdateSchoolDto?> GetById(int id)
     {
         await Logger.LogMethodCall(nameof(GetById), true);
         return await _appDbContext.Schools
@@ -92,7 +92,7 @@ public class SchoolRepository : ISchoolRepository
             .FirstOrDefaultAsync(s => s.ID == id);
     }
 
-    public async Task<School> Create(School school)
+    public async Task<UpdateSchoolDto> Create(UpdateSchoolDto school)
     {
         _appDbContext.Schools.Add(school);
         await _appDbContext.SaveChangesAsync();
@@ -114,14 +114,14 @@ public class SchoolRepository : ISchoolRepository
     //    Logger.LogMethodCall(nameof(UpdateSchool), true);
     //}
 
-    public async Task Delete(School school)
+    public async Task Delete(UpdateSchoolDto school)
     {
         _appDbContext.Schools.Remove(school);
         await _appDbContext.SaveChangesAsync();
         await Logger.LogMethodCall(nameof(Delete), true);
     }
 
-    public async Task<School> Update(int schoolId, School school)
+    public async Task<UpdateSchoolDto> Update(int schoolId, UpdateSchoolDto school)
     {
         var oldSchool = await _appDbContext.Schools.FirstOrDefaultAsync(s => s.ID == schoolId);
         if (oldSchool != null)
@@ -136,7 +136,7 @@ public class SchoolRepository : ISchoolRepository
         }
     }
 
-    public async Task<List<School>> GetAll()
+    public async Task<List<UpdateSchoolDto>> GetAll()
     {
         return await _appDbContext.Schools
             .Include(s => s.Classrooms)

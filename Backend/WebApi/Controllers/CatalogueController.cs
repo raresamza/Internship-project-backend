@@ -3,6 +3,7 @@ using Backend.Application.Absences.Delete;
 using Backend.Application.Absences.Queries;
 using Backend.Application.Absences.Response;
 using Backend.Application.Absences.Update;
+using Backend.Application.Catalogues.Actions;
 using Backend.Application.Catalogues.Create;
 using Backend.Application.Catalogues.Delete;
 using Backend.Application.Catalogues.Queries;
@@ -53,7 +54,7 @@ public class CatalogueController : ControllerBase
         return Ok(await _mediator.Send(new CreateCatalogue(catalogue.ClassroomId)));
     }
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutCatalogue(int id, Catalogue catalogue)
+    public async Task<IActionResult> PutCatalogue(int id, CatalogueUpdateDto catalogue)
     {
         if (!ModelState.IsValid)
         {
@@ -61,6 +62,28 @@ public class CatalogueController : ControllerBase
         }
 
         return Ok(await _mediator.Send(new UpdateCatalogue(id, catalogue)));
+    }
+
+    [HttpPut("addGpa")]
+    public async Task<IActionResult> AddGpa(int studentId, int courseId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        return Ok(await _mediator.Send(new AddGpa(studentId, courseId)));
+    }
+
+    [HttpPut("undoGpa")]
+    public async Task<IActionResult> UndoGpa(int studentId, int courseId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        return Ok(await _mediator.Send(new UndoGpa(studentId, courseId)));
     }
 
     [HttpDelete("{id}")]

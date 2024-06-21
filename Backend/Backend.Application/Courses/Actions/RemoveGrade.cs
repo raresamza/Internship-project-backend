@@ -46,7 +46,7 @@ public class RemoveGradeHandler : IRequestHandler<RemoveGrade, StudentDto>
 
             await _unitOfWork.BeginTransactionAsync();
             _unitOfWork.StudentRepository.RemoveGrade(student, course, request.grade);
-            await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
+            //await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             //_courseRepository.UpdateCourse(course, course.ID);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Action in course at: {DateTime.Now.TimeOfDay}");

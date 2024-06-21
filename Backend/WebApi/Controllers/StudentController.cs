@@ -1,4 +1,5 @@
-﻿using Backend.Application.Students.Create;
+﻿using Backend.Application.Students.Actions;
+using Backend.Application.Students.Create;
 using Backend.Application.Students.Delete;
 using Backend.Application.Students.Queries;
 using Backend.Application.Students.Responses;
@@ -13,7 +14,6 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize]
 public class StudentController : ControllerBase
 {
 
@@ -25,7 +25,6 @@ public class StudentController : ControllerBase
     }
 
     [HttpGet]
-    //[Authorize(Roles ="Student, Teacher")]
     public async Task<ActionResult> GetAllStudents(int pageNumber = 1, int pageSize = 10)
     {
         var query = new GetStudents(pageNumber, pageSize);
@@ -33,8 +32,33 @@ public class StudentController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("query")]
+    public async Task<IActionResult> GetStudents(int page = 1, int pageSize = 10, string query = null)
+    {
+        if (!string.IsNullOrEmpty(query))
+        {
+            var queryCommand = new GetStudentsByName(query,page,pageSize);
+            var result = await _mediator.Send(queryCommand);
+            return Ok(new { students = result });
+        }
+        else
+        {
+            var queryCommand = new GetStudentsWithQuery(query, page, pageSize);
+            var students = await _mediator.Send(queryCommand);
+            return Ok(new { students});
+        }
+    }
+
+
+    [HttpGet("all")]
+    public async Task<ActionResult> GetAllStudentsNotPaginated()
+    {
+        var query = new GetAllStudents();
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
     [HttpGet("{id}")]
-    //[Authorize(Roles = "Teacher")]
     public async Task<ActionResult> GetStudent(int id)
     {
         return Ok(await _mediator.Send(new GetStudentById(id)));
@@ -49,8 +73,24 @@ public class StudentController : ControllerBase
         //CreatedAtAction for all posts
         return Ok(await _mediator.Send(new CreateStudent(student.ParentEmail,student.ParentName,student.Age,student.PhoneNumber,student.Name,student.Address)));
     }
+    [HttpPost("absence")]
+    public async Task<IActionResult> AddAbsence(int studentId,int absenceId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        return Ok(await _mediator.Send(new AddAbsence(studentId,absenceId)));
+    }
+
+    [HttpDelete("removeAbsence")]
+    public async Task<IActionResult> DeleteStudent(int studentId,int absenceId,int courseId)
+    {
+        return Ok(await _mediator.Send(new MotivateAbsence(studentId,absenceId,courseId)));
+    }
+
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutStudent(int id,Student student)
+    public async Task<IActionResult> PutStudent(int id,StudentUpdateDto student)
     {
         if(!ModelState.IsValid )
         {

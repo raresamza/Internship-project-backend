@@ -18,61 +18,81 @@ public class AccountController : ControllerBase
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly IdentityService _identityService;
     private readonly AppDbContext _ctx;
-    private readonly UserManager<IdentityUser> _userManager;    
+    private readonly UserManager<IdentityUser> _userManager;
 
     public AccountController(RoleManager<IdentityRole> roleManager, SignInManager<IdentityUser> signInManager, IdentityService identityService, AppDbContext context, UserManager<IdentityUser> userManager)
     {
-        _ctx= context;
-        _roleManager= roleManager;
+        _ctx = context;
+        _roleManager = roleManager;
         _roleManager = roleManager;
         _signInManager = signInManager;
         _identityService = identityService;
-        _userManager= userManager;
+        _userManager = userManager;
     }
 
-    [HttpPost]
-    [Route("register")]
-    public async Task<IActionResult> Register(RegisterUser register)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterUser register)
     {
-        var identity = new IdentityUser { Email = register.Email, UserName = register.Email };
-        var createdIdentity = await _userManager.CreateAsync(identity, register.Password);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var identity = new IdentityUser
+        {
+            Email = register.Email,
+            UserName = register.Email,
+            PhoneNumber = register.PhoneNumber
+        };
+
+        var createdIdentityResult = await _userManager.CreateAsync(identity, register.Password);
+        if (!createdIdentityResult.Succeeded)
+        {
+            return BadRequest(createdIdentityResult.Errors);
+        }
+
         var newClaims = new List<Claim>
         {
             new("FirstName", register.FirstName),
-            new("LastName", register.LastName),
+            new("LastName", register.LastName)
         };
-        await _userManager.AddClaimsAsync(identity, newClaims);
 
-        if (register.Role == Role.Teacher)
+        var claimsResult = await _userManager.AddClaimsAsync(identity, newClaims);
+        if (!claimsResult.Succeeded)
         {
-            var role = await _roleManager.FindByNameAsync("Teacher");
-            if (role == null)
-            {
-                role = new IdentityRole("Teacher");
-                await _roleManager.CreateAsync(role);
-            }
-            await _userManager.AddToRoleAsync(identity, "Teacher");
-
-            newClaims.Add(new Claim(ClaimTypes.Role, "Teacher"));
+            await _userManager.DeleteAsync(identity); // Rollback user creation
+            return BadRequest(claimsResult.Errors);
         }
-        else
+
+        IdentityRole role = null;
+        string roleName = register.Role == Role.Teacher ? "Teacher" : "Student";
+
+        role = await _roleManager.FindByNameAsync(roleName);
+        if (role == null)
         {
-            var role = await _roleManager.FindByNameAsync("Student");
-            if (role == null)
+            role = new IdentityRole(roleName);
+            var roleResult = await _roleManager.CreateAsync(role);
+            if (!roleResult.Succeeded)
             {
-                role = new IdentityRole("Student");
-                await _roleManager.CreateAsync(role);
+                await _userManager.DeleteAsync(identity); // Rollback user creation
+                return BadRequest(roleResult.Errors);
             }
-            await _userManager.AddToRoleAsync(identity, "Student");
-
-            newClaims.Add(new Claim(ClaimTypes.Role, "Student"));
         }
+
+        var roleAssignResult = await _userManager.AddToRoleAsync(identity, roleName);
+        if (!roleAssignResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(identity); // Rollback user creation
+            return BadRequest(roleAssignResult.Errors);
+        }
+
+        newClaims.Add(new Claim(ClaimTypes.Role, roleName));
 
         var claimsIdentity = new ClaimsIdentity(new Claim[]
         {
             new(JwtRegisteredClaimNames.Sub, identity.Email ?? throw new InvalidOperationException()),
             new(JwtRegisteredClaimNames.Email, identity.Email ?? throw new InvalidOperationException()),
-            new("UserId", identity.Id ?? throw new InvalidOperationException()),
+            new("UserId", identity.Id ?? throw new InvalidOperationException())
         });
 
         claimsIdentity.AddClaims(newClaims);
@@ -87,13 +107,13 @@ public class AccountController : ControllerBase
     [Route("login")]
     public async Task<IActionResult> Login(LoginUser login)
     {
-        var user=await _userManager.FindByNameAsync(login.Email);
+        var user = await _userManager.FindByNameAsync(login.Email);
         if (user is null) return BadRequest();
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, login.Password, false);
         if (!result.Succeeded) return BadRequest("Coudln't sign in");
 
-        var roles= await _userManager.GetRolesAsync(user);
+        var roles = await _userManager.GetRolesAsync(user);
 
         var claims = await _userManager.GetClaimsAsync(user);
 
@@ -102,10 +122,11 @@ public class AccountController : ControllerBase
             new(JwtRegisteredClaimNames.Sub, user.Email ?? throw new InvalidOperationException()),
             new(JwtRegisteredClaimNames.Email, user.Email ?? throw new InvalidOperationException()),
             new("UserId", user.Id ?? throw new InvalidOperationException()),
+            //check to see if entities can be retireved by full name (first+last)
         });
 
         claimsIdentity.AddClaims(claims);
-        foreach(var role in roles)
+        foreach (var role in roles)
         {
             claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
         }
@@ -123,7 +144,7 @@ public class AccountController : ControllerBase
         Student
     }
 
-    public record RegisterUser (Role Role,string Email,string Password,string LastName,string FirstName,int Age,int PhoneNumber,string Address, string ParentEmail,string ParentName);
-    public record AuthenticationResult (string Token);
+    public record RegisterUser(Role Role, string Email, string Password, string LastName, string FirstName, int Age, string PhoneNumber, string Address, string ParentEmail, string ParentName);
+    public record AuthenticationResult(string Token);
     public record LoginUser(string Email, string Password);
 }

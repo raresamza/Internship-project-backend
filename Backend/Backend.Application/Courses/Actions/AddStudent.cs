@@ -69,7 +69,7 @@ public class AddStudentHandler : IRequestHandler<AddStudent, CourseDto>
             });
             //_courseRepository.UpdateCourse(dbCourse, dbCourse.ID);
             await _unitOfWork.BeginTransactionAsync();
-            await _unitOfWork.StudentRepository.UpdateStudent(dbStudent, dbStudent.ID);
+            //await _unitOfWork.StudentRepository.UpdateStudent(dbStudent, dbStudent.ID);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Action in course at: {DateTime.Now.TimeOfDay}");
             return CourseDto.FromCourse(dbCourse);

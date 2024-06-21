@@ -1,4 +1,5 @@
-﻿using Backend.Domain.Models;
+﻿using Backend.Application.Catalogues.Response;
+using Backend.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,8 @@ public interface ICatalogueRepository
     public Task Delete(Catalogue catalogue);
 
     public void AddGpa(Course course, Student student);
-    public Task<Catalogue> UpdateCatalogue(Catalogue catalogue, int id);
+    public void UndoGpa(Course course, Student student);
+    public Task<Catalogue> UpdateCatalogue(CatalogueUpdateDto catalogue, int id);
 
     public double ComputeGpa(Student student,Course course);
 }

@@ -5,6 +5,7 @@ using Backend.Infrastructure.Utils;
 using Backend.Exceptions.CourseException;
 using Backend.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Backend.Application.Courses.Response;
 
 
 namespace Backend.Infrastructure;
@@ -50,19 +51,19 @@ public class CourseRepository : ICourseRepository
                        .FirstOrDefaultAsync(c => c.ID == id);
     }
 
-    public async Task<Course> UpdateCourse(Course course, int id)
+    public async Task<Course> UpdateCourse(CourseUpdateDto course, int id)
     {
-        var courseToUpdate = await _appDbContext.Courses.FirstOrDefaultAsync(c => c.ID == course.ID);
+        var courseToUpdate = await _appDbContext.Courses.FirstOrDefaultAsync(c => c.ID == id);
 
         if (courseToUpdate == null)
         {
-            throw new NullCourseException($"Course with ID: {course.ID} not found");
+            throw new NullCourseException($"Course with ID: {courseToUpdate.ID} not found");
         }
 
         courseToUpdate.Name = course.Name;
         courseToUpdate.Subject = course.Subject;
-        courseToUpdate.Teacher = course.Teacher;
-        courseToUpdate.TeacherId= course.TeacherId;
+        //courseToUpdate.Teacher = course.Teacher;
+        //courseToUpdate.TeacherId= course.TeacherId;
 
         await _appDbContext.SaveChangesAsync();
 

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Teachers.Update;
 
-public record UpdateTeacher(int teacherId, Teacher teacher) : IRequest<TeacherDto>;
+public record UpdateTeacher(int teacherId, TeacherUpdateDto teacher) : IRequest<TeacherDto>;
 public class UpdateTeacherHandler : IRequestHandler<UpdateTeacher, TeacherDto>
 {
 

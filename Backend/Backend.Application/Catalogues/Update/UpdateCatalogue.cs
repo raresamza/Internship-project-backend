@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Catalogues.Update;
 
-public record UpdateCatalogue(int catalogueId,Catalogue catalogue) : IRequest<CatalogueDto>;
+public record UpdateCatalogue(int catalogueId, CatalogueUpdateDto catalogue) : IRequest<CatalogueDto>;
 
 public class UpdateCatalogueHandler : IRequestHandler<UpdateCatalogue, CatalogueDto>
 {

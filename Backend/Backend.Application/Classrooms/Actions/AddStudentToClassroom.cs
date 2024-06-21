@@ -46,8 +46,8 @@ public class AddStudentToClassroomHandler : IRequestHandler<AddStudentToClassroo
 
             await _unitOfWork.BeginTransactionAsync();
             _unitOfWork.ClassroomRepository.AddStudent(student, classroom);
-            await _unitOfWork.ClassroomRepository.UpdateClassroom(classroom, classroom.ID);
-            await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
+            //await _unitOfWork.ClassroomRepository.UpdateClassroom(classroom, classroom.ID);
+            //await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Action in classroom at: {DateTime.Now.TimeOfDay}");
 

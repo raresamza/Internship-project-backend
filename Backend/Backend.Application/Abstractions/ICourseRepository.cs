@@ -1,4 +1,5 @@
-﻿using Backend.Domain.Models;
+﻿using Backend.Application.Courses.Response;
+using Backend.Domain.Models;
 
 
 namespace Backend.Application.Abstractions;
@@ -11,7 +12,7 @@ public interface ICourseRepository
     public Task<Course?> GetById(int id);
     public Task<List<Course>> GetAll();
 
-    public Task<Course> UpdateCourse(Course course, int id);
+    public Task<Course> UpdateCourse(CourseUpdateDto course, int id);
 
     public Task DeleteCourse(Course course);
 

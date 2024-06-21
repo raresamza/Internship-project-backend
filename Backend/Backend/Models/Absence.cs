@@ -9,7 +9,7 @@ namespace Backend.Domain.Models;
 public class Absence
 {
 
-    public DateTime Date { get; set; } = DateTime.ParseExact(DateTime.Now.ToString("dd/MM/yyyy"), "dd/MM/yyyy", null);
+    public DateTime Date { get; set; }
 
     public int? CourseId { get; set; }
     public Course? Course { get; set; }
@@ -29,8 +29,9 @@ public class Absence
     //{
     //}
 
-    public Absence()
+    public Absence(DateTime date)
     {
+        Date = date;
     }
 
     public Absence GetAbsenceByDate(DateTime date)

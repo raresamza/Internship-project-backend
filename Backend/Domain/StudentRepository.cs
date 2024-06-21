@@ -8,6 +8,7 @@ using Backend.Infrastructure.Utils;
 using Backend.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Backend.Application.Students.Update;
+using Backend.Application.Students.Responses;
 
 namespace Backend.Infrastructure;
 
@@ -67,23 +68,17 @@ public class StudentRepository : IStudentRepository
         //_students.Remove(student);
         Logger.LogMethodCall(nameof(Delete), true);
     }
-
-    public async Task<Student> UpdateStudent(Student student, int id)
+    public async Task<Student> UpdateStudent(StudentUpdateDto student, int id)
     {
         var existingStudent =await _appDbContext.Students.FindAsync(id);
 
         if (existingStudent != null)
         {
             //existingStudent.Assigned = student.Assigned;
-            existingStudent.Classroom = student.Classroom;
             existingStudent.PhoneNumber = student.PhoneNumber;
             existingStudent.Address= student.Address;
-            existingStudent.Absences = student.Absences;
-            existingStudent.StudentCoruses = student.StudentCoruses;
             existingStudent.ParentEmail = student.ParentEmail;
             existingStudent.ParentName = student.ParentName;
-            existingStudent.Grades = student.Grades;
-            existingStudent.GPAs = student.GPAs;
 
             _appDbContext.SaveChanges();
 
@@ -152,7 +147,7 @@ public class StudentRepository : IStudentRepository
         course.StudentCourses.Add(studentCourse);
         student.GPAs.Add(studentGpa);
         student.Grades.Add(studentGrade);
-
+        course.Teacher.TaughtCourse.StudentCourses.Add(studentCourse);
         
         _appDbContext.StudentCourses.Add(studentCourse);
         _appDbContext.StudentGPAs.Add(studentGpa);
@@ -163,19 +158,45 @@ public class StudentRepository : IStudentRepository
 
     public void AddAbsence(Student student, Absence absence)
     {
+        // Ensure absence and course are not null
+        if (absence == null)    
+        {
+            throw new InvalidAbsenceException("Absence cannot be null.");
+        }
 
+        if (absence.Course == null)
+        {
+            throw new InvalidAbsenceException("The course in the absence cannot be null.");
+        }
 
-        if (!absence.Course.StudentCourses.Any(sc => sc.Student.ID == student.ID))
+        // Ensure StudentCourses collection is not null
+        if (absence.Course.StudentCourses == null)
+        {
+            throw new InvalidAbsenceException($"The student courses for the course \"{absence.Course.Name}\" cannot be null.");
+        }
+
+        // Check if any student in the course matches the given student ID
+        if (!absence.Course.StudentCourses.Any(sc => sc.Student != null && sc.Student.ID == student.ID))
         {
             AbsenceException.LogError();
             Logger.LogMethodCall(nameof(AddAbsence), false);
-            throw new InvalidAbsenceException($"Cannot mark student {student.Name} as absent in \"{absence.Course.Name}\" because student is not enrolled in it");
+            throw new InvalidAbsenceException($"Cannot mark student {student.Name} as absent in \"{absence.Course.Name}\" because the student is not enrolled in it.");
         }
-        else if (student.Absences.Any(d => d.Date == absence.Date && d.Course.Subject == absence.Course.Subject))
+
+        // Ensure the student's absences collection is not null
+        if (student.Absences == null)
+        {
+            throw new InvalidAbsenceException("The student's absences list cannot be null.");
+        }
+
+        // Check for duplicate absence
+        if (student.Absences.Any(d => d.Date == absence.Date && d.Course != null && d.Course.Subject == absence.Course.Subject))
         {
             Logger.LogMethodCall(nameof(AddAbsence), false);
-            throw new DuplicateAbsenceException($"Cannot mark student {student.Name} as absent twice in the same day ({absence.Date.ToString("dd/MM/yyyy")}) for the same course ({absence.Course.Name})");
+            throw new DuplicateAbsenceException($"Cannot mark student {student.Name} as absent twice on the same day ({absence.Date.ToString("dd/MM/yyyy")}) for the same course ({absence.Course.Name}).");
         }
+
+        // Log the method call and add the absence
         Logger.LogMethodCall(nameof(AddAbsence), true);
         student.Absences.Add(absence);
         _appDbContext.SaveChanges();
@@ -250,4 +271,41 @@ public class StudentRepository : IStudentRepository
              .Include(s => s.GPAs)
              .ToListAsync();
     }
+
+
+    public async Task<List<Student>> GetByNames(string name)
+    {
+        return await _appDbContext.Students
+        .Where(s => s.Name.ToLower().Contains(name.ToLower()))
+        .ToListAsync();
+    }
+
+    public async Task<List<Student>>GetWithQuery(string query, int page, int pageSize)
+    {
+        IQueryable<Student> studentsQuery = _appDbContext.Students;
+
+        if (!string.IsNullOrEmpty(query))
+        {
+            studentsQuery = studentsQuery.Where(s => s.Name.ToLower().Contains(query.ToLower()));
+        }
+
+        return await studentsQuery
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<int> GetTotalCount(string query)
+    {
+        IQueryable<Student> studentsQuery = _appDbContext.Students;
+
+        if (!string.IsNullOrEmpty(query))
+        {
+            studentsQuery = studentsQuery.Where(s => s.Name.ToLower().Contains(query.ToLower()));
+        }
+
+        return await studentsQuery.CountAsync();
+    }
+
+
 }

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Absences.Response;
 
-public class AbsenceCreationDto
+public class AbsenceUpdateDto
 {
-    public required int CourseId { get; set; }
-    public required DateTime Date { get; set; }
+
+    public DateTime Date { get; set; }
 }

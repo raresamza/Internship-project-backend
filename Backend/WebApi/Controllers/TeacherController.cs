@@ -1,4 +1,5 @@
 ﻿using Backend.Application.Students.Queries;
+using Backend.Application.Teachers.Actions;
 using Backend.Application.Teachers.Create;
 using Backend.Application.Teachers.Delete;
 using Backend.Application.Teachers.Queries;
@@ -47,7 +48,7 @@ public class TeacherController : ControllerBase
         return Ok(await _mediator.Send(new CreateTeacher(teacher.Age,teacher.PhoneNumber,teacher.Name,teacher.Address,teacher.Subject)));
     }
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTeacher(int id, Teacher teacher)
+    public async Task<IActionResult> PutTeacher(int id, TeacherUpdateDto teacher)
     {
         if (!ModelState.IsValid)
         {
@@ -55,6 +56,17 @@ public class TeacherController : ControllerBase
         }
 
         return Ok(await _mediator.Send(new UpdateTeacher(id,teacher)));
+    }
+
+    [HttpPut("assign")]
+    public async Task<IActionResult> AssignTeacherToCourse(int courseId,int teacherId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        return Ok(await _mediator.Send(new AssignTeacherToCourse(courseId,teacherId)));
     }
 
     [HttpDelete("{id}")]

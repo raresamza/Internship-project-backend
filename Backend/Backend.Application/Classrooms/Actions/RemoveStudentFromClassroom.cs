@@ -48,7 +48,7 @@ public class RemoveStudentFromClassroomHandler : IRequestHandler<RemoveStudentFr
 
             await _unitOfWork.BeginTransactionAsync();
             _unitOfWork.ClassroomRepository.RemoveStudent(student, classroom);
-            await _unitOfWork.ClassroomRepository.UpdateClassroom(classroom, classroom.ID);
+            //await _unitOfWork.ClassroomRepository.UpdateClassroom(classroom, classroom.ID);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Action in classroom at: {DateTime.Now.TimeOfDay}");
 

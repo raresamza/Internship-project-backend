@@ -17,7 +17,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwagger();
-builder.Services.AddScoped<IEmailSenderService,EmailService>();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<IEmailSenderService, EmailService>();
 
 builder.Services.AddRepositories();
 builder.Services.AddMediatR();
@@ -26,31 +27,33 @@ builder.Services.AddDbContext();
 builder.Services.AddSingleton<IdentityService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:5173") // Allow the frontend's origin
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseTiming();
 
-//app.Use(async(ctx, next) =>
-//{
-//    var start = DateTime.UtcNow;
-//    await next.Invoke(ctx);
-//    app.Logger.LogInformation($"Request: {ctx.Request.Path}: {(DateTime.UtcNow-start).TotalMilliseconds}(ms)");
-//});
-
-//app.Use((HttpContext ctx, Func<Task> next) =>
-//{
-//    app.Logger.LogInformation("Terminating the Request");
-//    return Task.CompletedTask;
-//});
-
 app.UseHttpsRedirection();
+
+// Enable CORS before authentication and authorization
+app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();

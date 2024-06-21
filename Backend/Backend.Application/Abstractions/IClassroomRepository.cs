@@ -1,4 +1,5 @@
-﻿using Backend.Domain.Models;
+﻿using Backend.Application.Classrooms.Response;
+using Backend.Domain.Models;
 
 namespace Backend.Application.Abstractions;
 public interface IClassroomRepository
@@ -9,7 +10,7 @@ public interface IClassroomRepository
     //int GetLastId();
     public Task<Classroom?> GetById(int id);
     public Task Delete(Classroom classroom);
-    public Task<Classroom> UpdateClassroom(Classroom classroom, int id);
+    public Task<Classroom> UpdateClassroom(ClassroomUpdateDto classroom, int id);
     public void AddTeacher(Teacher teacher, Classroom classroom);
     public void RemoveStudent(Student student, Classroom classroom);
     public void RemoveTeacher(Teacher teacher, Classroom classroom);

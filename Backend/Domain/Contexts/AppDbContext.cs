@@ -18,7 +18,7 @@ public class AppDbContext : IdentityDbContext
     public DbSet<Teacher> Teachers { get; set; } = default!;
     public DbSet<Course> Courses { get; set; } = default!;
     public DbSet<Classroom> Classrooms { get; set; } = default!;
-    public DbSet<School> Schools { get; set; } = default!;
+    public DbSet<UpdateSchoolDto> Schools { get; set; } = default!;
     public DbSet<Catalogue> Catalogues { get; set; } = default!;
     public DbSet<Absence> Absences { get; set; } = default!;
     public DbSet<StudentGPA> StudentGPAs { get; set; } = default!;

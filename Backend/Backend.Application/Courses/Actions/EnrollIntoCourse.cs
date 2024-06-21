@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Backend.Application.Abstractions;
 using Backend.Application.Students.Responses;
+using Backend.Domain.Models;
 using Backend.Exceptions.CourseException;
+using Backend.Exceptions.Placeholders;
 using Backend.Exceptions.StudentException;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -43,10 +45,14 @@ internal class EntollIntoCourseHandler : IRequestHandler<EnrollIntoCourse, Stude
             {
                 throw new NullCourseException($"Could not found course with id: {request.courseId}");
             }
+            if (course.StudentCourses.Any(sc => sc.Student == student))
+            {
+                throw new StudentException($"Student {student?.Name} is already enrolled into this course");
+            }
 
             await _unitOfWork.BeginTransactionAsync();
             _unitOfWork.StudentRepository.EnrollIntoCourse(student, course);
-            await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
+            //await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             //_courseRepository.UpdateCourse(course,course.ID);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Action in course at: {DateTime.Now.TimeOfDay}");

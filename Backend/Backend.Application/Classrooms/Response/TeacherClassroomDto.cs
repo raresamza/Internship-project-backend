@@ -15,6 +15,8 @@ public class TeacherClassroomDto
     [JsonIgnore]
     public TeacherDto? Teacher { get; set; }
     public String? TeacherName { get; set; }
+
+    //public Subject Subject { get; set; }
     public int ClassroomId { get; set; }
     //[JsonIgnore]
     //public ClassroomDto Classroom { get; set; }
@@ -27,7 +29,8 @@ public class TeacherClassroomDto
             //Classroom = ClassroomDto.FromClassroom(teacherClassroom.Classroom),
             Teacher = TeacherDto.FromTeacher(teacherClassroom.Teacher),
             TeacherId = teacherClassroom.TeacherId,
-            ClassroomId = teacherClassroom.ClassroomId
+            ClassroomId = teacherClassroom.ClassroomId,
+            //Subject = teacherClassroom.Subject,
         };
     }
 }

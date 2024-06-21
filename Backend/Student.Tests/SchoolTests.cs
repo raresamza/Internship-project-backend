@@ -22,7 +22,7 @@ public class SchoolTests
     public void SchoolAddClassroomAddsToClassroomsCollection()
     {
         // Arrange
-        var school = new School() { Name = "" };
+        var school = new UpdateSchoolDto() { Name = "" };
         var classroom = new Classroom() { Name = "" };
 
         // Act
@@ -36,7 +36,7 @@ public class SchoolTests
     [Fact]
     public void SchoolRemoveClassroomRemovesFromClassroomsCollection()
     {
-        var school = new School() { Name = "" };
+        var school = new UpdateSchoolDto() { Name = "" };
         var classroom1 = new Classroom() { Name = "" };
         var classroom2 = new Classroom() { Name = "" };
         school.Classrooms.Add(classroom1);
@@ -57,7 +57,7 @@ public class SchoolTests
     {
         string name = "Colegiul National Decebal Deva";
 
-        var school = new School() { Name = name };
+        var school = new UpdateSchoolDto() { Name = name };
 
         Assert.Equal(name, school.Name);
     }
@@ -65,7 +65,7 @@ public class SchoolTests
     [Fact]
     public void SchoolDefaultConstructorSetsNameToEmptyString()
     {
-        var school = new School() { Name = "" };
+        var school = new UpdateSchoolDto() { Name = "" };
 
         Assert.Equal("", school.Name);
     }
@@ -73,7 +73,7 @@ public class SchoolTests
     [Fact]
     public void SchoolDefaultConstructorSetsClassroomsToEmptyList()
     {
-        var school = new School() { Name = "" };
+        var school = new UpdateSchoolDto() { Name = "" };
 
         Assert.Empty(school.Classrooms);
     }
@@ -83,11 +83,11 @@ public class SchoolTests
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>();
         var classroom = new Classroom() { Name = "12B" };
-        var school = new School() { Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto() { Name = "Colegiul National Decebal Deva" };
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
         unitOfWorkMock.Setup(uow => uow.SchoolRepository.AddClassroom(classroom, school))
-                      .Callback((Classroom c, School s) => s.Classrooms.Add(c));
+                      .Callback((Classroom c, UpdateSchoolDto s) => s.Classrooms.Add(c));
 
         unitOfWorkMock.Object.SchoolRepository.AddClassroom(classroom, school);
 
@@ -98,7 +98,7 @@ public class SchoolTests
     public void AddClassroomNullClassroomThrowsException()
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>();
-        var school = new School() { Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto() { Name = "Colegiul National Decebal Deva" };
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
         unitOfWorkMock.Setup(uow => uow.SchoolRepository.AddClassroom(It.IsAny<Classroom>(), school))
@@ -112,7 +112,7 @@ public class SchoolTests
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>();
         var classroom = new Classroom() { Name = "12B" };
-        var school = new School() { Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto() { Name = "Colegiul National Decebal Deva" };
         school.Classrooms.Add(classroom);
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
@@ -127,12 +127,12 @@ public class SchoolTests
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>();
         var classroom = new Classroom() { Name = "12B" };
-        var school = new School() { Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto() { Name = "Colegiul National Decebal Deva" };
         school.Classrooms.Add(classroom);
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
         unitOfWorkMock.Setup(uow => uow.SchoolRepository.RemoveClassroom(classroom, school))
-                      .Callback((Classroom c, School s) => s.Classrooms.Remove(c));
+                      .Callback((Classroom c, UpdateSchoolDto s) => s.Classrooms.Remove(c));
 
         unitOfWorkMock.Object.SchoolRepository.RemoveClassroom(classroom, school);
 
@@ -143,7 +143,7 @@ public class SchoolTests
     public void RemoveClassroomNullClassroomThrowsException()
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>();
-        var school = new School() { Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto() { Name = "Colegiul National Decebal Deva" };
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
         unitOfWorkMock.Setup(uow => uow.SchoolRepository.RemoveClassroom(It.IsAny<Classroom>(), school))
@@ -157,7 +157,7 @@ public class SchoolTests
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>();
         var classroom = new Classroom() { Name = "12B" };
-        var school = new School() { Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto() { Name = "Colegiul National Decebal Deva" };
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
         unitOfWorkMock.Setup(uow => uow.SchoolRepository.RemoveClassroom(classroom, school))
@@ -203,7 +203,7 @@ public class SchoolTests
     public async Task GetByIdExistingIdReturnsSchool()
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>();
-        var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto { ID = 1, Name = "Colegiul National Decebal Deva" };
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
         unitOfWorkMock.Setup(uow => uow.SchoolRepository.GetById(1)).ReturnsAsync(school);
@@ -219,7 +219,7 @@ public class SchoolTests
         var unitOfWorkMock = new Mock<IUnitOfWork>();
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
-        unitOfWorkMock.Setup(uow => uow.SchoolRepository.GetById(999)).ReturnsAsync((School)null);
+        unitOfWorkMock.Setup(uow => uow.SchoolRepository.GetById(999)).ReturnsAsync((UpdateSchoolDto)null);
 
         var result = await unitOfWorkMock.Object.SchoolRepository.GetById(999);
 
@@ -229,7 +229,7 @@ public class SchoolTests
     [Fact]
     public async Task CreateAddsSchoolToList()
     {
-        var school = new School { Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto { Name = "Colegiul National Decebal Deva" };
         var unitOfWorkMock = new Mock<IUnitOfWork>();
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
@@ -243,8 +243,8 @@ public class SchoolTests
     [Fact]
     public async Task UpdateSchoolExistingSchoolUpdatesSuccessfully()
     {
-        var school = new School { Name = "Colegiul National Decebal Deva", ID = 1 };
-        var updatedSchool = new School { Name = "Updated School", ID = 1 };
+        var school = new UpdateSchoolDto { Name = "Colegiul National Decebal Deva", ID = 1 };
+        var updatedSchool = new UpdateSchoolDto { Name = "Updated School", ID = 1 };
         var unitOfWorkMock = new Mock<IUnitOfWork>();
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
@@ -262,7 +262,7 @@ public class SchoolTests
     public async Task UpdateSchoolNonExistingSchoolThrowsException()
     {
         var repositoryMock = new Mock<ISchoolRepository>();
-        var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto { ID = 1, Name = "Colegiul National Decebal Deva" };
         repositoryMock.Setup(repo => repo.Update(1, school))
                       .Throws(new TeacherNotFoundException("Teacher not found"));
 
@@ -273,10 +273,10 @@ public class SchoolTests
     public async Task DeleteRemovesSchoolFromList()
     {
         var unitOfWorkMock = new Mock<IUnitOfWork>();
-        var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto { ID = 1, Name = "Colegiul National Decebal Deva" };
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
-        unitOfWorkMock.Setup(uow => uow.SchoolRepository.Create(It.IsAny<School>())).ReturnsAsync(school);
+        unitOfWorkMock.Setup(uow => uow.SchoolRepository.Create(It.IsAny<UpdateSchoolDto>())).ReturnsAsync(school);
 
         await unitOfWorkMock.Object.SchoolRepository.Create(school);
         await unitOfWorkMock.Object.SchoolRepository.Delete(school);
@@ -288,8 +288,8 @@ public class SchoolTests
     [Fact]
     public async Task UpdateExistingSchoolUpdatesSuccessfully()
     {
-        var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
-        var updatedSchool = new School { ID = 1, Name = "Updated School" };
+        var school = new UpdateSchoolDto { ID = 1, Name = "Colegiul National Decebal Deva" };
+        var updatedSchool = new UpdateSchoolDto { ID = 1, Name = "Updated School" };
         var unitOfWorkMock = new Mock<IUnitOfWork>();
 
         unitOfWorkMock.SetupGet(uow => uow.SchoolRepository).Returns(Mock.Of<ISchoolRepository>());
@@ -306,7 +306,7 @@ public class SchoolTests
     public async Task UpdateNonExistingSchoolThrowsException()
     {
         var repositoryMock = new Mock<ISchoolRepository>();
-        var school = new School { ID = 1, Name = "Colegiul National Decebal Deva" };
+        var school = new UpdateSchoolDto { ID = 1, Name = "Colegiul National Decebal Deva" };
         repositoryMock.Setup(repo => repo.Update(1, school))
                       .Throws(new StudentNotFoundException("Student not found"));
 

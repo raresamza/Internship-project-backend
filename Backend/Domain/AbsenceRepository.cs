@@ -1,4 +1,5 @@
-﻿using Backend.Application.Courses.Actions;
+﻿using Backend.Application.Absences.Response;
+using Backend.Application.Courses.Actions;
 using Backend.Domain.Exceptions.StudentException;
 using Backend.Domain.Models;
 using Backend.Exceptions.AbsenceException;
@@ -78,13 +79,13 @@ public class AbsenceRepository : IAbsenceRepository
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task<Absence> UpdateAbsence(int absenceId, Absence newAbsence)
+    public async Task<Absence> UpdateAbsence(int absenceId, AbsenceUpdateDto newAbsence)
     {
         var oldAbsence = await _appDbContext.Absences.FirstOrDefaultAsync(a => a.Id == absenceId);
         if (oldAbsence != null)
         {
             oldAbsence.Date = newAbsence.Date;
-            oldAbsence.Course = newAbsence.Course;
+            //oldAbsence.Course = newAbsence.Course;
             _appDbContext.Absences.Add(oldAbsence);
             await _appDbContext.SaveChangesAsync();
             return oldAbsence;

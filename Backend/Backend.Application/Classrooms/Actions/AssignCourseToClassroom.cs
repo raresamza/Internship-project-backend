@@ -44,7 +44,7 @@ public class AssignCourseToClassroomHadnler : IRequestHandler<AssignCourseToClas
 
             await _unitOfWork.BeginTransactionAsync();
             _unitOfWork.ClassroomRepository.AssignCourse(course, classroom);
-            await _unitOfWork.ClassroomRepository.UpdateClassroom(classroom, classroom.ID);
+            //await _unitOfWork.ClassroomRepository.UpdateClassroom(classroom, classroom.ID);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Action in classroom at: {DateTime.Now.TimeOfDay}");
 

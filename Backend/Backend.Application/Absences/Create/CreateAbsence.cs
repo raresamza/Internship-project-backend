@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Absences.Create;
 
-public record CreateAbsence(int courseId):IRequest<AbsenceDto>;
+public record CreateAbsence(int courseId,DateTime date):IRequest<AbsenceDto>;
 public class CreateAbsenceHandler : IRequestHandler<CreateAbsence, AbsenceDto>
 {
 
@@ -39,7 +39,7 @@ public class CreateAbsenceHandler : IRequestHandler<CreateAbsence, AbsenceDto>
                 _logger.LogError($"Error in absence at: {DateTime.Now.TimeOfDay}");
                 throw new NullCourseException($"Could not found course with id: {request.courseId}");
             }
-            var absence = new Absence() { Course = course, CourseId = request.courseId };
+            var absence = new Absence(request.date) { Course = course, CourseId = request.courseId };
 
             await _unitOfWork.BeginTransactionAsync();
             await _unitOfWork.AbsenceRepository.CreateAbsence(absence);

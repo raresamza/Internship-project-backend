@@ -1,4 +1,5 @@
 ﻿using Backend.Application.Abstractions;
+using Backend.Application.Catalogues.Response;
 using Backend.Domain.Models;
 using Backend.Exceptions.ClassroomException;
 using Backend.Exceptions.CourseException;
@@ -75,12 +76,12 @@ public class CatalogueRepository : ICatalogueRepository
 
 
 
-    public async  Task<Catalogue> UpdateCatalogue(Catalogue catalogue, int id)
+    public async  Task<Catalogue> UpdateCatalogue(CatalogueUpdateDto catalogue, int id)
     {
         var oldCatalogue = await _appDbContext.Catalogues.FirstOrDefaultAsync(s => s.ID == id);
         if (oldCatalogue != null)
         {
-            oldCatalogue = catalogue;
+            //oldCatalogue = catalogue;
             await _appDbContext.SaveChangesAsync();
 
             return oldCatalogue;
@@ -101,6 +102,22 @@ public class CatalogueRepository : ICatalogueRepository
 
             _appDbContext.SaveChanges();
             
+        }
+        else
+        {
+            throw new StudentException($"Student {student.Name} is not enrolled into the course: {course.Name}, therefor the GPA cannot be computed");
+        }
+    }
+
+    public void UndoGpa(Course course, Student student)
+    {
+        var studentGpa = student.GPAs.FirstOrDefault(g => g.CourseId == course.ID);
+        if (studentGpa != null)
+        {
+            studentGpa.GPAValue = (decimal)0.00;
+
+            _appDbContext.SaveChanges();
+
         }
         else
         {

@@ -1,4 +1,5 @@
-﻿using Backend.Application.Classrooms.Create;
+﻿using Backend.Application.Classrooms.Actions;
+using Backend.Application.Classrooms.Create;
 using Backend.Application.Classrooms.Delete;
 using Backend.Application.Classrooms.Queries;
 using Backend.Application.Classrooms.Response;
@@ -53,7 +54,7 @@ public class ClassroomController : ControllerBase
         return Ok(await _mediator.Send(new CreateClassroom(classroom.Name, classroom.SchoolId)));
     }
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutClassroom(int id, Classroom classroom)
+    public async Task<IActionResult> PutClassroom(int id, ClassroomUpdateDto classroom)
     {
         if (!ModelState.IsValid)
         {
@@ -61,6 +62,60 @@ public class ClassroomController : ControllerBase
         }
 
         return Ok(await _mediator.Send(new UpdateClassroom(id, classroom)));
+    }
+
+    [HttpPut("add/student")]
+    public async Task<IActionResult> AddStudentToClassroom(int studentId,int classroomId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        return Ok(await _mediator.Send(new AddStudentToClassroom(studentId,classroomId)));
+    }
+    [HttpPut("remove/student")]
+    public async Task<IActionResult> RemoveStudentFromClassroom(int studentId, int classroomId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        return Ok(await _mediator.Send(new RemoveStudentFromClassroom(studentId, classroomId)));
+    }
+
+    [HttpPut("add/teacher")]
+    public async Task<IActionResult> AddTeacherToClassroom(int teacherId, int classroomId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        return Ok(await _mediator.Send(new AddTeacherToClassroom(teacherId, classroomId)));
+    }
+
+    [HttpPut("remove/teacher")]
+    public async Task<IActionResult> RemoveTeacherFromClassroom(int teacherId, int classroomId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        return Ok(await _mediator.Send(new RemoveTeacherFromClassroom(teacherId, classroomId)));
+    }
+
+    [HttpPut("assign/coruse")]
+    public async Task<IActionResult> AssignCourseToClassroom(int coruseId, int classroomId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        return Ok(await _mediator.Send(new AssignCourseToClassroom(coruseId, classroomId)));
     }
 
     [HttpDelete("{id}")]

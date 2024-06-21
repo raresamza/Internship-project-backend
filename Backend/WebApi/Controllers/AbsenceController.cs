@@ -51,10 +51,16 @@ public class AbsenceController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        return Ok(await _mediator.Send(new CreateAbsence(absence.CourseId)));
+        return Ok(await _mediator.Send(new CreateAbsence(absence.CourseId,absence.Date)));
     }
+
+    //[HttpGet("{id}")]
+    //public async Task<IActionResult> GetAbsenceByDateAndCourse(DateTime date, int courseId)
+    //{
+    //    return Ok(await _mediator.Send(new GetAbsenceByDateAndCourse(id)));
+    //}
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutAbsence(int id, Absence absence)
+    public async Task<IActionResult> PutAbsence(int id, AbsenceUpdateDto absence)
     {
         if (!ModelState.IsValid)
         {
