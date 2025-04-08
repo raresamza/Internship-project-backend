@@ -1,4 +1,5 @@
-﻿using Backend.Application.Students.Responses;
+﻿using Backend.Application.Homeworks.Response;
+using Backend.Application.Students.Responses;
 using Backend.Application.Teachers.Responses;
 using Backend.Domain.Models;
 using System;
@@ -22,6 +23,8 @@ public class CourseDto
     //[JsonIgnore]
     public ICollection<StudentCourseDto>? StudentCourses { get; set; }
 
+    public ICollection<HomeworkDto>? Homeworks { get; set; }
+
     public int? TeacherId { get; set; }
     public String? TeacherName { get; set; }
 
@@ -37,6 +40,7 @@ public class CourseDto
             ID = course.ID,
             TeacherName = course.Teacher != null ? course.Teacher.Name : "Unknown",
             Subject = course.Subject,
+            Homeworks=course.Homeworks.Select(homework => HomeworkDto.FromHomework(homework)).ToList(),
             Name = course.Name,
             StudentCourses = course.StudentCourses.Select(studentCourse => StudentCourseDto.FromStudentCourse(studentCourse)).ToList(),
             //StudentCourses = course.StudentCourses,

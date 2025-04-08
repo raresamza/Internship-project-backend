@@ -12,6 +12,10 @@ public interface IUnitOfWork
     public IClassroomRepository ClassroomRepository { get; }
     public ICourseRepository CourseRepository { get; }
     public ISchoolRepository SchoolRepository { get; }
+
+    public IHomeworkRepository HomeworkRepository { get; }
+    public ISchedulePdfBuilder PdfBuilder { get; }  
+    public IScheduleRepository ScheduleRepository { get; }
     public IStudentRepository StudentRepository { get; }
 
     public ITeacherRepository TeacherRepository { get; }

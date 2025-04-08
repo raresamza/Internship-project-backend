@@ -31,7 +31,7 @@ public class CreateSchoolHandler : IRequestHandler<CreateSchool, SchoolDto>
     {
         try
         {
-            var school = new UpdateSchoolDto() { Name = request.name };
+            var school = new School() { Name = request.name };
             await _unitOfWork.BeginTransactionAsync();
             var newSchool = await _unitOfWork.SchoolRepository.Create(school);
             await _unitOfWork.CommitTransactionAsync();

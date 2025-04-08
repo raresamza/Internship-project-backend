@@ -20,6 +20,10 @@ public class CourseRepository : ICourseRepository
         _appDbContext = app;
     }
 
+
+
+    
+
     public async Task<Course> Create(Course course)
     {
         _appDbContext.Courses.Add(course);
@@ -48,6 +52,7 @@ public class CourseRepository : ICourseRepository
                        .Include(c => c.Teacher) 
                        .Include(c =>c.StudentCourses)
                             .ThenInclude(sc => sc.Student)
+                       .Include(c => c.Homeworks)
                        .FirstOrDefaultAsync(c => c.ID == id);
     }
 
@@ -111,6 +116,7 @@ public class CourseRepository : ICourseRepository
                        .Include(c => c.Teacher)
                        .Include(c => c.StudentCourses)
                             .ThenInclude(sc => sc.Student)
+                       .Include(c => c.Homeworks)
                        .ToListAsync();
     }
 }

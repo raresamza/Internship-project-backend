@@ -10,10 +10,6 @@ namespace Backend.Infrastructure.Utils;
 
 public class MailService
 {
-
-
-
-
     public bool SendEmail(string emailAddress)
     {
         if (!IsValidEmail(emailAddress))
@@ -49,6 +45,37 @@ public class MailService
                 Console.WriteLine($"Error occured: {ex.Message}");
                 return false;
             }
+        }
+    }
+
+    public async Task<bool> SendGradePdfAsync(string email, Stream pdfStream)
+    {
+        try
+        {
+            using var mail = new MailMessage();
+            mail.From = new MailAddress("raresamza@gmail.com");
+            mail.To.Add(email);
+            mail.Subject = "Student Grade Chart";
+            mail.Body = "Attached is the student grade chart in PDF format.";
+
+            pdfStream.Position = 0;
+            var attachment = new Attachment(pdfStream, "grades.pdf", "application/pdf");
+            mail.Attachments.Add(attachment);
+
+            using var smtp = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential("raresamza@gmail.com", "your-app-password"),
+                EnableSsl = true
+            };
+
+            await smtp.SendMailAsync(mail);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
         }
     }
 

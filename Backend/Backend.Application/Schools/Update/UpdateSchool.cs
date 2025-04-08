@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Backend.Application.Schools.Update;
 
-public record UpdateSchool(int schoolId, UpdateSchoolDto school) : IRequest<SchoolDto>;
+public record UpdateSchool(int schoolId, SchoolUpdateDto school) : IRequest<SchoolDto>;
 
 public class UpdateSchoolHandler : IRequestHandler<UpdateSchool, SchoolDto>
 {
@@ -41,7 +41,7 @@ public class UpdateSchoolHandler : IRequestHandler<UpdateSchool, SchoolDto>
             }
 
             await _unitOfWork.BeginTransactionAsync();
-            var newSchool = await _unitOfWork.SchoolRepository.Update(school.ID, school);
+            var newSchool = await _unitOfWork.SchoolRepository.Update(school.ID, request.school);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Action in school at: {DateTime.Now.TimeOfDay}");
             //return SchoolDto.FromScool(newSchool);

@@ -14,11 +14,15 @@ public class AppDbContext : IdentityDbContext
 
     }
 
+
+    public DbSet<StudentHomework> StudentHomework { get; set; }
+
+    public DbSet<Homework> Homework { get; set; } = default!;
     public DbSet<Student> Students { get; set; } = default!;
     public DbSet<Teacher> Teachers { get; set; } = default!;
     public DbSet<Course> Courses { get; set; } = default!;
     public DbSet<Classroom> Classrooms { get; set; } = default!;
-    public DbSet<UpdateSchoolDto> Schools { get; set; } = default!;
+    public DbSet<School> Schools { get; set; } = default!;
     public DbSet<Catalogue> Catalogues { get; set; } = default!;
     public DbSet<Absence> Absences { get; set; } = default!;
     public DbSet<StudentGPA> StudentGPAs { get; set; } = default!;
@@ -32,17 +36,17 @@ public class AppDbContext : IdentityDbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder
-            .UseSqlServer(@"Server=ROMOB41159;Database=InternshipSchoolSystem;Trusted_Connection=True;TrustServerCertificate=True")
-            .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name },
-            LogLevel.Information);
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder
+                .UseSqlServer(@"Server=localhost;Database=InternshipSchoolSystem;Trusted_Connection=True;TrustServerCertificate=True")
+                .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name },
+                LogLevel.Information);
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
-
-
         modelBuilder.Entity<ClassroomCourse>()
             .HasKey(cc => new { cc.ClassroomId, cc.CourseId });
 
@@ -124,6 +128,30 @@ public class AppDbContext : IdentityDbContext
             .WithOne(t => t.TaughtCourse)
             .HasForeignKey<Teacher>(t => t.TaughtCourseId) // Foreign key property in the Teacher entity
             .IsRequired(false);
+
+
+        modelBuilder.Entity<StudentHomework>()
+            .HasOne(sh => sh.Student)
+            .WithMany(s => s.StudentHomeworks)
+            .HasForeignKey(sh => sh.StudentId);
+
+        modelBuilder.Entity<StudentHomework>()
+            .HasOne(sh => sh.Homework)
+            .WithMany(h => h.StudentHomeworks)
+            .HasForeignKey(sh => sh.HomeworkId);
+
+        modelBuilder.Entity<StudentHomework>()
+    .HasKey(sh => sh.ID);
+
+        modelBuilder.Entity<StudentHomework>()
+            .HasOne(sh => sh.Student)
+            .WithMany(s => s.StudentHomeworks)
+            .HasForeignKey(sh => sh.StudentId);
+
+        modelBuilder.Entity<StudentHomework>()
+            .HasOne(sh => sh.Homework)
+            .WithMany(h => h.StudentHomeworks)
+            .HasForeignKey(sh => sh.HomeworkId);
 
 
         base.OnModelCreating(modelBuilder);

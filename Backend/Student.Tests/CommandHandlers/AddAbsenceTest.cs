@@ -42,7 +42,7 @@ public class AddAbsenceTest
             Address = "123 Main St"
         };
 
-        var expectedAbsence = new Absence
+        var expectedAbsence = new Absence(date:DateTime.Now)
         {
             Id = expectedAbsenceId,
             Course = null,
@@ -56,7 +56,7 @@ public class AddAbsenceTest
                        .ReturnsAsync(expectedAbsence);
 
         _mockUnitOfWork.Setup(uow => uow.StudentRepository.UpdateStudent(
-                                  It.IsAny<Student>(),
+                                  It.IsAny<StudentUpdateDto>(),
                                   It.IsAny<int>()))
                        .ReturnsAsync(expectedStudent);
 
@@ -76,7 +76,7 @@ public class AddAbsenceTest
                {
                    Id = expectedAbsenceId,
                    CourseName = string.Empty,
-                   Date= DateTime.Now,
+                   Date = DateTime.Now,
                });
         var handler = new AddAbsenceHandler(_mockUnitOfWork.Object, _mockMapper.Object, _mockLogger.Object);
         var command = new AddAbsence(expectedStudentId, expectedAbsenceId);
@@ -95,7 +95,7 @@ public class AddAbsenceTest
         _mockUnitOfWork.Verify(uow => uow.StudentRepository.GetById(expectedStudentId), Times.Once());
         _mockUnitOfWork.Verify(uow => uow.AbsenceRepository.GetById(expectedAbsenceId), Times.Once());
         _mockUnitOfWork.Verify(uow => uow.StudentRepository.UpdateStudent(
-            It.Is<Student>(s => s.ID == expectedStudentId),
+            It.Is<StudentUpdateDto>(s => s.Name == expectedStudent.Name),
             expectedStudentId),
             Times.Once());
     }
@@ -106,7 +106,7 @@ public class AddAbsenceTest
         // Arrange
         var expectedStudentId = 1;
         var expectedAbsenceId = 1;
-        var expectedAbsence = new Absence
+        var expectedAbsence = new Absence(date:DateTime.Now)
         {
             Id = expectedAbsenceId,
             Course = null,
@@ -119,14 +119,15 @@ public class AddAbsenceTest
                        .ReturnsAsync(expectedAbsence);
 
         _mockMapper.Setup(mapper => mapper.Map<StudentDto>(It.IsAny<Student>()))
-                   .Returns(new StudentDto() { 
+                   .Returns(new StudentDto()
+                   {
                        ID = 1,
                        Name = "John Doe",
                        Age = 18,
                        ParentEmail = "parent@example.com",
                        ParentName = "Parent Doe",
                        PhoneNumber = 123456789,
-                       Address = "123 Main St" 
+                       Address = "123 Main St"
                    });
         _mockMapper.Setup(mapper => mapper.Map<AbsenceDto>(It.IsAny<Absence>()))
        .Returns(new AbsenceDto
@@ -169,7 +170,7 @@ public class AddAbsenceTest
         _mockUnitOfWork.Setup(uow => uow.StudentRepository.GetById(expectedStudentId))
                        .ReturnsAsync(expectedStudent);
         _mockUnitOfWork.Setup(uow => uow.AbsenceRepository.GetById(expectedAbsenceId))
-                       .ReturnsAsync((Absence)null) ;
+                       .ReturnsAsync((Absence)null);
 
         _mockMapper.Setup(mapper => mapper.Map<StudentDto>(It.IsAny<Student>()))
                    .Returns(new StudentDto()
@@ -219,7 +220,7 @@ public class AddAbsenceTest
             PhoneNumber = 123456789,
             Address = "123 Main St"
         };
-        var expectedAbsence = new Absence
+        var expectedAbsence = new Absence(date:DateTime.Now)
         {
             Id = expectedAbsenceId,
             Course = null,
@@ -231,7 +232,7 @@ public class AddAbsenceTest
         _mockUnitOfWork.Setup(uow => uow.AbsenceRepository.GetById(expectedAbsenceId))
                        .ReturnsAsync(expectedAbsence);
         _mockUnitOfWork.Setup(uow => uow.StudentRepository.UpdateStudent(
-                                  It.IsAny<Student>(),
+                                  It.IsAny<StudentUpdateDto>(),
                                   It.IsAny<int>()))
                        .ReturnsAsync(expectedStudent);
 
@@ -271,7 +272,7 @@ public class AddAbsenceTest
         _mockUnitOfWork.Verify(uow => uow.StudentRepository.GetById(expectedStudentId), Times.Once());
         _mockUnitOfWork.Verify(uow => uow.AbsenceRepository.GetById(expectedAbsenceId), Times.Once());
         _mockUnitOfWork.Verify(uow => uow.StudentRepository.UpdateStudent(
-            It.Is<Student>(s => s.ID == expectedStudentId),
+            It.Is<StudentUpdateDto>(s => s.Name == "John Doe"),
             expectedStudentId),
             Times.Once());
     }

@@ -1,4 +1,5 @@
-﻿using Backend.Application.Students.Queries;
+﻿using System.Diagnostics;
+using Backend.Application.Students.Queries;
 using Backend.Application.Teachers.Actions;
 using Backend.Application.Teachers.Create;
 using Backend.Application.Teachers.Delete;
@@ -24,6 +25,26 @@ public class TeacherController : ControllerBase
         _mediator = mediator;
     }
 
+
+
+    [HttpGet("{id}/schedule")]
+    public async Task<IActionResult> GetSchedule(int id)
+    {
+        var pdf = await _mediator.Send(new GetTeacherSchedule(id));
+
+        var teacher = await _mediator.Send(new GetTeacherById(id));
+        var fileName = $"Schedule for ${teacher.Name}";
+        return File(pdf, "application/pdf", fileName);
+    }
+
+    [HttpGet("{name}/name")]
+    public async Task<ActionResult> GetTeacherByName(string name)
+    {
+        var query = new GetTeacherByName(name);
+        var result = await _mediator.Send(query);
+
+        return Ok(result);
+    }
     [HttpGet]
     public async Task<ActionResult> GetAllTeachers(int pageNumber = 1, int pageSize = 10)
     {

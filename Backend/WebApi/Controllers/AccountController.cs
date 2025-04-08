@@ -141,7 +141,9 @@ public class AccountController : ControllerBase
     public enum Role
     {
         Teacher,
-        Student
+        Student,
+        Admin,
+        Parent
     }
 
     public record RegisterUser(Role Role, string Email, string Password, string LastName, string FirstName, int Age, string PhoneNumber, string Address, string ParentEmail, string ParentName);

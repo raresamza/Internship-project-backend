@@ -16,6 +16,16 @@ public interface IStudentRepository
     public void MotivateAbsence(DateTime date, Course course, Student student);
     public Task<Student?> GetById(int id);
 
+    public Task<Student?> GetByEmail(string email);
+
+    public Task<List<StudentHomework>> GetSubmissionsByHomeworkId(int homeworkId);
+
+
+
+    public void SubmitHomework(StudentHomework studentHomework);
+
+    public void GradeHomework(StudentHomework studentHomework, int grade);
+    public Task<StudentHomework?> GetByStudentAndHomework(int studentId, int homeworkId);
     public Task<Student?> GetByName(string name); 
     public Task Delete(Student student);
     public void RemoveGrade(Student student, Course course, int grade);

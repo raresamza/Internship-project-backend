@@ -1,11 +1,19 @@
+using System;
+using Backend.Application.Abstractions;
 using Backend.Domain.Models;
+using Backend.Infrastructure;
 using Backend.Infrastructure.Contexts;
+using Backend.Infrastructure.SeedData;
+using Backend.Infrastructure.Utils;
 using Microsoft.AspNetCore.Identity;
 using WebApi.Config;
 using WebApi.Extensions;
 using WebApi.Middleware;
 using WebApi.Options;
 using WebApi.Services;
+using QuestPDF.Infrastructure;
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,11 +26,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwagger();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<IFileStorageRepository, AzureBlobStorageRepository>();
 builder.Services.AddScoped<IEmailSenderService, EmailService>();
 
 builder.Services.AddRepositories();
 builder.Services.AddMediatR();
 builder.Services.AddDbContext();
+builder.Services.AddScoped<ISchedulePdfBuilder, SchedulePdfBuilder>();
+builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+builder.Services.AddScoped<IHomeworkRepository, HomeworkRepository>();
+
+
 //builder.Services.AddJsonOptions();
 builder.Services.AddSingleton<IdentityService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -59,5 +73,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var context = services.GetRequiredService<AppDbContext>();
+
+//    DbSeeder.SeedDummyData(context); 
+//}
 
 app.Run();

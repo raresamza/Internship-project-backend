@@ -8,7 +8,7 @@ using Backend.Exceptions.ClassroomException;
 using Backend.Exceptions.Placeholders;
 
 namespace Backend.Domain.Models;
-public class UpdateSchoolDto
+public class School
 {
     public int ID { get; set; }
     [Required]
@@ -17,11 +17,12 @@ public class UpdateSchoolDto
 
     public List<Classroom> _classrooms = new();
     public ICollection<Classroom> Classrooms { get; set; } 
-    public UpdateSchoolDto(string name)
+    public School(string name)
     {
         Name = name;
+        Classrooms = _classrooms;
     }
-    public UpdateSchoolDto() 
+    public School() 
     { 
         Classrooms=_classrooms;
     }

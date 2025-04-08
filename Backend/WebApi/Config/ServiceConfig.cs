@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Backend.Application.Abstractions;
 using Backend.Infrastructure;
 using Backend.Infrastructure.Contexts;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.Config;
 

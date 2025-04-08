@@ -17,6 +17,7 @@ public class Course
         Grades = _grades;
         ClassroomCourses = _classroomCourses;
         GPAs = _gpas;
+        Homeworks = _homeworks;
     }
 
 
@@ -45,6 +46,10 @@ public class Course
 
     public ICollection<ClassroomCourse> ClassroomCourses { get; set; }
     private readonly List<ClassroomCourse> _classroomCourses = new();
+
+
+    public ICollection<Homework> Homeworks { get; set; }
+    private readonly List<Homework> _homeworks = new();
 
     public int ID { get; set; }
 

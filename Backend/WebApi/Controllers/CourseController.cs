@@ -94,6 +94,18 @@ public class CourseController : ControllerBase
         return Ok(await _mediator.Send(new UpdateCourse(id,course)));
     }
 
+    [HttpPost("{courseId}/assign-homework")]
+    public async Task<IActionResult> AssignHomeworkToCourse(int courseId, [FromBody] AssignHomework request)
+    {
+        if (courseId != request.CourseId)
+            return BadRequest("Course ID in the route does not match the body.");
+
+        var courseDto = await _mediator.Send(request);
+        return Ok(courseDto);
+    }
+
+
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCourse(int id)
     {

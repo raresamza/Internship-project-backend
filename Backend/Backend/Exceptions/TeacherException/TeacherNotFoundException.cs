@@ -8,7 +8,7 @@ namespace Backend.Exceptions.TeacherException;
 
 public class TeacherNotFoundException : Exception
 {
-    public TeacherNotFoundException() : base() { }
+    public TeacherNotFoundException() : base("Teacher Not Found") { }
 
     public TeacherNotFoundException(string message) : base(message) { }
 

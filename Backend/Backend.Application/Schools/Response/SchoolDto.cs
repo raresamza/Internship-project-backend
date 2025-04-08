@@ -15,7 +15,7 @@ public class SchoolDto
     public List<Classroom> classrooms = new();
     public ICollection<ClassroomDto> Classrooms { get; set; }
 
-    public static SchoolDto FromScool(UpdateSchoolDto school) 
+    public static SchoolDto FromScool(School school) 
     {
         return new SchoolDto
         {

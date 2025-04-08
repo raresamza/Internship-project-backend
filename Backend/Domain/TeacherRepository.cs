@@ -78,6 +78,11 @@ public class TeacherRepository : ITeacherRepository
             .ToListAsync();
     }
 
+    public Task<Teacher?> GetByName(string name)
+    {
+        return _appDbContext.Teachers.FirstOrDefaultAsync(t => t.Name == name);
+    }
+
     public async Task<Teacher?> GetById(int id)
     {
         Logger.LogMethodCall(nameof(GetById), true);

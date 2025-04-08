@@ -41,6 +41,8 @@ public class StudentRepository : IStudentRepository
             .Include(s => s.Grades)
                 .ThenInclude(sg=> sg.Course)
             .Include(s => s.GPAs)
+            .Include(s => s.StudentCoruses)
+                .ThenInclude(sc => sc.Course)
             .FirstOrDefaultAsync(s => s.ID == id);
     }
 
@@ -88,6 +90,50 @@ public class StudentRepository : IStudentRepository
         {
             throw new StudentNotFoundException($"The student with id: {id} was not found");
         }
+    }
+
+
+    public async Task<StudentHomework?> GetByStudentAndHomework(int studentId, int homeworkId)
+    {
+        var student = await _appDbContext.Students
+    .Include(s => s.StudentHomeworks)
+        .ThenInclude(sh => sh.Homework)
+    .FirstOrDefaultAsync(s => s.ID == studentId);
+
+        var studentHomework = student?.StudentHomeworks
+            .FirstOrDefault(sh => sh.HomeworkId == homeworkId);
+
+
+        return studentHomework;
+    }
+
+    public void GradeHomework(StudentHomework studentHomework, int grade)
+    {
+        if (studentHomework == null)
+            throw new ArgumentNullException(nameof(studentHomework), "StudentHomework cannot be null.");
+
+        if (grade < 0 || grade > 100)
+            throw new ArgumentOutOfRangeException(nameof(grade), "Grade must be between 0 and 100.");
+
+        studentHomework.Grade = grade;
+        //studentHomework.SubmissionDate ??= DateTime.UtcNow;
+        //studentHomework.IsCompleted = true;
+
+        _appDbContext.SaveChangesAsync();
+    }
+
+
+    public void SubmitHomework(StudentHomework studentHomework)
+    {
+        if (studentHomework == null)
+            throw new ArgumentNullException(nameof(studentHomework), "StudentHomework cannot be null.");
+
+        //if (studentHomework.IsCompleted)
+        //    throw new InvalidOperationException("Homework has already been submitted.");
+
+        studentHomework.IsCompleted = true;
+        studentHomework.SubmissionDate = DateTime.UtcNow;
+
     }
 
     public void AddGrade(int grade, Student student, Course course)
@@ -308,4 +354,16 @@ public class StudentRepository : IStudentRepository
     }
 
 
+    public async Task<Student?> GetByEmail(string email)
+    {
+        return await _appDbContext.Students.FirstOrDefaultAsync(s => s.ParentEmail == email);
+    }
+
+    public async Task<List<StudentHomework>> GetSubmissionsByHomeworkId(int homeworkId)
+    {
+        return await _appDbContext.StudentHomework
+            .Include(sh => sh.Student)
+            .Where(sh => sh.HomeworkId == homeworkId && sh.FileUrl != null)
+            .ToListAsync();
+    }
 }

@@ -7,6 +7,7 @@ using Backend.Infrastructure.Utils;
 using Backend.Exceptions.TeacherException;
 using Backend.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Backend.Application.Schools.Response;
 
 namespace Backend.Infrastructure;
 public class SchoolRepository : ISchoolRepository
@@ -19,7 +20,7 @@ public class SchoolRepository : ISchoolRepository
         _appDbContext = appDbContext;
     }
     //Db mock
-    public void AddClassroom(Classroom classroom, UpdateSchoolDto school)
+    public void AddClassroom(Classroom classroom, School school)
     {
         if (classroom == null)
         {
@@ -40,7 +41,7 @@ public class SchoolRepository : ISchoolRepository
     }
 
 
-    public void RemoveClassroom(Classroom classroom, UpdateSchoolDto school)
+    public void RemoveClassroom(Classroom classroom, School school)
     {
 
         Console.WriteLine(classroom.ToString());
@@ -72,7 +73,7 @@ public class SchoolRepository : ISchoolRepository
 
 
 
-    public async Task<UpdateSchoolDto?> GetById(int id)
+    public async Task<School?> GetById(int id)
     {
         await Logger.LogMethodCall(nameof(GetById), true);
         return await _appDbContext.Schools
@@ -92,7 +93,7 @@ public class SchoolRepository : ISchoolRepository
             .FirstOrDefaultAsync(s => s.ID == id);
     }
 
-    public async Task<UpdateSchoolDto> Create(UpdateSchoolDto school)
+    public async Task<School> Create(School school)
     {
         _appDbContext.Schools.Add(school);
         await _appDbContext.SaveChangesAsync();
@@ -114,29 +115,29 @@ public class SchoolRepository : ISchoolRepository
     //    Logger.LogMethodCall(nameof(UpdateSchool), true);
     //}
 
-    public async Task Delete(UpdateSchoolDto school)
+    public async Task Delete(School school)
     {
         _appDbContext.Schools.Remove(school);
         await _appDbContext.SaveChangesAsync();
         await Logger.LogMethodCall(nameof(Delete), true);
     }
 
-    public async Task<UpdateSchoolDto> Update(int schoolId, UpdateSchoolDto school)
+    public async Task<School> Update(int schoolId, SchoolUpdateDto school)
     {
         var oldSchool = await _appDbContext.Schools.FirstOrDefaultAsync(s => s.ID == schoolId);
         if (oldSchool != null)
         {
-            oldSchool = school;
+            oldSchool.Name = school.Name;
 
             return oldSchool;
         }
         else
         {
-            throw new StudentNotFoundException($"The student with id: {schoolId} was not found");
+            throw new StudentNotFoundException($"The school with id: {schoolId} was not found");
         }
     }
 
-    public async Task<List<UpdateSchoolDto>> GetAll()
+    public async Task<List<School>> GetAll()
     {
         return await _appDbContext.Schools
             .Include(s => s.Classrooms)

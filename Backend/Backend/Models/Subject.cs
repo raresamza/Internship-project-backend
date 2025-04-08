@@ -10,5 +10,6 @@ public enum Subject
     MATH,
     ENGLISH,
     HISTORY,
-    PHYSICS
+    PHYSICS,
+    CHEMISTRY
 }

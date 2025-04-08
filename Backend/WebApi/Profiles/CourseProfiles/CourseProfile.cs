@@ -15,6 +15,7 @@ public class CourseProfile : Profile
             .ForMember(dest => dest.ID, src => src.MapFrom(x => x.ID))
             .ForMember(dest => dest.StudentCourses, src => src.MapFrom(x => x.StudentCourses))
             .ForMember(dest => dest.TeacherId, src => src.MapFrom(x => x.TeacherId))
+            .ForMember(dest => dest.Homeworks, src => src.MapFrom(x => x.Homeworks))
             .ForMember(dest => dest.TeacherName, src => src.MapFrom(x => x != null ? x.Teacher.Name : "Unknown"));
     }
 }

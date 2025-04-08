@@ -11,22 +11,36 @@ namespace Backend.Infrastructure;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _appDbContext;
-    public UnitOfWork(AppDbContext appDbContext,ICatalogueRepository catalogueRepository, IAbsenceRepository absenceRepository, IClassroomRepository classroomRepository, ICourseRepository courseRepository, ISchoolRepository schoolRepository, IStudentRepository studentRepository, ITeacherRepository teacherRepository)
+    public UnitOfWork(AppDbContext appDbContext,ISchedulePdfBuilder pdfBuilder ,IScheduleRepository scheduleRepository ,
+        ICatalogueRepository catalogueRepository, IAbsenceRepository absenceRepository, IClassroomRepository classroomRepository,
+        ICourseRepository courseRepository, ISchoolRepository schoolRepository, IStudentRepository studentRepository, ITeacherRepository teacherRepository,
+        IHomeworkRepository homeworkRepository)
     {
         _appDbContext = appDbContext;
+        PdfBuilder = pdfBuilder;    
         CatalogueRepository = catalogueRepository;
         AbsenceRepository = absenceRepository;
+        ScheduleRepository = scheduleRepository;
         ClassroomRepository = classroomRepository;
         CourseRepository = courseRepository;
         SchoolRepository = schoolRepository;
         StudentRepository = studentRepository;
         TeacherRepository = teacherRepository;
+        HomeworkRepository= homeworkRepository;
+        
     }
 
+
+    public IHomeworkRepository HomeworkRepository { get; private set; }
+
     public ICatalogueRepository CatalogueRepository { get; private set; }
+
+    public IScheduleRepository ScheduleRepository { get; private set; }
     public IAbsenceRepository AbsenceRepository { get; private set; }
     public IClassroomRepository ClassroomRepository { get; private set; }
     public ICourseRepository CourseRepository { get; private set; }
+
+    public ISchedulePdfBuilder PdfBuilder { get; private set; }
     public ISchoolRepository SchoolRepository { get; private set; }
     public IStudentRepository StudentRepository { get; private set; }
     public ITeacherRepository TeacherRepository { get; private set; }

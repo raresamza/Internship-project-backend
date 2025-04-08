@@ -46,8 +46,9 @@ public class AddClassroomHandler : IRequestHandler<AddClassroom, SchoolDto>
 
             await _unitOfWork.BeginTransactionAsync();
             _unitOfWork.SchoolRepository.AddClassroom(classroom, school);
-            await _unitOfWork.SchoolRepository.Update(school.ID, school);
+            //await _unitOfWork.SchoolRepository.Update();
             await _unitOfWork.CommitTransactionAsync();
+            await _unitOfWork.SaveAsync();
             _logger.LogInformation($"Action in school at: {DateTime.Now.TimeOfDay}");
             //return SchoolDto.FromScool(school);
             return _mapper.Map<SchoolDto>(school);

@@ -1,10 +1,12 @@
-﻿using Backend.Application.Students.Actions;
+﻿using Backend.Application.Homeworks.Queries;
+using Backend.Application.Students.Actions;
 using Backend.Application.Students.Create;
 using Backend.Application.Students.Delete;
 using Backend.Application.Students.Queries;
 using Backend.Application.Students.Responses;
 using Backend.Application.Students.Update;
 using Backend.Domain.Models;
+using Backend.Infrastructure.Utils;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +20,26 @@ public class StudentController : ControllerBase
 {
 
     private readonly IMediator _mediator;
+    private readonly MailService _mailService;
 
     public StudentController(IMediator mediator)
     {
         _mediator = mediator;
     }
+
+    
+
+
+    [HttpGet("{id}/schedule")]
+    public async Task<IActionResult> GetSchedule(int id)
+    {
+        var pdfBytes = await _mediator.Send(new GetStudentSchedule(id));
+
+        var student = await _mediator.Send(new GetStudentById(id));
+        var fileName = $"Schedule for ${student.Name}";
+        return File(pdfBytes, "application/pdf", fileName);
+    }
+
 
     [HttpGet]
     public async Task<ActionResult> GetAllStudents(int pageNumber = 1, int pageSize = 10)
@@ -47,6 +64,23 @@ public class StudentController : ControllerBase
             var students = await _mediator.Send(queryCommand);
             return Ok(new { students});
         }
+    }
+
+    [HttpGet("by-email")]
+    public async Task<ActionResult> GetStudentByEmail(string email) 
+    {
+        var query = new GetStudentByEmail(email);
+        var result = await _mediator.Send(query);
+
+        return Ok(result);
+
+    }
+
+    [HttpGet("{homeworkId}/submissions")]
+    public async Task<IActionResult> GetSubmissionsForHomework(int homeworkId)
+    {
+        var submissions = await _mediator.Send(new GetSubmissionsForHomeworkQuery(homeworkId));
+        return Ok(submissions);
     }
 
 
@@ -105,4 +139,19 @@ public class StudentController : ControllerBase
     {
         return Ok(await _mediator.Send(new DeleteStudent(id)));
     }
+
+
+    [HttpPost("{studentId}/send-grade-chart")]
+    public async Task<IActionResult> SendGradeChart(int studentId, [FromForm] IFormFile file)
+    {
+        var email = await _mediator.Send(new GetStudentEmailForChart(studentId));
+
+        using var stream = file.OpenReadStream();
+        var result = await _mailService.SendGradePdfAsync(email, stream);
+
+        return result
+            ? Ok("Grade chart sent to email.")
+            : StatusCode(500, "Failed to send grade chart.");
+    }
+
 }

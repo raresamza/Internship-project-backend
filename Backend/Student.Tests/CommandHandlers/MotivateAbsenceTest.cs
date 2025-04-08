@@ -49,7 +49,7 @@ public class MotivateAbsenceTest
             PhoneNumber = 123456789,
             Address = "123 Main St"
         };
-        var expectedAbsence = new Absence
+        var expectedAbsence = new Absence(date:DateTime.Now)
         {
             Id = expectedAbsenceId,
             Course = null,
@@ -70,7 +70,7 @@ public class MotivateAbsenceTest
         _mockUnitOfWork.Setup(uow => uow.CourseRepository.GetById(expectedCourseId))
                        .ReturnsAsync(expectedCourse);
         _mockUnitOfWork.Setup(uow => uow.StudentRepository.UpdateStudent(
-                                  It.IsAny<Student>(),
+                                  It.IsAny<StudentUpdateDto>(),
                                   It.IsAny<int>()))
                        .ReturnsAsync(expectedStudent);
 
@@ -119,7 +119,7 @@ public class MotivateAbsenceTest
         _mockUnitOfWork.Verify(uow => uow.AbsenceRepository.GetById(expectedAbsenceId), Times.Once());
         _mockUnitOfWork.Verify(uow => uow.CourseRepository.GetById(expectedCourseId), Times.Once());
         _mockUnitOfWork.Verify(uow => uow.StudentRepository.UpdateStudent(
-            It.Is<Student>(s => s.ID == expectedStudentId),
+            It.Is<StudentUpdateDto>(s => s.Name == expectedStudent.Name),
             expectedStudentId),
             Times.Once());
     }
@@ -135,13 +135,14 @@ public class MotivateAbsenceTest
         _mockUnitOfWork.Setup(uow => uow.StudentRepository.GetById(expectedStudentId))
                        .ReturnsAsync((Student)null);
         _mockUnitOfWork.Setup(uow => uow.AbsenceRepository.GetById(expectedAbsenceId))
-                       .ReturnsAsync(new Absence()); 
+                       .ReturnsAsync(new Absence(date: DateTime.Now));
         _mockUnitOfWork.Setup(uow => uow.CourseRepository.GetById(expectedCourseId))
-                       .ReturnsAsync(new Course() {
+                       .ReturnsAsync(new Course()
+                       {
                            ID = expectedCourseId,
                            Name = "Math I",
                            Subject = Subject.MATH,
-                       }); 
+                       });
 
         var handler = new MotivateAbsenceHandler(_mockUnitOfWork.Object, _mockMapper.Object, _mockLogger.Object);
         var command = new MotivateAbsence(expectedStudentId, expectedAbsenceId, expectedCourseId);
@@ -210,7 +211,7 @@ public class MotivateAbsenceTest
             PhoneNumber = 123456789,
             Address = "123 Main St"
         };
-        var expectedAbsence = new Absence
+        var expectedAbsence = new Absence(date:DateTime.Now)
         {
             Id = expectedAbsenceId,
             Course = null,

@@ -49,7 +49,7 @@ public class RemoveClassroomHandler : IRequestHandler<RemoveClassroom, SchoolDto
 
             await _unitOfWork.BeginTransactionAsync();
             _unitOfWork.SchoolRepository.RemoveClassroom(classroom, school);
-            await _unitOfWork.SchoolRepository.Update(school.ID, school);
+            //await _unitOfWork.SchoolRepository.Update(school.ID, school);
             await _unitOfWork.CommitTransactionAsync();
             _logger.LogInformation($"Action in school at: {DateTime.Now.TimeOfDay}");
             //return SchoolDto.FromScool(school);

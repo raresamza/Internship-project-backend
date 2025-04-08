@@ -34,6 +34,7 @@ public class Student : User
         Grades = _grades;
         GPAs = _gpas;
         StudentCoruses = _courses;
+        StudentHomeworks = _studentHomeworks;
     }
 
     //private static int _lastAssignedId = 0;
@@ -66,10 +67,22 @@ public class Student : User
     public ICollection<StudentGrade> Grades { get; set; }
     public ICollection<StudentGPA> GPAs { get; set; }
 
-  
+
+    public ICollection<StudentHomework> StudentHomeworks { get; set; } 
+
+    private readonly List<StudentHomework> _studentHomeworks = new();
+
+
+
     public override string ToString()
     {
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.Append($"\nStudent Courses:{StudentCoruses}");
+        foreach (var course in StudentCoruses)
+        {
+            stringBuilder.Append($"\t\tCourse: {course.CourseId}\n");
+
+        }
         stringBuilder.Append($"\nStudent(ID: {ID}) details:\n\tStundent Name: {Name}\n\tStudent Age: {Age}\n\tStudent Phone Number: {PhoneNumber}\n\tStudent's Parent Name: {ParentName}\n\tStudent's Parent Email Addrees: {ParentEmail}\n\tStudent Address: {Address}\n\tStudent Grades:\n");
 
         foreach (var studentGrade in Grades)
