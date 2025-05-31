@@ -17,6 +17,7 @@ public class StudentProfile : Profile
             .ForMember(dest => dest.ID, src => src.MapFrom(x => x.ID))
             .ForMember(dest => dest.Absences, src => src.MapFrom(x => x.Absences))
             .ForMember(dest => dest.GPAs, src => src.MapFrom(x => x.GPAs))
+            //.ForMember(dest => dest.ParticipationPoints, src => src.MapFrom(x => x.ParticipationPoints))
             .ForMember(dest => dest.Grades, src => src.MapFrom(x => x.Grades));
     }
 }

@@ -17,6 +17,8 @@ public interface IAbsenceRepository
     public Task<Absence?> GetById(int id);
 
     public Task<Absence> UpdateAbsence(int absenceId, AbsenceUpdateDto newAbsence);
+
+    public Task<bool> HasAbsence(int studentId, int courseId, DateTime date);
     public Task DeleteAbsence(Absence absence);
 
     //public void Add(Student s, int courseId);

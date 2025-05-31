@@ -1,4 +1,5 @@
-﻿using Backend.Application.Homeworks.Queries;
+﻿using Backend.Application.Abstractions;
+using Backend.Application.Homeworks.Queries;
 using Backend.Application.Students.Actions;
 using Backend.Application.Students.Create;
 using Backend.Application.Students.Delete;
@@ -10,6 +11,7 @@ using Backend.Infrastructure.Utils;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Services;
 
 namespace WebApi.Controllers;
 
@@ -20,14 +22,14 @@ public class StudentController : ControllerBase
 {
 
     private readonly IMediator _mediator;
-    private readonly MailService _mailService;
+    private readonly IMailService _mailService;
 
-    public StudentController(IMediator mediator)
+    public StudentController(IMediator mediator,IMailService mailService)
     {
         _mediator = mediator;
+        _mailService = mailService;
     }
 
-    
 
 
     [HttpGet("{id}/schedule")]
@@ -142,7 +144,8 @@ public class StudentController : ControllerBase
 
 
     [HttpPost("{studentId}/send-grade-chart")]
-    public async Task<IActionResult> SendGradeChart(int studentId, [FromForm] IFormFile file)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> SendGradeChart(int studentId, [FromForm(Name = "file")] IFormFile file)
     {
         var email = await _mediator.Send(new GetStudentEmailForChart(studentId));
 

@@ -24,11 +24,13 @@ public class AddGradeHandler : IRequestHandler<AddGrade, StudentDto>
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<AddGradeHandler> _logger;
-    public AddGradeHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AddGradeHandler> logger)
+    private readonly IMailService _mailService;
+    public AddGradeHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AddGradeHandler> logger, IMailService mailService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
+        _mailService = mailService;
     }
 
     public async Task<StudentDto> Handle(AddGrade request, CancellationToken cancellationToken)
@@ -52,6 +54,14 @@ public class AddGradeHandler : IRequestHandler<AddGrade, StudentDto>
             //_studentRepository.UpdateStudent(student,student.ID);
             //_courseRepository.UpdateCourse(course,course.ID);
             await _unitOfWork.CommitTransactionAsync();
+            await _unitOfWork.NotificationRepository.AddNotificationAsync(new Notification
+            {
+                StudentId = request.studentId,
+                Title = "New Grade Assigned",
+                Message = $"You received a grade of {request.grade} for coruse {course.Name}.",
+                Type = NotificationType.Grade,
+                SentByEmail = await _mailService.SendSimpleEmailAsync(student.ParentEmail, "New Grade Assigned", $"You received a grade of {request.grade} for coruse {course.Name}.") // Optional fallback
+            });
             _logger.LogInformation($"Action in course at: {DateTime.Now.TimeOfDay}");
             return StudentDto.FromStudent(student);
         }

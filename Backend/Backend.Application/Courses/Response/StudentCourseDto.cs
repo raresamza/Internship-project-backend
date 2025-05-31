@@ -16,7 +16,7 @@ public class StudentCourseDto
     [JsonIgnore]
     public StudentDto Student { get; set; }
 
-
+    public float ParticipationPoints { get; set; }
 
     //public int CourseId { get; set; }
     public string? StudentName { get; set; }
@@ -31,6 +31,7 @@ public class StudentCourseDto
             StudentId = studentCourseDto.StudentId,
             //CourseId = studentCourseDto.CourseId,
             StudentName = studentCourseDto.Student.Name,
+            ParticipationPoints = studentCourseDto.ParticipationPoints,
             //CourseName = studentCourseDto.Course?.Name
             //Student = StudentDto.FromStudent(studentCourseDto.Student),
             //Course = CourseDto.FromCourse(studentCourseDto.Course),

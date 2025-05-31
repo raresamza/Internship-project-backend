@@ -15,5 +15,7 @@ public interface IHomeworkRepository
 
     public void AssignHomeworkToCourse(Course course, string title, string description, DateTime deadline);
 
+    Task<List<Homework>> GetHomeworksDueOnDateAsync(DateTime date);
+
 
 }

@@ -1,4 +1,5 @@
-﻿using Backend.Application.Courses.Actions;
+﻿using Backend.Application.Abstractions;
+using Backend.Application.Courses.Actions;
 using Backend.Application.Courses.Create;
 using Backend.Application.Courses.Delete;
 using Backend.Application.Courses.Queries;
@@ -6,6 +7,7 @@ using Backend.Application.Courses.Response;
 using Backend.Application.Courses.Update;
 using Backend.Application.Students.Queries;
 using Backend.Domain.Models;
+//using Backend.Infrastructure.Utils;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Services;
@@ -16,10 +18,10 @@ namespace WebApi.Controllers;
 [Route("api/[controller]")]
 public class CourseController : ControllerBase
 {
-    private readonly IEmailSenderService _service;
+    private readonly IMailService _service;
     private readonly IMediator _mediator;
 
-    public CourseController(IEmailSenderService service,IMediator mediator)
+    public CourseController(IMailService service,IMediator mediator)
     {
         _service = service;
         _mediator = mediator;
@@ -111,4 +113,16 @@ public class CourseController : ControllerBase
     {
         return Ok(await _mediator.Send(new DeleteCourse(id)));
     }
+
+    [HttpPost("increase-points")]
+    public async Task<IActionResult> IncreasePoints([FromBody] IncreasePointsDto dto)
+    {
+        if (dto.StudentId <= 0 || dto.CourseId <= 0)
+            return BadRequest("Invalid student or course ID.");
+
+        await _mediator.Send(new IncreaseParticipationPoints(dto.StudentId, dto.CourseId));
+
+        return Ok(new { message = "✅ Participation points increased." });
+    }
 }
+

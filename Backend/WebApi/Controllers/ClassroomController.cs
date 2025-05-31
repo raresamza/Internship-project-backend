@@ -1,4 +1,5 @@
-﻿using Backend.Application.Classrooms.Actions;
+﻿using Backend.Application.Abstractions;
+using Backend.Application.Classrooms.Actions;
 using Backend.Application.Classrooms.Create;
 using Backend.Application.Classrooms.Delete;
 using Backend.Application.Classrooms.Queries;
@@ -11,6 +12,7 @@ using Backend.Application.Courses.Response;
 using Backend.Application.Courses.Update;
 using Backend.Application.Students.Queries;
 using Backend.Domain.Models;
+using Backend.Infrastructure.Utils;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Services;
@@ -21,10 +23,10 @@ namespace WebApi.Controllers;
 [Route("api/[controller]")]
 public class ClassroomController : ControllerBase
 {
-    private readonly IEmailSenderService _service;
+    private readonly IMailService _service;
     private readonly IMediator _mediator;
 
-    public ClassroomController(IEmailSenderService service, IMediator mediator)
+    public ClassroomController(IMailService service, IMediator mediator)
     {
         _service = service;
         _mediator = mediator;

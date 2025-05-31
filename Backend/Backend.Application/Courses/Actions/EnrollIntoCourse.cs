@@ -62,7 +62,16 @@ internal class EntollIntoCourseHandler : IRequestHandler<EnrollIntoCourse, Stude
         {
             _logger.LogError($"Error in course at: {DateTime.Now.TimeOfDay}");
             Console.WriteLine(ex.Message);
-            await _unitOfWork.RollbackTransactionAsync();
+
+            try
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+            }
+            catch (InvalidOperationException)
+            {
+                _logger.LogWarning("No active transaction to roll back.");
+            }
+
             throw;
         }
 

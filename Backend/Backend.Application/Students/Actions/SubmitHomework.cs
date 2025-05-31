@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Backend.Application.Abstractions;
+using Backend.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -35,6 +36,23 @@ public class SubmitHomeworkFileHandler : IRequestHandler<SubmitHomeworkFile, Uni
         var student = await _unitOfWork.StudentRepository.GetById(request.StudentId);
         if (student == null)
             throw new Exception("Student not found.");
+
+        var homework = await _unitOfWork.HomeworkRepository.GetById(request.HomeworkId);
+        if (homework == null)
+            throw new Exception("Homework not found.");
+
+        var studentCourse = student.StudentCoruses.FirstOrDefault(sc => sc.CourseId == homework.CourseId);
+
+        var currentDate = DateTime.UtcNow;
+
+
+        bool submittedOnTime = currentDate <= homework.Deadline;
+        bool isPresent = !await _unitOfWork.AbsenceRepository.HasAbsence(request.StudentId, homework.CourseId, currentDate);
+
+        if (studentCourse != null && submittedOnTime && isPresent)
+        {
+            studentCourse.ParticipationPoints += 1;
+        }
 
         // Sanitize student name
         var sanitizedName = student.Name.Replace(" ", "_").Trim();

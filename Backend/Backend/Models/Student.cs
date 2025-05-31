@@ -41,6 +41,8 @@ public class Student : User
 
     public int ID { get; set; }
 
+
+
     public bool Assigned { get; set; } = false;
 
     public Classroom Classroom { get; set; }

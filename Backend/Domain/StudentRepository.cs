@@ -9,6 +9,7 @@ using Backend.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Backend.Application.Students.Update;
 using Backend.Application.Students.Responses;
+using Backend.Application.Leaderboard.Responses;
 
 namespace Backend.Infrastructure;
 
@@ -130,9 +131,13 @@ public class StudentRepository : IStudentRepository
 
         //if (studentHomework.IsCompleted)
         //    throw new InvalidOperationException("Homework has already been submitted.");
+        var student = studentHomework.Student;
+        var courseId = studentHomework.Homework.CourseId;
+        var studentCourse = student.StudentCoruses.FirstOrDefault(sc => sc.CourseId == courseId);
 
         studentHomework.IsCompleted = true;
         studentHomework.SubmissionDate = DateTime.UtcNow;
+        studentCourse.ParticipationPoints += 1;
 
     }
 
@@ -141,7 +146,7 @@ public class StudentRepository : IStudentRepository
 
         if (student != null)
         {
-            var studentGrade = student.Grades.FirstOrDefault(g => g.Course.Name== course.Name);
+            var studentGrade = student.Grades.FirstOrDefault(g => g.Course.ID== course.ID);
 
             if (studentGrade != null)
             {
@@ -323,12 +328,20 @@ public class StudentRepository : IStudentRepository
     {
         return await _appDbContext.Students
         .Where(s => s.Name.ToLower().Contains(name.ToLower()))
+        .Include(s => s.Absences)
+        .Include(s => s.Grades)
+            .ThenInclude(sg => sg.Course)
+        .Include(s => s.GPAs)
         .ToListAsync();
     }
 
     public async Task<List<Student>>GetWithQuery(string query, int page, int pageSize)
     {
-        IQueryable<Student> studentsQuery = _appDbContext.Students;
+        IQueryable<Student> studentsQuery = _appDbContext.Students
+            .Include(s => s.Absences)
+            .Include(s => s.Grades)
+                .ThenInclude(g => g.Course)
+            .Include(s => s.GPAs); ;
 
         if (!string.IsNullOrEmpty(query))
         {
@@ -364,6 +377,43 @@ public class StudentRepository : IStudentRepository
         return await _appDbContext.StudentHomework
             .Include(sh => sh.Student)
             .Where(sh => sh.HomeworkId == homeworkId && sh.FileUrl != null)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Student>> GetAllWithGradesAsync()
+    {
+        return await _appDbContext.Students
+            .Include(s => s.Grades)
+            .ToListAsync();
+    }
+
+
+    public async Task<IEnumerable<ClassStudentLeaderboardDto>> GetLeaderboardData()
+    {
+        return await _appDbContext.Students
+            .Include(s => s.Grades)
+            .Include(s => s.Classroom)
+            .Include(s => s.StudentCoruses)
+            .Select(s => new StudentLeaderboardEntryDto
+            {
+                StudentId = s.ID,
+                StudentName = s.Name,
+                AverageGrade = s.Grades
+                    .Where(g => g.GradeValues != null && g.GradeValues.Count > 0)
+                    .SelectMany(g => g.GradeValues)
+                    .DefaultIfEmpty()
+                    .Average(x => (float?)x) ?? 0,
+                ParticipationPoints = s.StudentCoruses.Sum(sc=>sc.ParticipationPoints),
+                ClassName = s.Classroom.Name
+            })
+            .GroupBy(s => s.ClassName)
+            .Select(g => new ClassStudentLeaderboardDto
+            {
+                ClassName = g.Key,
+                Students = g
+                    .OrderByDescending(s => s.AverageGrade + s.ParticipationPoints)
+                    .ToList()
+            })
             .ToListAsync();
     }
 }

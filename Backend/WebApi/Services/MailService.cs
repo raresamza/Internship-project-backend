@@ -5,18 +5,22 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using Backend.Application.Abstractions;
 
-namespace Backend.Infrastructure.Utils;
+namespace WebApi.Services;
 
-public class MailService
+
+
+
+public class MailService:IMailService
 {
-    public bool SendEmail(string emailAddress)
+    public async Task<bool> SendEmail(string emailAddress)
     {
         if (!IsValidEmail(emailAddress))
         {
             //replace cw with error
             Console.WriteLine("Please provide a valid e-mail address.");
-            return false;
+            return await Task.FromResult(false);
         }
         else
         {
@@ -35,7 +39,7 @@ public class MailService
                         smtpClient.Credentials = new NetworkCredential("raresamza@gmail.com", "qygs zndu mbqh sjrs");
                         smtpClient.Port = 587;
                         smtpClient.EnableSsl = true;
-                        smtpClient.Send(mailMessage);
+                        await smtpClient.SendMailAsync(mailMessage);
                     }
                 }
                 return true;
@@ -65,7 +69,7 @@ public class MailService
             using var smtp = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
-                Credentials = new NetworkCredential("raresamza@gmail.com", "your-app-password"),
+                Credentials = new NetworkCredential("raresamza@gmail.com", "qygs zndu mbqh sjrs"),
                 EnableSsl = true
             };
 
@@ -91,4 +95,26 @@ public class MailService
             return false;
         }
     }
+
+    public async Task<bool> SendSimpleEmailAsync(string email, string subject, string body)
+    {
+        try
+        {
+            var mail = new MailMessage("raresamza@gmail.com", email, subject, body);
+            using var smtp = new SmtpClient("smtp.gmail.com", 587)
+            {
+                Credentials = new NetworkCredential("raresamza@gmail.com", "qygs zndu mbqh sjrs"),
+                EnableSsl = true
+            };
+
+            await smtp.SendMailAsync(mail);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Email failed: {ex.Message}");
+            return false;
+        }
+    }
+
 }

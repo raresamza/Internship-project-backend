@@ -16,8 +16,8 @@ namespace Backend.Application.Students.Responses;
         public StudentDto? Student { get; set; }
         public int CourseId { get; set; }
         public String? CourseName { get; set; }
-        [JsonIgnore]
-        public CourseDto? Course { get; set; }
+    //[JsonIgnore]
+    public CourseDto? Course { get; set; } = null!;
         public List<int> GradeValues { get; set; } = new();
 
 
@@ -30,6 +30,7 @@ namespace Backend.Application.Students.Responses;
             //Student = StudentDto.FromStudent(studentGrade.Student),
             CourseId = studentGrade.CourseId,
             GradeValues = studentGrade.GradeValues,
+            Course = CourseDto.FromCourse(studentGrade.Course!)
             //Course = CourseDto.FromCourse(studentGrade.Course),
         };
     }

@@ -3,6 +3,7 @@ using Backend.Application.Absences.Delete;
 using Backend.Application.Absences.Queries;
 using Backend.Application.Absences.Response;
 using Backend.Application.Absences.Update;
+using Backend.Application.Abstractions;
 using Backend.Application.Classrooms.Create;
 using Backend.Application.Classrooms.Delete;
 using Backend.Application.Classrooms.Queries;
@@ -21,10 +22,10 @@ namespace WebApi.Controllers;
 [Route("api/[controller]")]
 public class AbsenceController : ControllerBase
 {
-    private readonly IEmailSenderService _service;
+    private readonly IMailService _service;
     private readonly IMediator _mediator;
 
-    public AbsenceController(IEmailSenderService service, IMediator mediator, ILogger<AbsenceController> logger)
+    public AbsenceController(IMailService service, IMediator mediator, ILogger<AbsenceController> logger)
     {
         _service = service;
         _mediator = mediator;

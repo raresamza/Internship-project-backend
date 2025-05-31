@@ -1,4 +1,5 @@
-﻿using Backend.Application.Students.Responses;
+﻿using Backend.Application.Leaderboard.Responses;
+using Backend.Application.Students.Responses;
 using Backend.Domain.Models;
 
 
@@ -33,5 +34,6 @@ public interface IStudentRepository
     public Task<Student> UpdateStudent(StudentUpdateDto student,int id);
     public void AddGrade(int grade, Student s, Course c);
     public void EnrollIntoCourse(Student s, Course c);
-
+    public Task<IEnumerable<Student>> GetAllWithGradesAsync();
+    public Task<IEnumerable<ClassStudentLeaderboardDto>> GetLeaderboardData();
 }

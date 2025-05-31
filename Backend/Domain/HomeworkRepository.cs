@@ -75,6 +75,15 @@ public class HomeworkRepository : IHomeworkRepository
         }
     }
 
+    public async Task<List<Homework>> GetHomeworksDueOnDateAsync(DateTime date)
+    {
+        return await _appDbContext.Homework
+            .Include(h => h.StudentHomeworks)
+                .ThenInclude(sh => sh.Student)
+            .Where(h => h.Deadline.Date == date.Date)
+            .ToListAsync();
+    }
+
     //public async Task<List<StudentHomework>> GetSubmissionsByHomeworkId(int homeworkId)
     //{
     //    return await _appDbContext.StudentHomework

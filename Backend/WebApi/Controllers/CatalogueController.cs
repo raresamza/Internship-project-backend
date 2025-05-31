@@ -3,6 +3,7 @@ using Backend.Application.Absences.Delete;
 using Backend.Application.Absences.Queries;
 using Backend.Application.Absences.Response;
 using Backend.Application.Absences.Update;
+using Backend.Application.Abstractions;
 using Backend.Application.Catalogues.Actions;
 using Backend.Application.Catalogues.Create;
 using Backend.Application.Catalogues.Delete;
@@ -11,6 +12,7 @@ using Backend.Application.Catalogues.Response;
 using Backend.Application.Catalogues.Update;
 using Backend.Application.Students.Queries;
 using Backend.Domain.Models;
+using Backend.Infrastructure.Utils;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Services;
@@ -21,10 +23,10 @@ namespace WebApi.Controllers;
 [Route("api/[controller]")]
 public class CatalogueController : ControllerBase
 {
-    private readonly IEmailSenderService _service;
+    private readonly IMailService _service;
     private readonly IMediator _mediator;
 
-    public CatalogueController(IEmailSenderService service, IMediator mediator)
+    public CatalogueController(IMailService service, IMediator mediator)
     {
         _service = service;
         _mediator = mediator;

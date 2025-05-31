@@ -12,6 +12,7 @@ using WebApi.Middleware;
 using WebApi.Options;
 using WebApi.Services;
 using QuestPDF.Infrastructure;
+using Backend.Infrastructure.Services;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -26,15 +27,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwagger();
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddScoped<IFileStorageRepository, AzureBlobStorageRepository>();
-builder.Services.AddScoped<IEmailSenderService, EmailService>();
+builder.Services.AddScoped<IMailService, MailService>();
 
 builder.Services.AddRepositories();
 builder.Services.AddMediatR();
 builder.Services.AddDbContext();
+builder.Services.AddHostedService<UpcomingDeadlineNotificationService>();
+builder.Services.AddHostedService<WeeklyReportService>();
 builder.Services.AddScoped<ISchedulePdfBuilder, SchedulePdfBuilder>();
+builder.Services.AddScoped<IStudentReportService, StudentReportService>();
+builder.Services.AddScoped<INotificationRepository,NotificationRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IHomeworkRepository, HomeworkRepository>();
+//builder.Services.AddAutoMapper(typeof(GradePredictionMappingProfile));
+builder.Services.AddScoped<GradePredictionService>();
+
 
 
 //builder.Services.AddJsonOptions();

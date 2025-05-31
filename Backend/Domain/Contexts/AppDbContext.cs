@@ -16,6 +16,7 @@ public class AppDbContext : IdentityDbContext
 
 
     public DbSet<StudentHomework> StudentHomework { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
     public DbSet<Homework> Homework { get; set; } = default!;
     public DbSet<Student> Students { get; set; } = default!;
@@ -26,6 +27,7 @@ public class AppDbContext : IdentityDbContext
     public DbSet<Catalogue> Catalogues { get; set; } = default!;
     public DbSet<Absence> Absences { get; set; } = default!;
     public DbSet<StudentGPA> StudentGPAs { get; set; } = default!;
+    public DbSet<StudentGradePrediction> GradePredictions { get; set; }
 
     public DbSet<ClassroomCourse> ClassroomCourses { get; set; } = default!;
     public DbSet<StudentCourse> StudentCourses { get; set; } = default!;

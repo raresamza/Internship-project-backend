@@ -13,6 +13,8 @@ public interface IUnitOfWork
     public ICourseRepository CourseRepository { get; }
     public ISchoolRepository SchoolRepository { get; }
 
+    public IMailService MailService { get; }
+    public INotificationRepository NotificationRepository { get; }
     public IHomeworkRepository HomeworkRepository { get; }
     public ISchedulePdfBuilder PdfBuilder { get; }  
     public IScheduleRepository ScheduleRepository { get; }

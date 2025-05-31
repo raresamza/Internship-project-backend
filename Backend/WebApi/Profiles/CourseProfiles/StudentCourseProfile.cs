@@ -11,6 +11,7 @@ public class StudentCourseProfile : Profile
         CreateMap<StudentCourse, StudentCourseDto>()
             .ForMember(dest => dest.StudentId, src => src.MapFrom(x => x.StudentId))
             .ForMember(dest => dest.Student, src => src.Ignore())
+            .ForMember(dest => dest.ParticipationPoints, src =>src.MapFrom(x => x.ParticipationPoints))
             .ForMember(dest => dest.StudentName, src => src.MapFrom(x => x.Student.Name));
     }
 }

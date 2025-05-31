@@ -14,7 +14,7 @@ public class UnitOfWork : IUnitOfWork
     public UnitOfWork(AppDbContext appDbContext,ISchedulePdfBuilder pdfBuilder ,IScheduleRepository scheduleRepository ,
         ICatalogueRepository catalogueRepository, IAbsenceRepository absenceRepository, IClassroomRepository classroomRepository,
         ICourseRepository courseRepository, ISchoolRepository schoolRepository, IStudentRepository studentRepository, ITeacherRepository teacherRepository,
-        IHomeworkRepository homeworkRepository)
+        IHomeworkRepository homeworkRepository, INotificationRepository notificationRepository,IMailService mailService)
     {
         _appDbContext = appDbContext;
         PdfBuilder = pdfBuilder;    
@@ -27,10 +27,12 @@ public class UnitOfWork : IUnitOfWork
         StudentRepository = studentRepository;
         TeacherRepository = teacherRepository;
         HomeworkRepository= homeworkRepository;
-        
+        NotificationRepository = notificationRepository;
+        MailService = mailService;
     }
 
-
+    public IMailService MailService { get; private set; }
+    public INotificationRepository NotificationRepository { get; private set; }
     public IHomeworkRepository HomeworkRepository { get; private set; }
 
     public ICatalogueRepository CatalogueRepository { get; private set; }

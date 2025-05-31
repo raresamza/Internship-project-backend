@@ -95,4 +95,13 @@ public class AbsenceRepository : IAbsenceRepository
             throw new InvalidAbsenceException($"The absence with id: {absenceId} was not found");
         }
     }
+
+    public async Task<bool> HasAbsence(int studentId, int courseId, DateTime date)
+    {
+        return await _appDbContext.Absences
+            .AnyAsync(a =>
+                a.StudentId == studentId &&
+                a.CourseId == courseId &&
+                a.Date.Date == date.Date);
+    }
 }

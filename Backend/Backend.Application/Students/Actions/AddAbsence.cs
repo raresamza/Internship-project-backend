@@ -26,11 +26,13 @@ public class AddAbsenceHandler : IRequestHandler<AddAbsence, StudentDto>
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<AddAbsenceHandler> _logger;
-    public AddAbsenceHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AddAbsenceHandler> logger)
+    private readonly IMailService _mailService;
+    public AddAbsenceHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AddAbsenceHandler> logger, IMailService mailService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
+        _mailService = mailService;
     }
 
     public async Task<StudentDto> Handle(AddAbsence request, CancellationToken cancellationToken)
@@ -53,6 +55,15 @@ public class AddAbsenceHandler : IRequestHandler<AddAbsence, StudentDto>
             _unitOfWork.StudentRepository.AddAbsence(student, absence);
             //await _unitOfWork.StudentRepository.UpdateStudent(student, student.ID);
             await _unitOfWork.CommitTransactionAsync();
+
+            await _unitOfWork.NotificationRepository.AddNotificationAsync(new Notification
+            {
+                StudentId = request.studentId,
+                Title = "New Grade Assigned",
+                Message = $"You received an absence for {student.Name} on date{absence.Date} for course {absence.Course.Name}.",
+                Type = NotificationType.Grade,
+                SentByEmail = await _mailService.SendSimpleEmailAsync(student.ParentEmail, "New Grade Assigned", "You received an absence for {student.Name} on date{absence.Date} for course {absence.Course.Name}.") // Optional fallback
+            });
             _logger.LogInformation($"Action in students at: {DateTime.Now.TimeOfDay}");
             //return StudentDto.FromStudent(student);
             return _mapper.Map<StudentDto>(student);

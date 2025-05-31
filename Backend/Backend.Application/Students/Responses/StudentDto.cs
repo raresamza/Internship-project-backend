@@ -15,6 +15,7 @@ public class StudentDto
 {
     public int ID { get; set; }
 
+    public float ParticipationPoints { get; set; }
     public required string ParentEmail { get; set; }
 
     public required string ParentName { get; set; }
