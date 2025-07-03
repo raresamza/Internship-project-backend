@@ -11,13 +11,16 @@ using WebApi.Extensions;
 using WebApi.Middleware;
 using WebApi.Options;
 using WebApi.Services;
+
 using QuestPDF.Infrastructure;
 using Backend.Infrastructure.Services;
+using static WebApi.Controllers.AccountController;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 // Add services to the container.
 builder.RegisterAuthentication();
 
@@ -63,6 +66,12 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedRolesAsync(services);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -93,3 +102,17 @@ app.MapControllers();
 //}
 
 app.Run();
+
+
+static async Task SeedRolesAsync(IServiceProvider serviceProvider)
+{
+    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    foreach (var role in Enum.GetNames(typeof(Role)))
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}

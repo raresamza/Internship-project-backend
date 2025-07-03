@@ -31,7 +31,7 @@ public class StudentController : ControllerBase
     }
 
 
-
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("{id}/schedule")]
     public async Task<IActionResult> GetSchedule(int id)
     {
@@ -42,7 +42,7 @@ public class StudentController : ControllerBase
         return File(pdfBytes, "application/pdf", fileName);
     }
 
-
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet]
     public async Task<ActionResult> GetAllStudents(int pageNumber = 1, int pageSize = 10)
     {
@@ -51,6 +51,7 @@ public class StudentController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("query")]
     public async Task<IActionResult> GetStudents(int page = 1, int pageSize = 10, string query = null)
     {
@@ -67,7 +68,7 @@ public class StudentController : ControllerBase
             return Ok(new { students});
         }
     }
-
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("by-email")]
     public async Task<ActionResult> GetStudentByEmail(string email) 
     {
@@ -77,7 +78,7 @@ public class StudentController : ControllerBase
         return Ok(result);
 
     }
-
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("{homeworkId}/submissions")]
     public async Task<IActionResult> GetSubmissionsForHomework(int homeworkId)
     {
@@ -85,7 +86,7 @@ public class StudentController : ControllerBase
         return Ok(submissions);
     }
 
-
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("all")]
     public async Task<ActionResult> GetAllStudentsNotPaginated()
     {
@@ -94,11 +95,14 @@ public class StudentController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("{id}")]
     public async Task<ActionResult> GetStudent(int id)
     {
         return Ok(await _mediator.Send(new GetStudentById(id)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost]
     public async Task<IActionResult> PostStudent(StudentCreationDto student)
     {
@@ -109,6 +113,8 @@ public class StudentController : ControllerBase
         //CreatedAtAction for all posts
         return Ok(await _mediator.Send(new CreateStudent(student.ParentEmail,student.ParentName,student.Age,student.PhoneNumber,student.Name,student.Address)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost("absence")]
     public async Task<IActionResult> AddAbsence(int studentId,int absenceId)
     {
@@ -119,12 +125,14 @@ public class StudentController : ControllerBase
         return Ok(await _mediator.Send(new AddAbsence(studentId,absenceId)));
     }
 
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpDelete("removeAbsence")]
     public async Task<IActionResult> DeleteStudent(int studentId,int absenceId,int courseId)
     {
         return Ok(await _mediator.Send(new MotivateAbsence(studentId,absenceId,courseId)));
     }
 
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> PutStudent(int id,StudentUpdateDto student)
     {
@@ -136,13 +144,14 @@ public class StudentController : ControllerBase
         return Ok(await _mediator.Send(new UpdateStudent(id,student)));
     }
 
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteStudent(int id)
     {
         return Ok(await _mediator.Send(new DeleteStudent(id)));
     }
 
-
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpPost("{studentId}/send-grade-chart")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> SendGradeChart(int studentId, [FromForm(Name = "file")] IFormFile file)

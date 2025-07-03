@@ -8,6 +8,7 @@ using Backend.Application.Teachers.Responses;
 using Backend.Application.Teachers.Update;
 using Backend.Domain.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
@@ -26,7 +27,7 @@ public class TeacherController : ControllerBase
     }
 
 
-
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("{id}/schedule")]
     public async Task<IActionResult> GetSchedule(int id)
     {
@@ -37,6 +38,7 @@ public class TeacherController : ControllerBase
         return File(pdf, "application/pdf", fileName);
     }
 
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("{name}/name")]
     public async Task<ActionResult> GetTeacherByName(string name)
     {
@@ -45,6 +47,8 @@ public class TeacherController : ControllerBase
 
         return Ok(result);
     }
+
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet]
     public async Task<ActionResult> GetAllTeachers(int pageNumber = 1, int pageSize = 10)
     {
@@ -53,11 +57,14 @@ public class TeacherController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("{id}")]
     public async Task<ActionResult> GetTeacher(int id)
     {
         return Ok(await _mediator.Send(new GetTeacherById(id)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost]
     public async Task<IActionResult> PostTeacher(TeacherCreationDto teacher)
     {
@@ -68,6 +75,8 @@ public class TeacherController : ControllerBase
 
         return Ok(await _mediator.Send(new CreateTeacher(teacher.Age,teacher.PhoneNumber,teacher.Name,teacher.Address,teacher.Subject)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> PutTeacher(int id, TeacherUpdateDto teacher)
     {
@@ -79,6 +88,7 @@ public class TeacherController : ControllerBase
         return Ok(await _mediator.Send(new UpdateTeacher(id,teacher)));
     }
 
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPut("assign")]
     public async Task<IActionResult> AssignTeacherToCourse(int courseId,int teacherId)
     {
@@ -90,6 +100,7 @@ public class TeacherController : ControllerBase
         return Ok(await _mediator.Send(new AssignTeacherToCourse(courseId,teacherId)));
     }
 
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTeacher(int id)
     {

@@ -5,6 +5,7 @@ using Backend.Application.Homeworks.Response;
 using Backend.Application.Schools.Queries;
 using Backend.Application.Students.Actions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
@@ -23,6 +24,7 @@ public class HomeworkController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize(Roles = "Student,Teacher,Admin")]
     [HttpPost("{studentId}/submit-homework/{homeworkId}")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> SubmitHomework(
@@ -34,9 +36,9 @@ public class HomeworkController : ControllerBase
         return Ok("Homework submitted successfully.");
     }
 
-    
 
 
+    [Authorize(Roles = "Student,Teacher,Admin")]
     [HttpGet("download-homework")]
     public async Task<IActionResult> Download([FromQuery] int studentId, [FromQuery] int homeworkId)
     {
@@ -45,7 +47,7 @@ public class HomeworkController : ControllerBase
     }
 
 
-
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost("grade")]
     public async Task<IActionResult> GradeHomework(
     [FromQuery] int StudentId,
@@ -57,7 +59,7 @@ public class HomeworkController : ControllerBase
         return Ok(result);
     }
 
-
+    [Authorize(Roles = "Student,Teacher,Admin")]
     [HttpGet]
     public async Task<ActionResult> GetAllHomeworks()
     {
@@ -66,6 +68,7 @@ public class HomeworkController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Student,Teacher,Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult> GetHomework(int id)
     {

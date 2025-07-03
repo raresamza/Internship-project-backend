@@ -11,7 +11,7 @@ using WebApi.Services;
 namespace WebApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
     private readonly RoleManager<IdentityRole> _roleManager;
@@ -65,7 +65,7 @@ public class AccountController : ControllerBase
         }
 
         IdentityRole role = null;
-        string roleName = register.Role == Role.Teacher ? "Teacher" : "Student";
+        string roleName = (register.Role ?? Role.Student).ToString();
 
         role = await _roleManager.FindByNameAsync(roleName);
         if (role == null)
@@ -146,7 +146,7 @@ public class AccountController : ControllerBase
         Parent
     }
 
-    public record RegisterUser(Role Role, string Email, string Password, string LastName, string FirstName, int Age, string PhoneNumber, string Address, string ParentEmail, string ParentName);
+    public record RegisterUser(Role? Role, string Email, string Password, string LastName, string FirstName, int Age, string PhoneNumber, string Address, string ParentEmail, string ParentName);
     public record AuthenticationResult(string Token);
     public record LoginUser(string Email, string Password);
 }

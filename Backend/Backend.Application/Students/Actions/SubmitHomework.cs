@@ -31,15 +31,25 @@ public class SubmitHomeworkFileHandler : IRequestHandler<SubmitHomeworkFile, Uni
     {
         var studentHomework = await _unitOfWork.StudentRepository.GetByStudentAndHomework(request.StudentId, request.HomeworkId);
         if (studentHomework == null)
+        {
+            //_logger.LogInformation();
+            throw new Exception($"Homework entry with id's {request.StudentId} and {request.HomeworkId} not found.!");
             throw new Exception("Homework entry not found.");
+        }
 
         var student = await _unitOfWork.StudentRepository.GetById(request.StudentId);
         if (student == null)
             throw new Exception("Student not found.");
 
+
+        _logger.LogInformation("SubmitHomeworkFileHandler triggered. HomeworkId: {HomeworkId}, StudentId: {StudentId}",
+        request.HomeworkId, request.StudentId);
         var homework = await _unitOfWork.HomeworkRepository.GetById(request.HomeworkId);
-        if (homework == null)
+        if (homework == null) 
+        {
+            _logger.LogError("Homework with ID {HomeworkId} not found in the database.    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", request.HomeworkId);
             throw new Exception("Homework not found.");
+        }
 
         var studentCourse = student.StudentCoruses.FirstOrDefault(sc => sc.CourseId == homework.CourseId);
 

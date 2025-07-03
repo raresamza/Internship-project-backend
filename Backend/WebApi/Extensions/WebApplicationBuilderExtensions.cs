@@ -63,6 +63,7 @@ public static class WebApplicationBuilderExtensions
         services.AddSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "School Service Auth", Version = "v1" });
+            options.OperationFilter<AuthorizeCheckOperationFilter>();
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,

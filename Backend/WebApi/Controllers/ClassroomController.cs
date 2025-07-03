@@ -14,6 +14,7 @@ using Backend.Application.Students.Queries;
 using Backend.Domain.Models;
 using Backend.Infrastructure.Utils;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Services;
 
@@ -32,7 +33,7 @@ public class ClassroomController : ControllerBase
         _mediator = mediator;
     }
 
-
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet]
     public async Task<ActionResult> GetAllClassrooms(int pageNumber = 1, int pageSize = 10)
     {
@@ -41,11 +42,14 @@ public class ClassroomController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetClassroom(int id)
     {
         return Ok(await _mediator.Send(new GetClassroomById(id)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost]
     public async Task<IActionResult> PostClassroom(ClassroomCreationDto classroom)
     {
@@ -55,6 +59,8 @@ public class ClassroomController : ControllerBase
         }
         return Ok(await _mediator.Send(new CreateClassroom(classroom.Name, classroom.SchoolId)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> PutClassroom(int id, ClassroomUpdateDto classroom)
     {
@@ -66,6 +72,7 @@ public class ClassroomController : ControllerBase
         return Ok(await _mediator.Send(new UpdateClassroom(id, classroom)));
     }
 
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPut("add/student")]
     public async Task<IActionResult> AddStudentToClassroom(int studentId,int classroomId)
     {
@@ -76,6 +83,8 @@ public class ClassroomController : ControllerBase
 
         return Ok(await _mediator.Send(new AddStudentToClassroom(studentId,classroomId)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPut("remove/student")]
     public async Task<IActionResult> RemoveStudentFromClassroom(int studentId, int classroomId)
     {
@@ -86,7 +95,7 @@ public class ClassroomController : ControllerBase
 
         return Ok(await _mediator.Send(new RemoveStudentFromClassroom(studentId, classroomId)));
     }
-
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPut("add/teacher")]
     public async Task<IActionResult> AddTeacherToClassroom(int teacherId, int classroomId)
     {
@@ -98,6 +107,7 @@ public class ClassroomController : ControllerBase
         return Ok(await _mediator.Send(new AddTeacherToClassroom(teacherId, classroomId)));
     }
 
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPut("remove/teacher")]
     public async Task<IActionResult> RemoveTeacherFromClassroom(int teacherId, int classroomId)
     {
@@ -109,6 +119,7 @@ public class ClassroomController : ControllerBase
         return Ok(await _mediator.Send(new RemoveTeacherFromClassroom(teacherId, classroomId)));
     }
 
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPut("assign/coruse")]
     public async Task<IActionResult> AssignCourseToClassroom(int coruseId, int classroomId)
     {
@@ -120,6 +131,8 @@ public class ClassroomController : ControllerBase
         return Ok(await _mediator.Send(new AssignCourseToClassroom(coruseId, classroomId)));
     }
 
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteClassroom(int id)
     {

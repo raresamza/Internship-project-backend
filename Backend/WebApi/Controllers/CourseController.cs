@@ -9,6 +9,7 @@ using Backend.Application.Students.Queries;
 using Backend.Domain.Models;
 //using Backend.Infrastructure.Utils;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Services;
 
@@ -27,7 +28,7 @@ public class CourseController : ControllerBase
         _mediator = mediator;
     }
 
-
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet]
     public async Task<ActionResult> GetAllCourses(int pageNumber = 1, int pageSize = 10)
     {
@@ -35,6 +36,8 @@ public class CourseController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
+
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("subject/{subject}")]
     public async Task<ActionResult> GetAllCoursesBySubject(Subject subject)
     {
@@ -42,11 +45,15 @@ public class CourseController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
+
+    [Authorize(Roles = "Student,Teacher,Admin,Parent")]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCourse(int id)
     {
         return Ok(await _mediator.Send(new GetCourseById(id)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost]
     public async Task<IActionResult> PostCourse(CourseCreationDto course)
     {
@@ -56,6 +63,8 @@ public class CourseController : ControllerBase
         }
         return Ok(await _mediator.Send(new CreateCourse(course.Name,course.Subject)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost("enroll")]
     public async Task<IActionResult> EnrollStudent(int studentId, int courseId) 
     {
@@ -65,6 +74,8 @@ public class CourseController : ControllerBase
         }
         return Ok(await _mediator.Send(new EnrollIntoCourse(studentId,courseId)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost("add")]
     //Route("/add")
     public async Task<IActionResult> PostGrade(int grade,int studentId,int courseId)
@@ -75,6 +86,8 @@ public class CourseController : ControllerBase
         }
         return Ok(await _mediator.Send(new AddGrade(studentId,courseId,grade)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpDelete("remove")]
     //Route("/add")
     public async Task<IActionResult> RemoveGrade(int grade, int studentId, int courseId)
@@ -85,6 +98,8 @@ public class CourseController : ControllerBase
         }
         return Ok(await _mediator.Send(new RemoveGrade(studentId,courseId,grade)));
     }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> PutCourse(int id, CourseUpdateDto course)
     {
@@ -96,6 +111,7 @@ public class CourseController : ControllerBase
         return Ok(await _mediator.Send(new UpdateCourse(id,course)));
     }
 
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost("{courseId}/assign-homework")]
     public async Task<IActionResult> AssignHomeworkToCourse(int courseId, [FromBody] AssignHomework request)
     {
@@ -107,13 +123,15 @@ public class CourseController : ControllerBase
     }
 
 
-
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCourse(int id)
     {
         return Ok(await _mediator.Send(new DeleteCourse(id)));
     }
 
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost("increase-points")]
     public async Task<IActionResult> IncreasePoints([FromBody] IncreasePointsDto dto)
     {
